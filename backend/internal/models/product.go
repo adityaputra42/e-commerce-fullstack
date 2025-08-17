@@ -8,36 +8,39 @@ import (
 )
 
 type Product struct {
-	ID          int64          `json:"id"`
-	CategoryID  int64          `json:"category_id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Images      string         `json:"images"`
-	Rating      float64        `json:"rating"`
-	Price       float64        `json:"price"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ID          int64          `json:"id" gorm:"primaryKey;autoIncrement"`
+	CategoryID  int64          `json:"category_id" validate:"required" gorm:"not null"`
+	Name        string         `json:"name" validate:"required,min=3,max=100" gorm:"type:varchar(100);not null"`
+	Description string         `json:"description" validate:"max=255" gorm:"type:varchar(255)"`
+	Images      string         `json:"images" validate:"omitempty,url" gorm:"type:text"`
+	Rating      float64        `json:"rating" validate:"gte=0,lte=5" gorm:"type:decimal(2,1);default:0"`
+	Price       float64        `json:"price" validate:"required,gt=0" gorm:"type:decimal(10,2);not null"`
+	UpdatedAt   time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
+	CreatedAt   time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
-}
 
+	ColorVarians []ColorVarian `json:"color_varians" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
 type ColorVarian struct {
-	ID        int64          `json:"id"`
-	ProductID int64          `json:"product_id"`
-	Name      string         `json:"name"`
-	Color     string         `json:"color"`
-	Images    string         `json:"images"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	CreatedAt time.Time      `json:"created_at"`
+	ID        int64          `json:"id" gorm:"primaryKey;autoIncrement"`
+	ProductID int64          `json:"product_id" validate:"required" gorm:"not null"`
+	Name      string         `json:"name" validate:"required,min=2,max=50" gorm:"type:varchar(50);not null"`
+	Color     string         `json:"color" validate:"required" gorm:"type:varchar(20);not null"`
+	Images    string         `json:"images" validate:"omitempty,url" gorm:"type:text"`
+	UpdatedAt time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
+	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+
+	SizeVarians []SizeVarian `json:"size_varians" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type SizeVarian struct {
-	ID            int64          `json:"id"`
-	ColorVarianID int64          `json:"color_varian_id"`
-	Size          string         `json:"size"`
-	Stock         int64          `json:"stock"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	CreatedAt     time.Time      `json:"created_at"`
+	ID            int64          `json:"id" gorm:"primaryKey;autoIncrement"`
+	ColorVarianID int64          `json:"color_varian_id" validate:"required" gorm:"not null"`
+	Size          string         `json:"size" validate:"required" gorm:"type:varchar(10);not null"`
+	Stock         int64          `json:"stock" validate:"gte=0" gorm:"default:0"`
+	UpdatedAt     time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
+	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
@@ -91,20 +94,20 @@ type UpdateProduct struct {
 }
 
 type ProductResponse struct {
-	ID          int64             `json:"id"`
-	Category    CategoryResponnse `json:"category"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Images      string            `json:"images"`
-	Rating      float64           `json:"rating"`
-	Price       float64           `json:"price"`
-	UpdatedAt   time.Time         `json:"updated_at"`
-	CreatedAt   time.Time         `json:"created_at"`
+	ID          int64            `json:"id"`
+	Category    CategoryResponse `json:"category"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Images      string           `json:"images"`
+	Rating      float64          `json:"rating"`
+	Price       float64          `json:"price"`
+	UpdatedAt   time.Time        `json:"updated_at"`
+	CreatedAt   time.Time        `json:"created_at"`
 }
 
 type ProductDetailResponse struct {
 	ID          int64                 `json:"id"`
-	Category    CategoryResponnse     `json:"category"`
+	Category    CategoryResponse      `json:"category"`
 	Name        string                `json:"name"`
 	Description string                `json:"description"`
 	Images      string                `json:"images"`
@@ -133,4 +136,16 @@ type SizeVarianResponse struct {
 	Stock         int64     `json:"stock"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
+}
+
+func (Product) TableName() string {
+	return "products"
+}
+
+func (SizeVarianResponse) TableName() string {
+	return "size_varian"
+}
+
+func (ColorVarian) TableName() string {
+	return "color_varian"
 }
