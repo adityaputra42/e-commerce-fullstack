@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppColor {
-  static const Color primaryColor = Color(0xffFFBA07);
+  static const Color primaryColor = Color(0xffEBCB90);
 
-  static const Color secondaryColor = Color(0xffFFF0CA);
+  static const Color secondaryColor = Color(0xffFFF0CE);
   static const Color grayColor = Color(0xff8E90AD);
   static const Color yellowColor = Color(0xffF7931A);
   static const Color redColor = Color(0xffF25252);
@@ -26,7 +26,7 @@ class AppColor {
   static const Color paleSky = Color(0xffEDF2F7);
   static const Color dividerLight = Color(0xffF1F4FA);
   static const Color darkGrey = Color(0xff71757A);
-// Dark Mode
+  // Dark Mode
   static const Color bgDark = Color(0xff0A0D14);
   static const Color cardDark = Color(0xff14171D);
   static const Color darkText1 = Color(0xffFBFCFF);
@@ -36,26 +36,34 @@ class AppColor {
   static const Color dividerDark = Color(0xff5D636F);
 
   static const LinearGradient primaryGradient = LinearGradient(
-      colors: [AppColor.primaryColor, AppColor.secondaryColor],
-      begin: Alignment.topRight,
-      end: Alignment.bottomLeft);
+    colors: [AppColor.primaryColor, AppColor.secondaryColor],
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+  );
   static const LinearGradient errorGradient = LinearGradient(
-      colors: [AppColor.redColor, AppColor.secondRedColor],
-      begin: Alignment.topRight,
-      end: Alignment.bottomLeft);
+    colors: [AppColor.redColor, AppColor.secondRedColor],
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+  );
 
   static const LinearGradient primaryButtonGradient = LinearGradient(
-      colors: [AppColor.primaryColor, AppColor.secondaryColor],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter);
+    colors: [AppColor.primaryColor, AppColor.secondaryColor],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
-  static LinearGradient disableButtonGradient = LinearGradient(colors: [
-    AppColor.primaryColor.withValues(alpha: 0.5),
-    AppColor.secondaryColor.withValues(alpha: 0.5)
-  ], begin: Alignment.topCenter, end: Alignment.bottomCenter);
+  static LinearGradient disableButtonGradient = LinearGradient(
+    colors: [
+      AppColor.primaryColor.withValues(alpha: 0.5),
+      AppColor.secondaryColor.withValues(alpha: 0.5),
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
   static const LinearGradient splashDarkGradient = LinearGradient(
-      colors: [AppColor.bgDark, AppColor.cardDark],
-      begin: Alignment.centerLeft,
-      end: Alignment.topRight);
+    colors: [AppColor.bgDark, AppColor.cardDark],
+    begin: Alignment.centerLeft,
+    end: Alignment.topRight,
+  );
 }

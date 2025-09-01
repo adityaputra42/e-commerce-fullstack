@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefHelper {
@@ -22,4 +24,15 @@ class PrefHelper {
   }
 
   bool get isFirstInstall => _pref.getBool("firstInstall") ?? true;
+
+  setDarkTheme(bool value) {
+    _pref.setBool("theme", value);
+  }
+
+  bool getTheme() {
+    var phoneTheme =
+        SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    bool isDarkMode = phoneTheme == Brightness.dark;
+    return _pref.getBool("theme") ?? isDarkMode;
+  }
 }

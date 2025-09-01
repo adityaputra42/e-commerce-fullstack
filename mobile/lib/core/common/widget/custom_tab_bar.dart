@@ -48,7 +48,7 @@ class CustomTabBar extends StatelessWidget {
                               color: AppColor.lightText1,
                             )
                           : AppFont.reguler14.copyWith(
-                              color: Theme.of(context).indicatorColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                             )),
                       textAlign: TextAlign.center,
                     ),

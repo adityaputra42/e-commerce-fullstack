@@ -17,5 +17,9 @@ Future<void> initDependencies() async {
   serviceLocator.registerFactory<SplashCubit>(
     () => SplashCubit(pref: PrefHelper(sharedPrefs)),
   );
+  
+  serviceLocator.registerFactory<ThemeCubit>(
+    () => ThemeCubit(pref: PrefHelper(sharedPrefs)),
+  );
   serviceLocator.registerFactory<OnboardingCubit>(() => OnboardingCubit());
 }

@@ -18,11 +18,12 @@ class CustomBottomNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+
       margin: EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColor.secondaryColor,
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
             spreadRadius: 0.25,
@@ -34,70 +35,62 @@ class CustomBottomNavbar extends StatelessWidget {
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                if (onTap != null) {
-                  onTap!(0);
-                }
-              },
-              child: (selectedIndex == 0)
-                  ? activeNavbar(
-                      context,
-                      icon: Mdi.wallet_outline,
-                      title: "Home",
-                    )
-                  : inactiveNavbar(context, icon: Mdi.wallet_outline),
-            ),
+          navbarItem(
+            context,
+            title: "Home",
+            icon: Mdi.wallet_outline,
+            isSelected: selectedIndex == 0,
+            index: 0,
           ),
-          width(2),
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                if (onTap != null) {
-                  onTap!(1);
-                }
-              },
-              child: (selectedIndex == 1)
-                  ? activeNavbar(context, icon: Ph.swap_bold, title: "Swap")
-                  : inactiveNavbar(context, icon: Ph.swap_bold),
-            ),
+          navbarItem(
+            context,
+            title: "Swap",
+            icon: Ph.swap_bold,
+            isSelected: selectedIndex == 1,
+            index: 1,
           ),
-          width(2),
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                if (onTap != null) {
-                  onTap!(2);
-                }
-              },
-              child: (selectedIndex == 2)
-                  ? activeNavbar(
-                      context,
-                      icon: MaterialSymbols.widgets_outline_rounded,
-                      title: "DApp",
-                    )
-                  : inactiveNavbar(
-                      context,
-                      icon: MaterialSymbols.widgets_outline_rounded,
-                    ),
-            ),
+          navbarItem(
+            context,
+            title: "Dapp",
+            icon: MaterialSymbols.widgets_outline_rounded,
+            isSelected: selectedIndex == 2,
+            index: 2,
           ),
-          width(2),
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                if (onTap != null) {
-                  onTap!(3);
-                }
-              },
-              child: (selectedIndex == 3)
-                  ? activeNavbar(context, icon: Uil.setting, title: "Setting")
-                  : inactiveNavbar(context, icon: Uil.setting),
-            ),
+          navbarItem(
+            context,
+            title: "Setting",
+            icon: Uil.setting,
+            isSelected: selectedIndex == 3,
+            index: 3,
           ),
         ],
+      ),
+    );
+  }
+
+  InkWell navbarItem(
+    BuildContext context, {
+    required int index,
+    required bool isSelected,
+    required String icon,
+    String? title,
+  }) {
+    return InkWell(
+      onTap: () {
+        if (onTap != null) {
+          onTap!(index);
+        }
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: AnimatedSize(
+        alignment: isSelected ? Alignment.centerLeft : Alignment.center,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        child: isSelected
+            ? activeNavbar(context, icon: icon, title: title ?? "")
+            : inactiveNavbar(context, icon: icon),
       ),
     );
   }
@@ -108,10 +101,12 @@ class CustomBottomNavbar extends StatelessWidget {
     required String title,
   }) {
     return Container(
+      height: 38,
+      width: 84,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.primary,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -121,21 +116,15 @@ class CustomBottomNavbar extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(width: 1, color: AppColor.primaryColor),
-              color: Theme.of(context).colorScheme.surface,
+              color: AppColor.darkText1,
             ),
-            child: Iconify(
-              icon,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            child: Iconify(icon, size: 18, color: AppColor.lightText1),
           ),
           width(4),
           Expanded(
             child: Text(
               title,
-              style: AppFont.medium10.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: AppFont.medium10.copyWith(color: AppColor.lightText1),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -147,10 +136,14 @@ class CustomBottomNavbar extends StatelessWidget {
 
   Widget inactiveNavbar(BuildContext context, {required String icon}) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      width: 38,
+      height: 38,
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
       ),
       child: Iconify(icon, size: 20, color: AppColor.grayColor),
     );
