@@ -16,20 +16,17 @@ type Category struct {
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-// Create Category (Request Payload)
 type CategoriesParam struct {
 	Name string `form:"name" json:"name" validate:"required,min=3,max=100"`
 	Icon string `form:"icon" json:"icon" validate:"omitempty,url"`
 }
 
-// Update Category (Request Payload)
 type UpdateCategory struct {
 	ID   int64  `form:"id" json:"id" validate:"required,gt=0"`
 	Name string `form:"name" json:"name" validate:"omitempty,min=3,max=100"`
 	Icon string `form:"icon" json:"icon" validate:"omitempty,url"`
 }
 
-// Response Struct
 type CategoryResponse struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`

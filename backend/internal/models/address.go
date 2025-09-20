@@ -68,6 +68,22 @@ type AddressResponse struct {
 	CreatedAt            time.Time `json:"created_at"`
 }
 
+type AddressListRequest struct {
+	UserId *uint
+	Limit  int
+	Offset int
+	SortBy string
+	
+}
+
+type AddressListResponse struct {
+	Activities []AddressResponse `json:"activities"`
+	Total      int64             `json:"total"`
+	Page       int               `json:"page"`
+	Limit      int               `json:"limit"`
+	TotalPages int               `json:"total_pages"`
+}
+
 // Convert Address model ke Response
 func (a *Address) ToResponse() *AddressResponse {
 	return &AddressResponse{

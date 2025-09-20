@@ -17,15 +17,12 @@ type Transaction struct {
 	UpdatedAt       time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt       time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt       gorm.DeletedAt `json:"-" gorm:"index"`
-
-	// Relasi
-	Address       Address       `json:"-" gorm:"foreignKey:AddressID"`
-	Shipping      Shipping      `json:"-" gorm:"foreignKey:ShippingID"`
-	PaymentMethod PaymentMethod `json:"-" gorm:"foreignKey:PaymentMethodID"`
-	Orders        []Order       `json:"-" gorm:"foreignKey:TxID;references:TxID"`
+	Address         Address        `json:"-" gorm:"foreignKey:AddressID"`
+	Shipping        Shipping       `json:"-" gorm:"foreignKey:ShippingID"`
+	PaymentMethod   PaymentMethod  `json:"-" gorm:"foreignKey:PaymentMethodID"`
+	Orders          []Order        `json:"-" gorm:"foreignKey:TxID;references:TxID"`
 }
 
-// Request untuk membuat transaksi
 type CreateTransaction struct {
 	AddressID       int64         `json:"address_id" form:"address_id" validate:"required"`
 	ShippingID      int64         `json:"shipping_id" form:"shipping_id" validate:"required"`
@@ -35,7 +32,6 @@ type CreateTransaction struct {
 	ProductOrders   []CreateOrder `json:"product_orders" validate:"required,dive"`
 }
 
-// Request untuk update transaksi (misal update status)
 type UpdateTransaction struct {
 	TxID   string `json:"tx_id" form:"tx_id" validate:"required"`
 	Status string `json:"status" form:"status" validate:"required,oneof=pending paid shipped cancelled completed"`
