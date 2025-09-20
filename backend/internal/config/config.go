@@ -33,10 +33,10 @@ type ServerConfig struct {
 }
 
 type JWTConfig struct {
-	Secret               string
-	RefreshSecret        string
-	AccessTokenExpiry    time.Duration
-	RefreshTokenExpiry   time.Duration
+	Secret             string
+	RefreshSecret      string
+	AccessTokenExpiry  time.Duration
+	RefreshTokenExpiry time.Duration
 }
 
 type CORSConfig struct {
@@ -63,17 +63,6 @@ func Load() *Config {
 		log.Printf("Warning: Could not load .env file: %v", err)
 	}
 
-	// // Set defaults
-	// viper.SetDefault("PORT", "8080")
-	// viper.SetDefault("HOST", "localhost")
-	// viper.SetDefault("ENV", "development")
-	// viper.SetDefault("DB_HOST", "localhost")
-	// viper.SetDefault("DB_PORT", "5432")
-	// viper.SetDefault("DB_SSL_MODE", "disable")
-	// viper.SetDefault("JWT_ACCESS_TOKEN_EXPIRY", "15m")
-	// viper.SetDefault("JWT_REFRESH_TOKEN_EXPIRY", "168h")
-	// viper.SetDefault("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
-
 	accessTokenExpiry, _ := time.ParseDuration(viper.GetString("JWT_ACCESS_TOKEN_EXPIRY"))
 	refreshTokenExpiry, _ := time.ParseDuration(viper.GetString("JWT_REFRESH_TOKEN_EXPIRY"))
 
@@ -97,10 +86,10 @@ func Load() *Config {
 			Env:  viper.GetString("ENV"),
 		},
 		JWT: JWTConfig{
-			Secret:               viper.GetString("JWT_SECRET"),
-			RefreshSecret:        viper.GetString("JWT_REFRESH_SECRET"),
-			AccessTokenExpiry:    accessTokenExpiry,
-			RefreshTokenExpiry:   refreshTokenExpiry,
+			Secret:             viper.GetString("JWT_SECRET"),
+			RefreshSecret:      viper.GetString("JWT_REFRESH_SECRET"),
+			AccessTokenExpiry:  accessTokenExpiry,
+			RefreshTokenExpiry: refreshTokenExpiry,
 		},
 		CORS: CORSConfig{
 			AllowedOrigins: allowedOrigins,

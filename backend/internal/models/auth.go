@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`
@@ -16,9 +20,9 @@ type RegisterRequest struct {
 }
 
 type TokenResponse struct {
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
-	ExpiresAt    time.Time `json:"expires_at"`
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	ExpiresAt    time.Time    `json:"expires_at"`
 	User         UserResponse `json:"user"`
 }
 
@@ -44,14 +48,21 @@ type JWTClaims struct {
 }
 
 type PasswordResetToken struct {
-	ID        uint      `json:"id" gorm:"primarykey"`
-	UserID    uint      `json:"user_id" gorm:"not null"`
-	Token     string    `json:"token" gorm:"type:varchar(255);not null;uniqueIndex"`
-	ExpiresAt time.Time `json:"expires_at" gorm:"not null"`
-	UsedAt    *time.Time `json:"used_at"`
-	CreatedAt time.Time `json:"created_at"`
-	
-	User User `json:"user" gorm:"foreignKey:UserID"`
+	ID        uint           `json:"id" gorm:"primarykey"`
+	UserID    uint           `json:"user_id" gorm:"not null"`
+	Token     string         `json:"token" gorm:"type:varchar(255);not null;uniqueIndex"`
+	ExpiresAt time.Time      `json:"expires_at" gorm:"not null"`
+	UsedAt    *time.Time     `json:"used_at"`
+	CreatedAt time.Time      `json:"created_at"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+	User      User           `json:"user" gorm:"foreignKey:UserID"`
+}
+
+type PasswordResetTokenListRequest struct {
+	UserId *uint
+	Limit  int
+	Offset int
+	SortBy string
 }
 
 func (PasswordResetToken) TableName() string {
