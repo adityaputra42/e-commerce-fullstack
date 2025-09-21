@@ -45,3 +45,9 @@ type PaymentMethodResponse struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
 }
+
+type PaymentMethodListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+}

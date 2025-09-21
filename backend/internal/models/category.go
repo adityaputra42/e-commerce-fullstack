@@ -34,3 +34,10 @@ type CategoryResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type CategoryListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+	Search string
+}

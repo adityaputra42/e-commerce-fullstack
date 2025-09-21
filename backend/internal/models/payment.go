@@ -30,3 +30,9 @@ type UpdatePayment struct {
 	ID     int64  `json:"id" form:"id" validate:"required"`
 	Status string `json:"status" form:"status" validate:"required,oneof=pending success failed refunded"`
 }
+
+type PaymentListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+}
