@@ -36,3 +36,10 @@ type UpdateTransaction struct {
 	TxID   string `json:"tx_id" form:"tx_id" validate:"required"`
 	Status string `json:"status" form:"status" validate:"required,oneof=pending paid shipped cancelled completed"`
 }
+
+type TransactionListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+	Search string
+}

@@ -55,3 +55,10 @@ type TransactionResponse struct {
 	UpdatedAt     time.Time             `json:"updated_at"`
 	CreatedAt     time.Time             `json:"created_at"`
 }
+
+type ShippingListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+	Search string
+}

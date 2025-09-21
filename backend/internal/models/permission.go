@@ -26,6 +26,13 @@ type PermissionInput struct {
 	Description string `json:"description" validate:"max=500"`
 }
 
+type PermissionListRequest struct {
+	Limit  int
+	Offset int
+	SortBy string
+	Search string
+}
+
 func (Permission) TableName() string {
 	return "permissions"
 }
