@@ -137,26 +137,28 @@ type SizeVarianResponse struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
 }
-
 type ProductListRequest struct {
-	Limit  int
-	Offset int
-	SortBy string
-	Search string
+	Limit      int
+	Offset     int
+	SortBy     string
+	Search     string
+	CategoryID int64 
 }
 
 type ColorVarianListRequest struct {
-	Limit  int
-	Offset int
-	SortBy string
-	Search string
+	Limit     int
+	Offset    int
+	SortBy    string
+	Search    string
+	ProductID int64 
 }
 
 type SizeVarianListRequest struct {
-	Limit  int
-	Offset int
-	SortBy string
-	Search string
+	Limit         int
+	Offset        int
+	SortBy        string
+	Search        string
+	ColorVarianID int64 
 }
 
 func (Product) TableName() string {
