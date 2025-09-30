@@ -26,7 +26,7 @@ func (p *PasswordResetTokenRepositoryImpl) Create(param models.PasswordResetToke
 	if tx != nil {
 		db = tx
 	}
-
+ 
 	err := db.Create(&param).Error
 	if err != nil {
 		return result, err

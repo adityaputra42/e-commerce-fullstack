@@ -34,15 +34,12 @@ type ProductRepository interface {
 
 type ProductRepositoryImpl struct{}
 
-// helper untuk memilih db / tx
 func getDB(tx *gorm.DB) *gorm.DB {
 	if tx != nil {
 		return tx
 	}
 	return database.DB
 }
-
-// -------------------- Product --------------------
 
 func (r *ProductRepositoryImpl) CreateProduct(param models.Product, tx *gorm.DB) (models.Product, error) {
 	db := getDB(tx)
@@ -54,7 +51,6 @@ func (r *ProductRepositoryImpl) CreateProduct(param models.Product, tx *gorm.DB)
 
 func (r *ProductRepositoryImpl) UpdateProduct(param models.Product, tx *gorm.DB) (models.Product, error) {
 	db := getDB(tx)
-	// pakai Save untuk update seluruh struct (atau gunakan Updates(map[string]interface{...}) untuk partial)
 	if err := db.Save(&param).Error; err != nil {
 		return models.Product{}, err
 	}
@@ -106,8 +102,6 @@ func (r *ProductRepositoryImpl) FindAllProduct(param models.ProductListRequest) 
 	return products, nil
 }
 
-// -------------------- ColorVarian --------------------
-
 func (r *ProductRepositoryImpl) CreateColorVarian(param models.ColorVarian, tx *gorm.DB) (models.ColorVarian, error) {
 	db := getDB(tx)
 	if err := db.Create(&param).Error; err != nil {
@@ -134,7 +128,6 @@ func (r *ProductRepositoryImpl) FindColorVarianById(id int64) (models.ColorVaria
 	return cv, err
 }
 
-// list color varians (can be filtered by product id via param.ProductID)
 func (r *ProductRepositoryImpl) FindAllColorVarian(param models.ColorVarianListRequest) ([]models.ColorVarian, error) {
 	var list []models.ColorVarian
 	db := database.DB.Model(&models.ColorVarian{})
@@ -230,8 +223,6 @@ func (r *ProductRepositoryImpl) FindSizeVarianByColorVarianId(colorVarianId int6
 	req := models.SizeVarianListRequest{ColorVarianID: colorVarianId}
 	return r.FindAllSizeVarian(req)
 }
-
-// -------------------- Factory --------------------
 
 func NewProductRepository() ProductRepository {
 	return &ProductRepositoryImpl{}
