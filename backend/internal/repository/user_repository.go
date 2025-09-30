@@ -9,7 +9,7 @@ import (
 
 type UserRepository interface {
 	Create(param models.User, tx *gorm.DB) (models.User, error)
-	Update(param models.User, tx *gorm.DB) (models.User, error)
+	Update(param *models.User, tx *gorm.DB) (models.User, error)
 	Delete(param models.User) error
 	FindById(paramId uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
@@ -86,7 +86,7 @@ func (u *UserRepositoryImpl) FindById(paramId uint) (models.User, error) {
 }
 
 // Update implements UserRepository.
-func (u *UserRepositoryImpl) Update(param models.User, tx *gorm.DB) (models.User, error) {
+func (u *UserRepositoryImpl) Update(param *models.User, tx *gorm.DB) (models.User, error) {
 	var result models.User
 
 	db := database.DB
