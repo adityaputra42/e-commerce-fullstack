@@ -30,6 +30,10 @@ type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
+type RefreshTokenResponse struct {
+	AccessToken string `json:"access_token" `
+}
+
 type ForgotPasswordRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }

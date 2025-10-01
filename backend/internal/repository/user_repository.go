@@ -9,13 +9,21 @@ import (
 
 type UserRepository interface {
 	Create(param models.User, tx *gorm.DB) (models.User, error)
-	Update(param models.User, tx *gorm.DB) (models.User, error)
+	Update(param *models.User, tx *gorm.DB) (models.User, error)
 	Delete(param models.User) error
 	FindById(paramId uint) (models.User, error)
+	FindByEmail(email string) (models.User, error)
 	FindAll(param models.UserListRequest) ([]models.User, error)
 }
 
 type UserRepositoryImpl struct {
+}
+
+// FindByEmail implements UserRepository.
+func (u *UserRepositoryImpl) FindByEmail(email string) (models.User, error) {
+	user := models.User{}
+	err := database.DB.Preload("Role.Permissions").Where("email = ?", email).First(&user).Error
+	return user, err
 }
 
 // Create implements UserRepository.
@@ -32,7 +40,7 @@ func (u *UserRepositoryImpl) Create(param models.User, tx *gorm.DB) (models.User
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.Preload("Role.Permissions").First(&result, param.ID).Error
 	return result, err
 }
 
@@ -72,13 +80,13 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) ([]models.Use
 // FindById implements UserRepository.
 func (u *UserRepositoryImpl) FindById(paramId uint) (models.User, error) {
 	user := models.User{}
-	err := database.DB.Model(&models.User{}).Take(&user, "id =?", paramId).Error
+	err := database.DB.Preload("Role.Permissions").First(&user, user.ID).Error
 
 	return user, err
 }
 
 // Update implements UserRepository.
-func (u *UserRepositoryImpl) Update(param models.User, tx *gorm.DB) (models.User, error) {
+func (u *UserRepositoryImpl) Update(param *models.User, tx *gorm.DB) (models.User, error) {
 	var result models.User
 
 	db := database.DB

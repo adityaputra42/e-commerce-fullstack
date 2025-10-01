@@ -54,14 +54,12 @@ type ActivityLogListResponse struct {
 	TotalPages int                   `json:"total_pages"`
 }
 
-
 type ActivityLogListRequest struct {
-	UserId uint
+	UserId *uint
 	Limit  int
 	Offset int
 	SortBy string
 }
-
 
 func (ActivityLog) TableName() string {
 	return "activity_logs"
