@@ -120,7 +120,7 @@ func (a *AuthServiceImpl) ResetPassword(req models.ResetPasswordRequest) error {
 	}
 
 	user.PasswordHash = string(hashedPassword)
-	_, err = a.userRepo.Update(&user, nil)
+	_, err = a.userRepo.Update(&user)
 	if err != nil {
 		return err
 	}
@@ -183,39 +183,35 @@ func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent s
 
 // SignUp implements AuthService.
 func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenResponse, error) {
-	var userResult models.User
-	err := database.DB.Transaction(func(tx *gorm.DB) error {
 
-		_, err := a.userRepo.FindByEmail(req.Email)
+	_, err := a.userRepo.FindByEmail(req.Email)
 
-		if err == nil {
-			return errors.New("user with this email already exists")
-		}
+	if err == nil {
+		return nil, errors.New("user with this email already exists")
+	}
 
-		hashedPassword, err := utils.HashPassword(req.Password)
-		if err != nil {
-			return err
-		}
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
 
-		defaultRole, err := a.roleRepo.FindByName("User")
-		if err != nil {
-			return errors.New("default role not found")
-		}
+	defaultRole, err := a.roleRepo.FindByName("User")
+	if err != nil {
+		return nil, errors.New("default role not found")
+	}
 
-		user := models.User{
-			Email:        req.Email,
-			Username:     req.Username,
-			PasswordHash: hashedPassword,
-			FirstName:    req.FirstName,
-			LastName:     req.LastName,
-			RoleID:       defaultRole.ID,
-			IsActive:     true,
-		}
+	user := models.User{
+		Email:        req.Email,
+		Username:     req.Username,
+		PasswordHash: hashedPassword,
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		RoleID:       defaultRole.ID,
+		IsActive:     true,
+	}
 
-		userResult, err = a.userRepo.Create(user, tx)
-		return err
+	userResult, err := a.userRepo.Create(user)
 
-	})
 	if err != nil {
 		return nil, err
 	}

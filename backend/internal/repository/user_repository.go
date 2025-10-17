@@ -3,13 +3,11 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
-
-	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	Create(param models.User, tx *gorm.DB) (models.User, error)
-	Update(param *models.User, tx *gorm.DB) (models.User, error)
+	Create(param models.User) (models.User, error)
+	Update(param *models.User) (models.User, error)
 	Delete(param models.User) error
 	FindById(paramId uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
@@ -27,13 +25,10 @@ func (u *UserRepositoryImpl) FindByEmail(email string) (models.User, error) {
 }
 
 // Create implements UserRepository.
-func (u *UserRepositoryImpl) Create(param models.User, tx *gorm.DB) (models.User, error) {
+func (u *UserRepositoryImpl) Create(param models.User) (models.User, error) {
 	var result models.User
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Create(&param).Error
 	if err != nil {
@@ -70,7 +65,7 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) ([]models.Use
 		db = db.Offset(param.Offset)
 	}
 
-	if err := db.Find(&users).Error; err != nil {
+	if err := db.Find(&users).Preload("Role").Error; err != nil {
 		return nil, err
 	}
 
@@ -86,20 +81,17 @@ func (u *UserRepositoryImpl) FindById(paramId uint) (models.User, error) {
 }
 
 // Update implements UserRepository.
-func (u *UserRepositoryImpl) Update(param *models.User, tx *gorm.DB) (models.User, error) {
+func (u *UserRepositoryImpl) Update(param *models.User) (models.User, error) {
 	var result models.User
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Model(&param).Updates(param).Error
 	if err != nil {
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.Preload("Role.Permissions").First(&result, param.ID).Error
 	return result, err
 
 }
