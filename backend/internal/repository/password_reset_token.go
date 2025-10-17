@@ -3,29 +3,25 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
-
-	"gorm.io/gorm"
+	"time"
 )
 
 type PasswordResetTokenRepository interface {
-	Create(param models.PasswordResetToken, tx *gorm.DB) (models.PasswordResetToken, error)
-	Update(param models.PasswordResetToken, tx *gorm.DB) (models.PasswordResetToken, error)
-	Delete(param models.PasswordResetToken) error
-	FindById(paramId uint) (models.PasswordResetToken, error)
-	FindAll(param models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error)
+	Create(param *models.PasswordResetToken) (models.PasswordResetToken, error)
+	Update(param *models.PasswordResetToken) (models.PasswordResetToken, error)
+	Delete(param *models.PasswordResetToken) error
+	FindByToken(token string) (models.PasswordResetToken, error)
+	FindAll(param *models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error)
 }
 
 type PasswordResetTokenRepositoryImpl struct {
 }
 
 // Create implements PasswordResetTokenRepository.
-func (p *PasswordResetTokenRepositoryImpl) Create(param models.PasswordResetToken, tx *gorm.DB) (models.PasswordResetToken, error) {
+func (p *PasswordResetTokenRepositoryImpl) Create(param *models.PasswordResetToken) (models.PasswordResetToken, error) {
 	var result models.PasswordResetToken
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Create(&param).Error
 	if err != nil {
@@ -38,12 +34,12 @@ func (p *PasswordResetTokenRepositoryImpl) Create(param models.PasswordResetToke
 }
 
 // Delete implements PasswordResetTokenRepository.
-func (p *PasswordResetTokenRepositoryImpl) Delete(param models.PasswordResetToken) error {
+func (p *PasswordResetTokenRepositoryImpl) Delete(param *models.PasswordResetToken) error {
 	return database.DB.Delete(&param).Error
 }
 
 // FindAll implements PasswordResetTokenRepository.
-func (p *PasswordResetTokenRepositoryImpl) FindAll(param models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error) {
+func (p *PasswordResetTokenRepositoryImpl) FindAll(param *models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error) {
 	var tokens []models.PasswordResetToken
 	db := database.DB
 
@@ -71,21 +67,18 @@ func (p *PasswordResetTokenRepositoryImpl) FindAll(param models.PasswordResetTok
 }
 
 // FindById implements PasswordResetTokenRepository.
-func (p *PasswordResetTokenRepositoryImpl) FindById(paramId uint) (models.PasswordResetToken, error) {
+func (p *PasswordResetTokenRepositoryImpl) FindByToken(token string) (models.PasswordResetToken, error) {
 	resetPassword := models.PasswordResetToken{}
-	err := database.DB.Model(&models.PasswordResetToken{}).Take(&resetPassword, "id =?", paramId).Error
+	err := database.DB.Where("token = ? AND expires_at > ?", token, time.Now()).First(&resetPassword).Error
 
 	return resetPassword, err
 }
 
 // Update implements PasswordResetTokenRepository.
-func (p *PasswordResetTokenRepositoryImpl) Update(param models.PasswordResetToken, tx *gorm.DB) (models.PasswordResetToken, error) {
+func (p *PasswordResetTokenRepositoryImpl) Update(param *models.PasswordResetToken) (models.PasswordResetToken, error) {
 	var result models.PasswordResetToken
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Model(&param).Updates(param).Error
 	if err != nil {

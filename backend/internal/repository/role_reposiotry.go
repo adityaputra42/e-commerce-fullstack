@@ -12,10 +12,19 @@ type RoleRepository interface {
 	Update(param models.Role, tx *gorm.DB) (models.Role, error)
 	Delete(param models.Role) error
 	FindById(paramId uint) (models.Role, error)
+	FindByName(name string) (models.Role, error)
 	FindAll(param models.RoleListRequest) ([]models.Role, error)
 }
 
 type RoleRepositoryImpl struct {
+}
+
+// FindByName implements RoleRepository.
+func (a *RoleRepositoryImpl) FindByName(name string) (models.Role, error) {
+	role := models.Role{}
+	err := database.DB.Model(&models.User{}).Take(&role, "name =?", name).Error
+
+	return role, err
 }
 
 // Create implements RoleRepository.
