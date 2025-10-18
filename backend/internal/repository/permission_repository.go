@@ -43,6 +43,9 @@ func (a *PermissionRepositoryImpl) Delete(param models.Permission) error {
 
 // FindAll implements PermissionRepository.
 func (a *PermissionRepositoryImpl) FindAll(param models.PermissionListRequest) ([]models.Permission, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var Permissions []models.Permission
 	db := database.DB
 
@@ -58,8 +61,8 @@ func (a *PermissionRepositoryImpl) FindAll(param models.PermissionListRequest) (
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("permissions").Find(&Permissions).Error; err != nil {

@@ -40,6 +40,9 @@ func (p *PasswordResetTokenRepositoryImpl) Delete(param *models.PasswordResetTok
 
 // FindAll implements PasswordResetTokenRepository.
 func (p *PasswordResetTokenRepositoryImpl) FindAll(param *models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var tokens []models.PasswordResetToken
 	db := database.DB
 
@@ -55,8 +58,8 @@ func (p *PasswordResetTokenRepositoryImpl) FindAll(param *models.PasswordResetTo
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Find(&tokens).Error; err != nil {

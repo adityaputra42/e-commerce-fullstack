@@ -43,6 +43,9 @@ func (a *TransactionRepositoryImpl) Delete(param models.Transaction) error {
 
 // FindAll implements TransactionRepository.
 func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest) ([]models.Transaction, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var Transactions []models.Transaction
 	db := database.DB
 
@@ -54,8 +57,8 @@ func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest)
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("Transactions").Find(&Transactions).Error; err != nil {

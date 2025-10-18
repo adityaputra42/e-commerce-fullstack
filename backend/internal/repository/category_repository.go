@@ -43,6 +43,9 @@ func (a *CategoryRepositoryImpl) Delete(param models.Category) error {
 
 // FindAll implements CategoryRepository.
 func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]models.Category, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var Categorys []models.Category
 	db := database.DB
 
@@ -58,8 +61,8 @@ func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]mo
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("Categorys").Find(&Categorys).Error; err != nil {

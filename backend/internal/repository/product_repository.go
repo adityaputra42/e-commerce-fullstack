@@ -191,6 +191,9 @@ func (r *ProductRepositoryImpl) FindSizeVarianById(id int64) (models.SizeVarian,
 }
 
 func (r *ProductRepositoryImpl) FindAllSizeVarian(param models.SizeVarianListRequest) ([]models.SizeVarian, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var list []models.SizeVarian
 	db := database.DB.Model(&models.SizeVarian{})
 
@@ -209,8 +212,8 @@ func (r *ProductRepositoryImpl) FindAllSizeVarian(param models.SizeVarianListReq
 	if param.Limit > 0 {
 		db = db.Limit(param.Limit)
 	}
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Find(&list).Error; err != nil {

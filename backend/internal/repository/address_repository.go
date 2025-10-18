@@ -43,6 +43,9 @@ func (a *AddressRepositoryImpl) Delete(param models.Address) error {
 
 // FindAll implements AddressRepository.
 func (a *AddressRepositoryImpl) FindAll(param models.AddressListRequest) ([]models.Address, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var addresses []models.Address
 	db := database.DB
 
@@ -58,8 +61,8 @@ func (a *AddressRepositoryImpl) FindAll(param models.AddressListRequest) ([]mode
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Find(&addresses).Error; err != nil {

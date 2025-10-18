@@ -43,6 +43,8 @@ func (a *ShippingRepositoryImpl) Delete(param models.Shipping) error {
 
 // FindAll implements ShippingRepository.
 func (a *ShippingRepositoryImpl) FindAll(param models.ShippingListRequest) ([]models.Shipping, error) {
+
+	offset := (param.Page - 1) * param.Limit
 	var Shippings []models.Shipping
 	db := database.DB
 
@@ -54,8 +56,8 @@ func (a *ShippingRepositoryImpl) FindAll(param models.ShippingListRequest) ([]mo
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("Shippings").Find(&Shippings).Error; err != nil {

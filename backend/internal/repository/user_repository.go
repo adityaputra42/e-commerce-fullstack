@@ -3,6 +3,7 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
+	"math"
 )
 
 type UserRepository interface {
@@ -11,7 +12,7 @@ type UserRepository interface {
 	Delete(param models.User) error
 	FindById(paramId uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
-	FindAll(param models.UserListRequest) ([]models.User, error)
+	FindAll(param models.UserListRequest) (*models.UserListResponse, error)
 }
 
 type UserRepositoryImpl struct {
@@ -45,31 +46,42 @@ func (u *UserRepositoryImpl) Delete(param models.User) error {
 }
 
 // FindAll implements UserRepository.
-func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) ([]models.User, error) {
-	var users []models.User
-	db := database.DB
+func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.UserListResponse, error) {
+	offset := (param.Page - 1) * param.Limit
 
-	if param.UserId != nil {
-		db = db.Where("user_id = ?", &param.UserId)
+	query := database.DB.Model(&models.User{}).Preload("Role")
+
+	if param.SortBy == "" {
+		param.SortBy = "created_at"
 	}
 
-	if param.SortBy != "" {
-		db = db.Order(param.SortBy)
-	}
+	orderClause := param.SortBy
+	query = query.Order(orderClause)
 
-	if param.Limit > 0 {
-		db = db.Limit(param.Limit)
-	}
-
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
-	}
-
-	if err := db.Find(&users).Preload("Role").Error; err != nil {
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	var users []models.User
+	if err := query.Offset(offset).Limit(param.Limit).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	userResponses := make([]models.UserResponse, len(users))
+	for i, user := range users {
+		userResponses[i] = *user.ToResponse()
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(param.Limit)))
+
+	return &models.UserListResponse{
+		Users:      userResponses,
+		Total:      total,
+		Page:       param.Page,
+		Limit:      param.Limit,
+		TotalPages: totalPages,
+	}, nil
 }
 
 // FindById implements UserRepository.

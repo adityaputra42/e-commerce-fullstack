@@ -52,6 +52,9 @@ func (a *RoleRepositoryImpl) Delete(param models.Role) error {
 
 // FindAll implements RoleRepository.
 func (a *RoleRepositoryImpl) FindAll(param models.RoleListRequest) ([]models.Role, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var Roles []models.Role
 	db := database.DB
 
@@ -67,8 +70,8 @@ func (a *RoleRepositoryImpl) FindAll(param models.RoleListRequest) ([]models.Rol
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("permissions").Find(&Roles).Error; err != nil {

@@ -71,9 +71,8 @@ type AddressResponse struct {
 type AddressListRequest struct {
 	UserId *uint
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
-	
 }
 
 type AddressListResponse struct {

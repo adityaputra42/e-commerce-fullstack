@@ -18,7 +18,7 @@ type UserService interface {
 	DeleteUser(id uint) error
 	ActivateUser(id uint) (*models.User, error)
 	DeactivateUser(id uint) (*models.User, error)
-	GetUserActivityLogs(req models.AddressListRequest) (*models.ActivityLogListResponse, error)
+	GetUserActivityLogs(req *models.ActivityLogListRequest) (*models.ActivityLogListResponse, error)
 	BulkUserActions(req *BulkActionRequest) error
 	UpdatePassword(userID uint, req *models.PasswordUpdateInput) error
 }
@@ -54,7 +54,20 @@ func (u *UserServiceImpl) ActivateUser(id uint) (*models.User, error) {
 
 // BulkUserActions implements UserService.
 func (u *UserServiceImpl) BulkUserActions(req *BulkActionRequest) error {
-	panic("unimplemented")
+	if len(req.UserIDs) == 0 {
+		return errors.New("no user IDs provided")
+	}
+
+	switch req.Action {
+	case "activate":
+		return database.DB.Model(&models.User{}).Where("id IN ?", req.UserIDs).Update("is_active", true).Error
+	case "deactivate":
+		return database.DB.Model(&models.User{}).Where("id IN ?", req.UserIDs).Update("is_active", false).Error
+	case "delete":
+		return database.DB.Where("id IN ?", req.UserIDs).Delete(&models.User{}).Error
+	default:
+		return errors.New("invalid action")
+	}
 }
 
 // CreateUser implements UserService.
@@ -114,12 +127,24 @@ func (u *UserServiceImpl) DeactivateUser(id uint) (*models.User, error) {
 
 // DeleteUser implements UserService.
 func (u *UserServiceImpl) DeleteUser(id uint) error {
-	panic("unimplemented")
+	user, err := u.userRepo.FindById(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("user not found")
+		}
+		return err
+	}
+
+	return u.userRepo.Delete(user)
 }
 
 // GetUserActivityLogs implements UserService.
-func (u *UserServiceImpl) GetUserActivityLogs(req models.AddressListRequest) (*models.ActivityLogListResponse, error) {
-	panic("unimplemented")
+func (u *UserServiceImpl) GetUserActivityLogs(req *models.ActivityLogListRequest) (*models.ActivityLogListResponse, error) {
+	activityLogs, err := u.acitvityLogRepo.FindAll(req)
+	if err != nil {
+		return nil, err
+	}
+	return activityLogs, nil
 }
 
 // GetUserById implements UserService.
@@ -142,27 +167,35 @@ func (u *UserServiceImpl) GetUsers(req models.UserListRequest) (*models.UserList
 	if err != nil {
 		return nil, err
 	}
-
-	userResponses := make([]models.UserResponse, len(users))
-	for i, user := range users {
-		userResponses[i] = *user.ToResponse()
-	}
-
-	// totalPages := int(math.Ceil(float64(total) / float64(req.Limit)))
-
-	return &models.UserListResponse{
-		Users: userResponses,
-		// Total:      total,
-		Page:  req.Offset,
-		Limit: req.Limit,
-		// TotalPages: totalPages,
-	}, nil
+	return users, nil
 
 }
 
 // UpdatePassword implements UserService.
 func (u *UserServiceImpl) UpdatePassword(userID uint, req *models.PasswordUpdateInput) error {
-	panic("unimplemented")
+
+	user, err := u.userRepo.FindById(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("user not found")
+		}
+		return err
+	}
+	if !utils.CheckPasswordHash(req.CurrentPassword, user.PasswordHash) {
+		return errors.New("current password is incorrect")
+	}
+
+	hashedPassword, err := utils.HashPassword(req.NewPassword)
+	if err != nil {
+		return errors.New("failed to hash new password")
+	}
+	user.PasswordHash = hashedPassword
+	_, err = u.userRepo.Update(&user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateUser implements UserService.

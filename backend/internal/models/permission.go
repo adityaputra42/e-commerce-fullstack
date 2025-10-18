@@ -28,7 +28,7 @@ type PermissionInput struct {
 
 type PermissionListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 	Search string
 }

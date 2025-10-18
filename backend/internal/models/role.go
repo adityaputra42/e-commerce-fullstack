@@ -41,7 +41,7 @@ func (Role) TableName() string {
 
 type RoleListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 	Search string
 }

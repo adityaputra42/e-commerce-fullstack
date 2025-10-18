@@ -39,7 +39,7 @@ type UpdateTransaction struct {
 
 type TransactionListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 	Search string
 }

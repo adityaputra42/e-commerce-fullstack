@@ -33,6 +33,6 @@ type UpdatePayment struct {
 
 type PaymentListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }
