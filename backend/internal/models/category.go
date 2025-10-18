@@ -37,7 +37,7 @@ type CategoryResponse struct {
 
 type CategoryListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 	Search string
 }

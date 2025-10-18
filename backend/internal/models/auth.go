@@ -65,7 +65,7 @@ type PasswordResetToken struct {
 type PasswordResetTokenListRequest struct {
 	UserId *uint
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }
 

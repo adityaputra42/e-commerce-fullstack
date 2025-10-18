@@ -3,12 +3,13 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
+	"math"
 
 	"gorm.io/gorm"
 )
 
 type ActivityLogRepository interface {
-	FindAll(param models.ActivityLogListRequest) ([]models.ActivityLog, error)
+	FindAll(param *models.ActivityLogListRequest) (*models.ActivityLogListResponse, error)
 	Create(param models.ActivityLog, tx *gorm.DB) (models.ActivityLog, error)
 }
 type ActivityLogRepositoryImpl struct {
@@ -33,31 +34,34 @@ func (a *ActivityLogRepositoryImpl) Create(param models.ActivityLog, tx *gorm.DB
 }
 
 // FindAll implements ActivityLogRepository.
-func (a *ActivityLogRepositoryImpl) FindAll(param models.ActivityLogListRequest) ([]models.ActivityLog, error) {
-	var result []models.ActivityLog
-	db := database.DB
+func (a *ActivityLogRepositoryImpl) FindAll(param *models.ActivityLogListRequest) (*models.ActivityLogListResponse, error) {
+	offset := (param.Page - 1) * param.Limit
 
-	if param.UserId != nil {
-		db = db.Where("user_id = ?", &param.UserId)
-	}
-
-	if param.SortBy != "" {
-		db = db.Order(param.SortBy)
-	}
-
-	if param.Limit > 0 {
-		db = db.Limit(param.Limit)
-	}
-
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
-	}
-
-	if err := db.Find(&result).Error; err != nil {
+	var total int64
+	if err := database.DB.Model(&models.ActivityLog{}).Where("user_id = ?", param.UserId).Count(&total).Error; err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	var activityLogs []models.ActivityLog
+	if err := database.DB.Preload("User").Where("user_id = ?", param.UserId).
+		Order("created_at desc").Offset(offset).Limit(param.Limit).Find(&activityLogs).Error; err != nil {
+		return nil, err
+	}
+
+	activities := make([]models.ActivityLogResponse, len(activityLogs))
+	for i, log := range activityLogs {
+		activities[i] = *log.ToResponse()
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(param.Limit)))
+
+	return &models.ActivityLogListResponse{
+		Activities: activities,
+		Total:      total,
+		Page:       param.Page,
+		Limit:      param.Limit,
+		TotalPages: totalPages,
+	}, nil
 }
 
 func NewActivityLogRepository() ActivityLogRepository {

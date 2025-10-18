@@ -58,7 +58,7 @@ type TransactionResponse struct {
 
 type ShippingListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 	Search string
 }

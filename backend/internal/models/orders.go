@@ -80,6 +80,6 @@ type ColorVarianOrderResponse struct {
 
 type OrderListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }

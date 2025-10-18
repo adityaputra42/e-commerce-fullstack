@@ -43,6 +43,9 @@ func (a *OrderRepositoryImpl) Delete(param models.Order) error {
 
 // FindAll implements OrderRepository.
 func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.Order, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var Orders []models.Order
 	db := database.DB
 
@@ -54,8 +57,8 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("Orders").Find(&Orders).Error; err != nil {

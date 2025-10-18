@@ -75,7 +75,7 @@ type UserListResponse struct {
 type UserListRequest struct {
 	UserId *uint
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }
 

@@ -142,7 +142,7 @@ type ProductListRequest struct {
 	Offset     int
 	SortBy     string
 	Search     string
-	CategoryID int64 
+	CategoryID int64
 }
 
 type ColorVarianListRequest struct {
@@ -150,15 +150,15 @@ type ColorVarianListRequest struct {
 	Offset    int
 	SortBy    string
 	Search    string
-	ProductID int64 
+	ProductID int64
 }
 
 type SizeVarianListRequest struct {
 	Limit         int
-	Offset        int
+	Page          int
 	SortBy        string
 	Search        string
-	ColorVarianID int64 
+	ColorVarianID int64
 }
 
 func (Product) TableName() string {

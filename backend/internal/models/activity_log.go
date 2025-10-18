@@ -57,7 +57,7 @@ type ActivityLogListResponse struct {
 type ActivityLogListRequest struct {
 	UserId *uint
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }
 

@@ -43,6 +43,9 @@ func (a *PaymentMethodRepositoryImpl) Delete(param models.PaymentMethod) error {
 
 // FindAll implements PaymentMethodRepository.
 func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequest) ([]models.PaymentMethod, error) {
+
+	offset := (param.Page - 1) * param.Limit
+
 	var PaymentMethods []models.PaymentMethod
 	db := database.DB
 
@@ -54,8 +57,8 @@ func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequ
 		db = db.Limit(param.Limit)
 	}
 
-	if param.Offset > 0 {
-		db = db.Offset(param.Offset)
+	if offset > 0 {
+		db = db.Offset(offset)
 	}
 
 	if err := db.Preload("PaymentMethods").Find(&PaymentMethods).Error; err != nil {

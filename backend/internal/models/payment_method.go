@@ -48,6 +48,6 @@ type PaymentMethodResponse struct {
 
 type PaymentMethodListRequest struct {
 	Limit  int
-	Offset int
+	Page   int
 	SortBy string
 }
