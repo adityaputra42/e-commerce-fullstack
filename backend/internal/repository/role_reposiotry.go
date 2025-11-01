@@ -3,20 +3,59 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
-
-	"gorm.io/gorm"
+	"errors"
 )
 
 type RoleRepository interface {
-	Create(param models.Role, tx *gorm.DB) (models.Role, error)
-	Update(param models.Role, tx *gorm.DB) (models.Role, error)
+	Create(param models.Role) (models.Role, error)
+	Update(param models.Role) (models.Role, error)
 	Delete(param models.Role) error
 	FindById(paramId uint) (models.Role, error)
 	FindByName(name string) (models.Role, error)
-	FindAll(param models.RoleListRequest) ([]models.Role, error)
+	FindByNameAndId(name string, id uint) (*models.Role, error)
+	AddPermission(id uint, permissions *[]models.Permission) (*models.Role, error)
+	UpdatePermission(id uint, permissions *[]models.Permission) (*models.Role, error)
+	FindAll() ([]models.Role, error)
 }
 
 type RoleRepositoryImpl struct {
+}
+
+// UpdatePermission implements RoleRepository.
+func (a *RoleRepositoryImpl) UpdatePermission(id uint, permissions *[]models.Permission) (*models.Role, error) {
+	role := models.Role{}
+	err := database.DB.Model(&models.Role{}).Take(&role, "id =?", id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if err := database.DB.Model(&role).Association("Permissions").Replace(&permissions); err != nil {
+		return nil, err
+	}
+	return &role, nil
+}
+
+// FindByNameAndId implements RoleRepository.
+func (a *RoleRepositoryImpl) FindByNameAndId(name string, id uint) (*models.Role, error) {
+	var existingRole models.Role
+	if err := database.DB.Where("name = ? AND id != ?", name, id).First(&existingRole).Error; err == nil {
+		return nil, errors.New("role with this name already exists")
+	}
+	return &existingRole, nil
+}
+
+// AddPermission implements RoleRepository.
+func (a *RoleRepositoryImpl) AddPermission(id uint, permissions *[]models.Permission) (*models.Role, error) {
+	role := models.Role{}
+	err := database.DB.Model(&models.Role{}).Take(&role, "id =?", id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if err := database.DB.Model(&role).Association("Permissions").Append(&permissions); err != nil {
+		return nil, err
+	}
+	return &role, nil
 }
 
 // FindByName implements RoleRepository.
@@ -28,13 +67,10 @@ func (a *RoleRepositoryImpl) FindByName(name string) (models.Role, error) {
 }
 
 // Create implements RoleRepository.
-func (a *RoleRepositoryImpl) Create(param models.Role, tx *gorm.DB) (models.Role, error) {
+func (a *RoleRepositoryImpl) Create(param models.Role) (models.Role, error) {
 	var result models.Role
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Create(&param).Error
 	if err != nil {
@@ -51,52 +87,27 @@ func (a *RoleRepositoryImpl) Delete(param models.Role) error {
 }
 
 // FindAll implements RoleRepository.
-func (a *RoleRepositoryImpl) FindAll(param models.RoleListRequest) ([]models.Role, error) {
-
-	offset := (param.Page - 1) * param.Limit
-
-	var Roles []models.Role
-	db := database.DB
-
-	if param.Search != "" {
-		db = db.Where("name ILIKE ?", "%"+param.Search+"%")
-	}
-
-	if param.SortBy != "" {
-		db = db.Order(param.SortBy)
-	}
-
-	if param.Limit > 0 {
-		db = db.Limit(param.Limit)
-	}
-
-	if offset > 0 {
-		db = db.Offset(offset)
-	}
-
-	if err := db.Preload("permissions").Find(&Roles).Error; err != nil {
+func (a *RoleRepositoryImpl) FindAll() ([]models.Role, error) {
+	var roles []models.Role
+	if err := database.DB.Preload("Permissions").Find(&roles).Error; err != nil {
 		return nil, err
 	}
-
-	return Roles, nil
+	return roles, nil
 }
 
 // FindById implements RoleRepository.
 func (a *RoleRepositoryImpl) FindById(paramId uint) (models.Role, error) {
 	role := models.Role{}
-	err := database.DB.Model(&models.User{}).Take(&role, "id =?", paramId).Error
+	err := database.DB.Preload("permissions").Model(&models.Role{}).Take(&role, "id =?", paramId).Error
 
 	return role, err
 }
 
 // Update implements RoleRepository.
-func (a *RoleRepositoryImpl) Update(param models.Role, tx *gorm.DB) (models.Role, error) {
+func (a *RoleRepositoryImpl) Update(param models.Role) (models.Role, error) {
 	var result models.Role
 
 	db := database.DB
-	if tx != nil {
-		db = tx
-	}
 
 	err := db.Model(&param).Updates(param).Error
 	if err != nil {
