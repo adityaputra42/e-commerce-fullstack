@@ -38,10 +38,3 @@ type RolePermissionInput struct {
 func (Role) TableName() string {
 	return "roles"
 }
-
-type RoleListRequest struct {
-	Limit  int
-	Page   int
-	SortBy string
-	Search string
-}

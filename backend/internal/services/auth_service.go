@@ -128,8 +128,6 @@ func (a *AuthServiceImpl) ResetPassword(req models.ResetPasswordRequest) error {
 	err = a.passwordRepository.Delete(&resetToken)
 
 	if err != nil {
-		// Log the error, but don't block the user
-		// log.Printf("Failed to delete used reset token: %v", err)
 		return err
 	}
 
