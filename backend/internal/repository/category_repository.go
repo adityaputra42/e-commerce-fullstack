@@ -11,11 +11,31 @@ type CategoryRepository interface {
 	Create(param models.Category, tx *gorm.DB) (models.Category, error)
 	Update(param models.Category, tx *gorm.DB) (models.Category, error)
 	Delete(param models.Category) error
-	FindById(paramId uint) (models.Category, error)
+	FindById(paramId int64) (models.Category, error)
+	FindByIds(paramId []int64) ([]models.Category, error)
 	FindAll(param models.CategoryListRequest) ([]models.Category, error)
 }
 
 type CategoryRepositoryImpl struct {
+}
+
+// FindByIds implements CategoryRepository.
+func (a *CategoryRepositoryImpl) FindByIds(paramId []int64) ([]models.Category, error) {
+	var categories []models.Category
+
+	if len(paramId) == 0 {
+		return categories, nil
+	}
+
+	err := database.DB.
+		Where("id IN ? AND deleted_at IS NULL", paramId).
+		Find(&categories).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return categories, nil
 }
 
 // Create implements CategoryRepository.
@@ -73,7 +93,7 @@ func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]mo
 }
 
 // FindById implements CategoryRepository.
-func (a *CategoryRepositoryImpl) FindById(paramId uint) (models.Category, error) {
+func (a *CategoryRepositoryImpl) FindById(paramId int64) (models.Category, error) {
 	Category := models.Category{}
 	err := database.DB.Model(&models.User{}).Take(&Category, "id =?", paramId).Error
 

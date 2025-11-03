@@ -70,7 +70,6 @@ func (u *UserServiceImpl) BulkUserActions(req *BulkActionRequest) error {
 	}
 }
 
-// CreateUser implements UserService.
 func (u *UserServiceImpl) CreateUser(req *models.UserInput) (*models.User, error) {
 
 	_, err := u.userRepo.FindByEmail(req.Email)

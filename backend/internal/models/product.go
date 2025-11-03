@@ -43,54 +43,50 @@ type SizeVarian struct {
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
 }
-
-type CreateProduct struct {
-	CategoryID  int64                 `form:"category_id"`
-	Name        string                `form:"name"`
-	Description string                `form:"description"`
-	Images      *multipart.FileHeader `form:"images"`
-	Rating      float32               `form:"rating"`
-	Price       float64               `form:"price"`
-	ColorVarian string                `form:"color_varians"`
+type CreateProductParam struct {
+	CategoryID  int64                      `json:"category_id" form:"category_id" binding:"required"`
+	Name        string                     `json:"name" form:"name" binding:"required,min=3,max=100"`
+	Description string                     `json:"description" form:"description"`
+	Price       float64                    `json:"price" form:"price" binding:"required,gt=0"`
+	Image       *multipart.FileHeader      `json:"image" form:"image"`
+	ColorVarian []CreateColorVarianRequest `json:"color_varian" form:"color_varian"`
 }
 
-type CreateColorVarianProduct struct {
-	ProductId int64                 `json:"product_id"`
-	Name      string                `json:"name"`
-	Color     string                `json:"color"`
-	Images    *multipart.FileHeader `json:"images"`
-	Sizes     string                `json:"sizes"`
+type CreateColorVarianRequest struct {
+	Name  string                    `json:"name" form:"name" binding:"required,min=2,max=50"`
+	Color string                    `json:"color" form:"color" binding:"required"`
+	Image *multipart.FileHeader     `json:"image" form:"image" binding:"required"` // hanya 1 gambar per varian
+	Sizes []CreateSizeVarianRequest `json:"sizes" form:"sizes"`
 }
 
-type CreateSizeVarianProduct struct {
-	ColorVarianId int64  `json:"color_varian_id"`
-	Size          string `json:"size"`
-	Stock         int64  `json:"stock"`
+type CreateSizeVarianRequest struct {
+	Size  string `json:"size" form:"size" binding:"required"`
+	Stock int64  `json:"stock" form:"stock" binding:"gte=0"`
 }
 
-type UpdateSizeVarianProduct struct {
-	ID    int64  `json:"id"`
-	Size  string `json:"size"`
-	Stock int64  `json:"stock"`
+type UpdateProductParam struct {
+	ID          int64                      `json:"id" form:"id" binding:"required"`
+	CategoryID  *int64                     `json:"category_id,omitempty" form:"category_id"`
+	Name        *string                    `json:"name,omitempty" form:"name"`
+	Description *string                    `json:"description,omitempty" form:"description"`
+	Price       *float64                   `json:"price,omitempty" form:"price"`
+	Rating      *float64                   `json:"rating,omitempty" form:"rating"`
+	Image       *multipart.FileHeader      `json:"image,omitempty" form:"image"` // jika ingin ubah gambar utama produk
+	ColorVarian []UpdateColorVarianRequest `json:"color_varian,omitempty" form:"color_varian"`
 }
 
-type UpdateColorVarianProduct struct {
-	Id     int64                 `json:"id"`
-	Name   string                `json:"name"`
-	Color  string                `json:"color"`
-	Images *multipart.FileHeader `json:"-"`
-	Sizes  string                `json:"sizes"`
+type UpdateColorVarianRequest struct {
+	ID    *int64                    `json:"id,omitempty" form:"id"` // null berarti varian baru
+	Name  *string                   `json:"name,omitempty" form:"name"`
+	Color *string                   `json:"color,omitempty" form:"color"`
+	Image *multipart.FileHeader     `json:"image,omitempty" form:"image"` // ubah 1 gambar
+	Sizes []UpdateSizeVarianRequest `json:"sizes,omitempty" form:"sizes"`
 }
 
-type UpdateProduct struct {
-	ID          int64                 `form:"id"`
-	CategoryID  int64                 `form:"category_id"`
-	Name        string                `form:"name"`
-	Description string                `form:"description"`
-	Images      *multipart.FileHeader `form:"images"`
-	Rating      float32               `form:"rating"`
-	Price       float64               `form:"price"`
-	ColorVarian string                `form:"color_varians"`
+type UpdateSizeVarianRequest struct {
+	ID    *int64  `json:"id,omitempty" form:"id"` // null berarti size baru
+	Size  *string `json:"size,omitempty" form:"size"`
+	Stock *int64  `json:"stock,omitempty" form:"stock"`
 }
 
 type ProductResponse struct {
@@ -171,4 +167,110 @@ func (SizeVarianResponse) TableName() string {
 
 func (ColorVarian) TableName() string {
 	return "color_varian"
+}
+
+// ToProductResponse converts Product model to ProductResponse (for list)
+func (p *Product) ToProductResponse(category Category) ProductResponse {
+	return ProductResponse{
+		ID: p.ID,
+		Category: CategoryResponse{
+			ID:        category.ID,
+			Name:      category.Name,
+			Icon:      category.Icon,
+			CreatedAt: category.CreatedAt,
+			UpdatedAt: category.UpdatedAt,
+		},
+		Name:        p.Name,
+		Description: p.Description,
+		Images:      p.Images,
+		Rating:      p.Rating,
+		Price:       p.Price,
+		UpdatedAt:   p.UpdatedAt,
+		CreatedAt:   p.CreatedAt,
+	}
+}
+
+// ToProductDetailResponse converts Product model to ProductDetailResponse (with variants)
+func (p *Product) ToProductDetailResponse(category Category) ProductDetailResponse {
+	// Map color variants
+	colorVariants := make([]ColorVarianResponse, len(p.ColorVarians))
+	for i, cv := range p.ColorVarians {
+		colorVariants[i] = cv.ToColorVarianResponse()
+	}
+
+	return ProductDetailResponse{
+		ID: p.ID,
+		Category: CategoryResponse{
+			ID:        category.ID,
+			Name:      category.Name,
+			Icon:      category.Icon,
+			CreatedAt: category.CreatedAt,
+			UpdatedAt: category.UpdatedAt,
+		},
+		Name:        p.Name,
+		Description: p.Description,
+		Images:      p.Images,
+		Rating:      p.Rating,
+		Price:       p.Price,
+		ColorVarian: colorVariants,
+		UpdatedAt:   p.UpdatedAt,
+		CreatedAt:   p.CreatedAt,
+	}
+}
+
+func (cv *ColorVarian) ToColorVarianResponse() ColorVarianResponse {
+
+	sizeVariants := make([]SizeVarianResponse, len(cv.SizeVarians))
+	for i, sv := range cv.SizeVarians {
+		sizeVariants[i] = sv.ToSizeVarianResponse()
+	}
+
+	return ColorVarianResponse{
+		ID:         cv.ID,
+		ProductID:  cv.ProductID,
+		Name:       cv.Name,
+		Color:      cv.Color,
+		Images:     cv.Images,
+		SizeVarian: sizeVariants,
+		UpdatedAt:  cv.UpdatedAt,
+		CreatedAt:  cv.CreatedAt,
+	}
+}
+
+// ToSizeVarianResponse converts SizeVarian model to SizeVarianResponse
+func (sv *SizeVarian) ToSizeVarianResponse() SizeVarianResponse {
+	return SizeVarianResponse{
+		ID:            sv.ID,
+		ColorVarianID: sv.ColorVarianID,
+		Size:          sv.Size,
+		Stock:         sv.Stock,
+		UpdatedAt:     sv.UpdatedAt,
+		CreatedAt:     sv.CreatedAt,
+	}
+}
+
+// ToProductResponseList converts slice of Product to slice of ProductResponse
+func ToProductResponseList(products []Product, categoryMap map[int64]Category) []ProductResponse {
+	result := make([]ProductResponse, len(products))
+	for i, product := range products {
+		category := categoryMap[product.CategoryID]
+		result[i] = product.ToProductResponse(category)
+	}
+	return result
+}
+
+func ToProductDetailResponseList(products []Product, categoryMap map[int64]Category) []ProductDetailResponse {
+	result := make([]ProductDetailResponse, len(products))
+	for i, product := range products {
+		category := categoryMap[product.CategoryID]
+		result[i] = product.ToProductDetailResponse(category)
+	}
+	return result
+}
+func BuildCategoryMap(categories []Category) map[int64]Category {
+	categoryMap := make(map[int64]Category)
+	for _, category := range categories {
+		categoryMap[category.ID] = category
+	}
+	return categoryMap
 }

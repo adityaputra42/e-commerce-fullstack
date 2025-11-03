@@ -15,6 +15,12 @@ type Config struct {
 	CORS     CORSConfig
 	SMTP     SMTPConfig
 	System   SystemConfig
+	Supabase SupabaseConfig
+}
+
+type SupabaseConfig struct {
+	Url string
+	Key string
 }
 
 type DatabaseConfig struct {
@@ -103,6 +109,10 @@ func Load() *Config {
 		System: SystemConfig{
 			DefaultAdminEmail:    viper.GetString("DEFAULT_ADMIN_EMAIL"),
 			DefaultAdminPassword: viper.GetString("DEFAULT_ADMIN_PASSWORD"),
+		},
+		Supabase: SupabaseConfig{
+			Url: viper.GetString("SUPABASE_URL"),
+			Key: viper.GetString("SUPABASE_KEY"),
 		},
 	}
 }

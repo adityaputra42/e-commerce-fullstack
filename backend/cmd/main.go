@@ -8,7 +8,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-
+	config.InitSupabase(*cfg)
 	if err := database.Connect(cfg); err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
