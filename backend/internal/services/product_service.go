@@ -14,11 +14,11 @@ import (
 
 type ProductService interface {
 	CreateProduct(param models.CreateProductParam) (*models.ProductDetailResponse, error)
-	FindProductById(id uint) (*models.ProductDetailResponse, error)
+	FindProductById(id int64) (*models.ProductDetailResponse, error)
 	FindAllProduct(param models.ProductListRequest) (*[]models.ProductResponse, error)
 	UpdateProduct(param models.UpdateProductParam) (*models.ProductDetailResponse, error)
 	DeleteProduct(id int64) error
-	AddColorVarianProduct(productId uint, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error)
+	AddColorVarianProduct(productId int64, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error)
 	updateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error
 }
 
@@ -87,7 +87,7 @@ func (p *ProductServiceImpl) updateSizeVariants(colorVarianID int64, sizesParam 
 
 	for id := range existingSizeMap {
 		if !updatedSizeIDs[id] {
-			if err := p.productRepo.DeleteSizeVarian(id); err != nil {
+			if err := p.productRepo.DeleteSizeVarian(id, tx); err != nil {
 				return fmt.Errorf("gagal menghapus size variant: %w", err)
 			}
 		}
@@ -101,10 +101,96 @@ func sanitizeFileName(name string) string {
 	reg := regexp.MustCompile("[^a-zA-Z0-9_-]+")
 	return reg.ReplaceAllString(name, "")
 }
+func (p *ProductServiceImpl) AddColorVarianProduct(productId int64, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error) {
+	var product models.Product
+	var category models.Category
 
-// AddColorVarianProduct implements ProductService.
-func (p *ProductServiceImpl) AddColorVarianProduct(productId uint, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error) {
-	panic("unimplemented")
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+
+		productResult, err := p.productRepo.FindProductById(productId)
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return fmt.Errorf("product dengan ID %d tidak ditemukan", productId)
+			}
+			return fmt.Errorf("error mencari product: %w", err)
+		}
+		product = *productResult
+
+		categoryResult, err := p.categoryRepo.FindById((product.CategoryID))
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return fmt.Errorf("category dengan ID %d tidak ditemukan", product.CategoryID)
+			}
+			return fmt.Errorf("error mengambil category: %w", err)
+		}
+		category = categoryResult
+
+		for _, cv := range product.ColorVarians {
+			if strings.EqualFold(cv.Name, param.Name) {
+				return fmt.Errorf("color varian '%s' sudah ada di product ini", param.Name)
+			}
+		}
+		if param.Image == nil {
+			return fmt.Errorf("gambar wajib diisi untuk color varian")
+		}
+
+		if len(param.Sizes) == 0 {
+			return fmt.Errorf("minimal harus ada 1 ukuran untuk color varian")
+		}
+
+		sizeMap := make(map[string]bool)
+		for _, sv := range param.Sizes {
+			if sizeMap[strings.ToUpper(sv.Size)] {
+				return fmt.Errorf("ukuran '%s' duplikat dalam color varian '%s'", sv.Size, param.Name)
+			}
+			sizeMap[strings.ToUpper(sv.Size)] = true
+		}
+
+		folderName := fmt.Sprintf("product/%s/colors", sanitizeFileName(product.Name))
+		colorImageURL, err := utils.UploadToSupabase(param.Image, folderName)
+		if err != nil {
+			return fmt.Errorf("gagal upload gambar color varian: %w", err)
+		}
+
+		colorVariant := models.ColorVarian{
+			ProductID: product.ID,
+			Name:      param.Name,
+			Color:     param.Color,
+			Images:    colorImageURL,
+		}
+
+		createdColorVariant, err := p.productRepo.CreateColorVarian(colorVariant, tx)
+		if err != nil {
+			return fmt.Errorf("gagal membuat color varian: %w", err)
+		}
+
+		for i, sizeParam := range param.Sizes {
+			sizeVariant := models.SizeVarian{
+				ColorVarianID: createdColorVariant.ID,
+				Size:          sizeParam.Size,
+				Stock:         sizeParam.Stock,
+			}
+
+			_, err := p.productRepo.CreateSizeVarian(sizeVariant, tx)
+			if err != nil {
+				return fmt.Errorf("gagal membuat size variant ke-%d: %w", i+1, err)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	productWithRelations, err := p.productRepo.FindProductById(productId)
+	if err != nil {
+		return nil, fmt.Errorf("gagal memuat data product: %w", err)
+	}
+
+	result := productWithRelations.ToProductDetailResponse(category)
+	return &result, nil
 }
 
 // CreateProduct implements ProductService.
@@ -201,8 +287,9 @@ func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*mo
 
 // DeleteProduct implements ProductService.
 func (p *ProductServiceImpl) DeleteProduct(id int64) error {
+	var imageURLs []string
+
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
-		// 1. Get product dengan relasi
 		product, err := p.productRepo.FindProductById(id)
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
@@ -211,45 +298,45 @@ func (p *ProductServiceImpl) DeleteProduct(id int64) error {
 			return fmt.Errorf("error mencari produk: %w", err)
 		}
 
-		imageURLs := make([]string, 0)
-
-		// Main product image
 		if product.Images != "" {
 			imageURLs = append(imageURLs, product.Images)
 		}
-
 		for _, cv := range product.ColorVarians {
 			if cv.Images != "" {
 				imageURLs = append(imageURLs, cv.Images)
 			}
 		}
 
-		if err := p.productRepo.DeleteProduct(*product); err != nil {
+		if err := p.productRepo.DeleteProduct(id, tx); err != nil {
 			return fmt.Errorf("gagal menghapus produk: %w", err)
 		}
-
-		go func() {
-			if err := utils.DeleteMultipleFromSupabase(imageURLs); err != nil {
-				// Log error tapi tidak gagalkan transaction
-				fmt.Printf("Warning: gagal menghapus beberapa images: %v\n", err)
-			}
-		}()
 
 		return nil
 	})
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	if len(imageURLs) > 0 {
+		go func() {
+			if err := utils.DeleteMultipleFromSupabase(imageURLs); err != nil {
+				fmt.Printf("Warning: gagal menghapus images: %v\n", err)
+			}
+		}()
+	}
+
+	return nil
 }
 
 // FindAllProduct implements ProductService.
 func (p *ProductServiceImpl) FindAllProduct(param models.ProductListRequest) (*[]models.ProductResponse, error) {
-	// 1. Get products dari repository
+
 	products, _, err := p.productRepo.FindAllProduct(param)
 	if err != nil {
 		return nil, fmt.Errorf("error mengambil data produk: %w", err)
 	}
 
-	// 2. Get unique category IDs
 	categoryIDs := make([]int64, 0)
 	categoryIDMap := make(map[int64]bool)
 	for _, product := range products {
@@ -272,8 +359,8 @@ func (p *ProductServiceImpl) FindAllProduct(param models.ProductListRequest) (*[
 }
 
 // FindProductById implements ProductService.
-func (p *ProductServiceImpl) FindProductById(id uint) (*models.ProductDetailResponse, error) {
-	product, err := p.productRepo.FindProductById(int64(id))
+func (p *ProductServiceImpl) FindProductById(id int64) (*models.ProductDetailResponse, error) {
+	product, err := p.productRepo.FindProductById(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("produk dengan ID %d tidak ditemukan", id)
@@ -452,7 +539,7 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 
 			for id := range existingColorMap {
 				if !updatedColorIDs[id] {
-					if err := p.productRepo.DeleteColorVarian(id); err != nil {
+					if err := p.productRepo.DeleteColorVarian(id, tx); err != nil {
 						return fmt.Errorf("gagal menghapus color variant: %w", err)
 					}
 				}

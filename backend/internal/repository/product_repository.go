@@ -3,7 +3,6 @@ package repository
 import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -12,14 +11,14 @@ type ProductRepository interface {
 	// Product
 	CreateProduct(param models.Product, tx *gorm.DB) (models.Product, error)
 	UpdateProduct(param models.Product, tx *gorm.DB) (models.Product, error)
-	DeleteProduct(param models.Product) error
+	DeleteProduct(paramid int64, tx *gorm.DB) error
 	FindProductById(id int64) (*models.Product, error)
 	FindAllProduct(param models.ProductListRequest) ([]models.Product, int64, error)
 
 	// ColorVarian
 	CreateColorVarian(param models.ColorVarian, tx *gorm.DB) (models.ColorVarian, error)
 	UpdateColorVarian(param models.ColorVarian, tx *gorm.DB) (models.ColorVarian, error)
-	DeleteColorVarian(param int64) error
+	DeleteColorVarian(param int64, tx *gorm.DB) error
 	FindColorVarianById(id int64) (models.ColorVarian, error)
 	FindAllColorVarian(param models.ColorVarianListRequest) ([]models.ColorVarian, error)
 	FindColorVarianByProductId(productId int64) ([]models.ColorVarian, error)
@@ -27,7 +26,7 @@ type ProductRepository interface {
 	// SizeVarian
 	CreateSizeVarian(param models.SizeVarian, tx *gorm.DB) (models.SizeVarian, error)
 	UpdateSizeVarian(param models.SizeVarian, tx *gorm.DB) (models.SizeVarian, error)
-	DeleteSizeVarian(param int64) error
+	DeleteSizeVarian(param int64, tx *gorm.DB) error
 	FindSizeVarianById(id int64) (models.SizeVarian, error)
 	FindAllSizeVarian(param models.SizeVarianListRequest) ([]models.SizeVarian, error)
 	FindSizeVarianByColorVarianId(colorVarianId int64) ([]models.SizeVarian, error)
@@ -76,8 +75,13 @@ func (r *ProductRepositoryImpl) UpdateProduct(param models.Product, tx *gorm.DB)
 	return param, nil
 }
 
-func (r *ProductRepositoryImpl) DeleteProduct(param models.Product) error {
-	return database.DB.Delete(&param).Error
+func (r *ProductRepositoryImpl) DeleteProduct(param int64, tx *gorm.DB) error {
+	db := database.DB
+	if tx != nil {
+		db = tx
+	}
+
+	return db.Delete(&models.Product{}, param).Error
 }
 
 func (r *ProductRepositoryImpl) FindProductById(id int64) (*models.Product, error) {
@@ -160,16 +164,13 @@ func (r *ProductRepositoryImpl) UpdateColorVarian(param models.ColorVarian, tx *
 	return param, nil
 }
 
-func (r *ProductRepositoryImpl) DeleteColorVarian(param int64) error {
-	var cv models.ColorVarian
-	err := database.DB.Preload("SizeVarians", "deleted_at IS NULL").First(&cv, "id = ? AND deleted_at IS NULL", param).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return fmt.Errorf("Color varian dengan ID %d tidak ditemukan", param)
-		}
-		return fmt.Errorf("error validasi Color varian: %w", err)
+func (r *ProductRepositoryImpl) DeleteColorVarian(param int64, tx *gorm.DB) error {
+
+	db := database.DB
+	if tx != nil {
+		db = tx
 	}
-	return database.DB.Delete(&cv).Error
+	return db.Delete(&models.ColorVarian{}, param).Error
 }
 
 func (r *ProductRepositoryImpl) FindColorVarianById(id int64) (models.ColorVarian, error) {
@@ -230,17 +231,12 @@ func (r *ProductRepositoryImpl) UpdateSizeVarian(param models.SizeVarian, tx *go
 	return param, nil
 }
 
-func (r *ProductRepositoryImpl) DeleteSizeVarian(param int64) error {
-	var sv models.SizeVarian
-	err := database.DB.First(&sv, "id = ? AND deleted_at IS NULL", param).Error
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return fmt.Errorf("size varian dengan ID %d tidak ditemukan", param)
-		}
-		return fmt.Errorf("error validasi size varian: %w", err)
+func (r *ProductRepositoryImpl) DeleteSizeVarian(param int64, tx *gorm.DB) error {
+	db := database.DB
+	if tx != nil {
+		db = tx
 	}
-	return database.DB.Delete(&sv).Error
+	return db.Delete(&models.SizeVarian{}, param).Error
 }
 
 func (r *ProductRepositoryImpl) FindSizeVarianById(id int64) (models.SizeVarian, error) {
