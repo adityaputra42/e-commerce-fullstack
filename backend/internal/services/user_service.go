@@ -35,7 +35,7 @@ type UserServiceImpl struct {
 }
 
 func (u *UserServiceImpl) ActivateUser(id uint) (*models.User, error) {
-	user, err := u.userRepo.FindById(id)
+	user, err := u.userRepo.FindById(int64(id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")
@@ -107,7 +107,7 @@ func (u *UserServiceImpl) CreateUser(req *models.UserInput) (*models.User, error
 
 // DeactivateUser implements UserService.
 func (u *UserServiceImpl) DeactivateUser(id uint) (*models.User, error) {
-	user, err := u.userRepo.FindById(id)
+	user, err := u.userRepo.FindById(int64(id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")
@@ -126,7 +126,7 @@ func (u *UserServiceImpl) DeactivateUser(id uint) (*models.User, error) {
 
 // DeleteUser implements UserService.
 func (u *UserServiceImpl) DeleteUser(id uint) error {
-	user, err := u.userRepo.FindById(id)
+	user, err := u.userRepo.FindById(int64(id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("user not found")
@@ -148,7 +148,7 @@ func (u *UserServiceImpl) GetUserActivityLogs(req *models.ActivityLogListRequest
 
 // GetUserById implements UserService.
 func (u *UserServiceImpl) GetUserById(id uint) (*models.User, error) {
-	user, err := u.userRepo.FindById(id)
+	user, err := u.userRepo.FindById(int64(id))
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -173,7 +173,7 @@ func (u *UserServiceImpl) GetUsers(req models.UserListRequest) (*models.UserList
 // UpdatePassword implements UserService.
 func (u *UserServiceImpl) UpdatePassword(userID uint, req *models.PasswordUpdateInput) error {
 
-	user, err := u.userRepo.FindById(userID)
+	user, err := u.userRepo.FindById(int64(userID))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("user not found")
@@ -200,7 +200,7 @@ func (u *UserServiceImpl) UpdatePassword(userID uint, req *models.PasswordUpdate
 // UpdateUser implements UserService.
 func (u *UserServiceImpl) UpdateUser(id uint, req *models.UserUpdateInput) (*models.User, error) {
 
-	user, err := u.userRepo.FindById(id)
+	user, err := u.userRepo.FindById(int64(id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")

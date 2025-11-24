@@ -89,7 +89,7 @@ func (a *AuthServiceImpl) RefreshToken(req models.RefreshTokenRequest) (*models.
 		return nil, errors.New("invalid refresh token")
 	}
 
-	user, err := a.userRepo.FindById(claims.UserID)
+	user, err := a.userRepo.FindById(int64(claims.UserID))
 	if err != nil {
 		return nil, errors.New("user not found")
 	}

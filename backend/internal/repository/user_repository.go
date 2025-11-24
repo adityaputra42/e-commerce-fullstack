@@ -10,7 +10,7 @@ type UserRepository interface {
 	Create(param models.User) (models.User, error)
 	Update(param *models.User) (models.User, error)
 	Delete(param models.User) error
-	FindById(paramId uint) (models.User, error)
+	FindById(paramId int64) (models.User, error)
 	FindByEmail(email string) (models.User, error)
 	FindAll(param models.UserListRequest) (*models.UserListResponse, error)
 }
@@ -85,9 +85,9 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.User
 }
 
 // FindById implements UserRepository.
-func (u *UserRepositoryImpl) FindById(paramId uint) (models.User, error) {
+func (u *UserRepositoryImpl) FindById(paramId int64) (models.User, error) {
 	user := models.User{}
-	err := database.DB.Preload("Role.Permissions").First(&user, user.ID).Error
+	err := database.DB.Preload("Role.Permissions.Address").First(&user, user.ID).Error
 
 	return user, err
 }
