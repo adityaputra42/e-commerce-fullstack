@@ -13,9 +13,33 @@ type AddressRepository interface {
 	Delete(param models.Address) error
 	FindById(paramId uint) (models.Address, error)
 	FindAll(param models.AddressListRequest) ([]models.Address, error)
+	FindAllByUserId(param int64) ([]models.Address, error)
+	CountByUser(param int64) (int64, error)
 }
 
 type AddressRepositoryImpl struct {
+}
+
+// CountByUser implements [AddressRepository].
+func (a *AddressRepositoryImpl) CountByUser(param int64) (int64, error) {
+	var count int64
+	err := database.DB.Model(&models.Address{}).Where("user_id = ?", param).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+// FindAllByUserId implements AddressRepository.
+func (a *AddressRepositoryImpl) FindAllByUserId(param int64) ([]models.Address, error) {
+
+	var addresses []models.Address
+	db := database.DB
+
+	if err := db.Where("user_id = ?", param).Find(&addresses).Error; err != nil {
+		return nil, err
+	}
+	return addresses, nil
 }
 
 // Create implements AddressRepository.

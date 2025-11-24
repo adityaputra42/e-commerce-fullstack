@@ -76,7 +76,7 @@ type AddressListRequest struct {
 }
 
 type AddressListResponse struct {
-	Activities []AddressResponse `json:"activities"`
+	Addresses  []AddressResponse `json:"addresses"`
 	Total      int64             `json:"total"`
 	Page       int               `json:"page"`
 	Limit      int               `json:"limit"`
@@ -84,7 +84,7 @@ type AddressListResponse struct {
 }
 
 // Convert Address model ke Response
-func (a *Address) ToResponse() *AddressResponse {
+func (a *Address) ToResponseAddress() *AddressResponse {
 	return &AddressResponse{
 		ID:                   a.ID,
 		RecipientName:        a.RecipientName,
