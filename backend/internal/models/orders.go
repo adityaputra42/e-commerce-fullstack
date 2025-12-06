@@ -59,7 +59,7 @@ type OrderResponse struct {
 type ProductOrderResponse struct {
 	ID          int64                    `json:"id"`
 	Name        string                   `json:"name"`
-	Category    Category                 `json:"category"`
+	CategoryID  int64                    `json:"category_id"`
 	Description string                   `json:"description"`
 	Images      string                   `json:"images"`
 	Rating      float64                  `json:"rating"`
@@ -82,4 +82,42 @@ type OrderListRequest struct {
 	Limit  int
 	Page   int
 	SortBy string
+}
+
+func (cl *ColorVarian) ToResponseColorVarianOrder() ColorVarianOrderResponse {
+	return ColorVarianOrderResponse{
+		ID:        cl.ID,
+		Name:      cl.Name,
+		Color:     cl.Color,
+		Images:    cl.Images,
+		UpdatedAt: cl.UpdatedAt,
+		CreatedAt: cl.CreatedAt,
+	}
+}
+
+// ToProductResponse converts Product model to ProductResponse (for list)
+func (p *Product) ToResponseProductOrder(colorVarian *ColorVarian) ProductOrderResponse {
+	return ProductOrderResponse{
+		ID:          p.ID,
+		CategoryID:  p.CategoryID,
+		Name:        p.Name,
+		Description: p.Description,
+		Images:      p.Images,
+		Rating:      p.Rating,
+		Price:       p.Price,
+		ColorVarian: colorVarian.ToResponseColorVarianOrder(),
+		UpdatedAt:   p.UpdatedAt,
+		CreatedAt:   p.CreatedAt,
+	}
+}
+
+// ToProductResponse converts Product model to ProductResponse (for list)
+func (p *Order) ToOrderResponse() OrderResponse {
+	return OrderResponse{
+		ID:            p.ID,
+		TransactionID: p.TransactionID,
+		Product:       p.Product.ToResponseProductOrder(&p.ColorVarian),
+		UpdatedAt:     p.UpdatedAt,
+		CreatedAt:     p.CreatedAt,
+	}
 }

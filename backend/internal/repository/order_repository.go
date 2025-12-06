@@ -13,9 +13,26 @@ type OrderRepository interface {
 	Delete(param models.Order) error
 	FindById(paramId uint) (models.Order, error)
 	FindAll(param models.OrderListRequest) ([]models.Order, error)
+	FindAllByTxId(txId string) ([]models.Order, error)
 }
 
 type OrderRepositoryImpl struct {
+}
+
+// FindAllByTxId implements [OrderRepository].
+func (a *OrderRepositoryImpl) FindAllByTxId(txId string) ([]models.Order, error) {
+
+	var Orders []models.Order
+	db := database.DB
+
+	if err := db.Preload("Product").
+		Preload("ColorVarian").
+		Preload("SizeVarian").
+		Where("tx_id = ?", txId).Where("tx_id = ?", txId).Find(&Orders).Error; err != nil {
+		return nil, err
+	}
+
+	return Orders, nil
 }
 
 // Create implements OrderRepository.
@@ -61,7 +78,9 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 		db = db.Offset(offset)
 	}
 
-	if err := db.Preload("Orders").Find(&Orders).Error; err != nil {
+	if err := db.Preload("Product").
+		Preload("ColorVarian").
+		Preload("SizeVarian").Find(&Orders).Error; err != nil {
 		return nil, err
 	}
 
@@ -71,7 +90,9 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 // FindById implements OrderRepository.
 func (a *OrderRepositoryImpl) FindById(paramId uint) (models.Order, error) {
 	Order := models.Order{}
-	err := database.DB.Model(&models.User{}).Take(&Order, "id =?", paramId).Error
+	err := database.DB.Model(&models.Order{}).Preload("Product").
+		Preload("ColorVarian").
+		Preload("SizeVarian").Take(&Order, "id =?", paramId).Error
 
 	return Order, err
 }

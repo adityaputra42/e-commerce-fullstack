@@ -5,6 +5,7 @@ import (
 	"e-commerce/backend/internal/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ProductRepository interface {
@@ -31,9 +32,25 @@ type ProductRepository interface {
 	FindAllSizeVarian(param models.SizeVarianListRequest) ([]models.SizeVarian, error)
 	FindSizeVarianByColorVarianId(colorVarianId int64) ([]models.SizeVarian, error)
 	FindByNameAndCategory(name string, categoryID int64, tx *gorm.DB) (*models.Product, error)
+	FindSizeVarianLocked(tx *gorm.DB, id uint) (*models.SizeVarian, error)
 }
 
 type ProductRepositoryImpl struct{}
+
+// FindSizeVarianLocked implements [ProductRepository].
+func (r *ProductRepositoryImpl) FindSizeVarianLocked(tx *gorm.DB, id uint) (*models.SizeVarian, error) {
+	var sizeVarian models.SizeVarian
+
+	err := tx.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		First(&sizeVarian, id).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &sizeVarian, nil
+}
 
 func getDB(tx *gorm.DB) *gorm.DB {
 	if tx != nil {
