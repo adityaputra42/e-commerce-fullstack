@@ -42,23 +42,21 @@ type ShippingResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Transaction Response (gabungan beberapa relasi)
-type TransactionResponse struct {
-	TxID          string                `json:"tx_id"`
-	Address       AddressResponse       `json:"address"`
-	Shipping      ShippingResponse      `json:"shipping"`
-	PaymentMethod PaymentMethodResponse `json:"payment_method"`
-	ShippingPrice float64               `json:"shipping_price"`
-	TotalPrice    float64               `json:"total_price"`
-	Status        string                `json:"status"`
-	Orders        []OrderResponse       `json:"orders"`
-	UpdatedAt     time.Time             `json:"updated_at"`
-	CreatedAt     time.Time             `json:"created_at"`
-}
-
 type ShippingListRequest struct {
 	Limit  int
 	Page   int
 	SortBy string
 	Search string
+}
+
+// Convert Shipping model ke Response
+func (s *Shipping) ToResponseShipping() *ShippingResponse {
+	return &ShippingResponse{
+		ID:        s.ID,
+		Name:      s.Name,
+		Price:     s.Price,
+		State:     s.State,
+		UpdatedAt: s.UpdatedAt,
+		CreatedAt: s.CreatedAt,
+	}
 }

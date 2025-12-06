@@ -11,7 +11,7 @@ type PaymentMethodRepository interface {
 	Create(param models.PaymentMethod, tx *gorm.DB) (models.PaymentMethod, error)
 	Update(param models.PaymentMethod, tx *gorm.DB) (models.PaymentMethod, error)
 	Delete(param models.PaymentMethod) error
-	FindById(paramId uint) (models.PaymentMethod, error)
+	FindById(paramId uint) (*models.PaymentMethod, error)
 	FindAll(param models.PaymentMethodListRequest) ([]models.PaymentMethod, error)
 }
 
@@ -69,11 +69,11 @@ func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequ
 }
 
 // FindById implements PaymentMethodRepository.
-func (a *PaymentMethodRepositoryImpl) FindById(paramId uint) (models.PaymentMethod, error) {
+func (a *PaymentMethodRepositoryImpl) FindById(paramId uint) (*models.PaymentMethod, error) {
 	PaymentMethod := models.PaymentMethod{}
 	err := database.DB.Model(&models.User{}).Take(&PaymentMethod, "id =?", paramId).Error
 
-	return PaymentMethod, err
+	return &PaymentMethod, err
 }
 
 // Update implements PaymentMethodRepository.

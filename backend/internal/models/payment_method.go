@@ -51,3 +51,16 @@ type PaymentMethodListRequest struct {
 	Page   int
 	SortBy string
 }
+
+// Convert PaymentMethod model ke Response
+func (s *PaymentMethod) ToResponsePaymentMethod() *PaymentMethodResponse {
+	return &PaymentMethodResponse{
+		ID:            s.ID,
+		AccountName:   s.AccountName,
+		AccountNumber: s.AccountNumber,
+		BankName:      s.BankName,
+		BankImages:    s.BankImages,
+		UpdatedAt:     s.UpdatedAt,
+		CreatedAt:     s.CreatedAt,
+	}
+}

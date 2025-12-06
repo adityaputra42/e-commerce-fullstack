@@ -5,17 +5,34 @@ import (
 	"e-commerce/backend/internal/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type TransactionRepository interface {
 	Create(param models.Transaction, tx *gorm.DB) (models.Transaction, error)
 	Update(param models.Transaction, tx *gorm.DB) (models.Transaction, error)
 	Delete(param models.Transaction) error
-	FindById(paramId uint) (models.Transaction, error)
+	FindById(paramId string) (models.Transaction, error)
+	FindByIdLocking(tx *gorm.DB, id string) (*models.Transaction, error)
 	FindAll(param models.TransactionListRequest) ([]models.Transaction, error)
 }
 
 type TransactionRepositoryImpl struct {
+}
+
+// FindByIdLocking implements [TransactionRepository].
+func (r *TransactionRepositoryImpl) FindByIdLocking(tx *gorm.DB, id string) (*models.Transaction, error) {
+	var trx models.Transaction
+
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("tx_id = ?", id).
+		First(&trx).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &trx, nil
 }
 
 // Create implements TransactionRepository.
@@ -61,7 +78,8 @@ func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest)
 		db = db.Offset(offset)
 	}
 
-	if err := db.Preload("Transactions").Find(&Transactions).Error; err != nil {
+	if err := db.
+		Find(&Transactions).Error; err != nil {
 		return nil, err
 	}
 
@@ -69,9 +87,19 @@ func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest)
 }
 
 // FindById implements TransactionRepository.
-func (a *TransactionRepositoryImpl) FindById(paramId uint) (models.Transaction, error) {
+func (a *TransactionRepositoryImpl) FindById(paramId string) (models.Transaction, error) {
 	Transaction := models.Transaction{}
-	err := database.DB.Model(&models.User{}).Take(&Transaction, "id =?", paramId).Error
+	err := database.DB.
+		Preload("Address").
+		Preload("Shipping").
+		Preload("PaymentMethod").
+		Preload("Orders", func(db *gorm.DB) *gorm.DB {
+			return db.
+				Preload("Product").
+				Preload("ColorVarian").
+				Preload("SizeVarian")
+		}).
+		First(&Transaction, "tx_id =?", paramId).Error
 
 	return Transaction, err
 }
@@ -90,7 +118,15 @@ func (a *TransactionRepositoryImpl) Update(param models.Transaction, tx *gorm.DB
 		return result, err
 	}
 
-	err = db.First(&result, param.TxID).Error
+	err = db.Preload("Address").
+		Preload("Shipping").
+		Preload("PaymentMethod").
+		Preload("Orders", func(db *gorm.DB) *gorm.DB {
+			return db.
+				Preload("Product").
+				Preload("ColorVarian").
+				Preload("SizeVarian")
+		}).First(&result, param.TxID).Error
 	return result, err
 
 }

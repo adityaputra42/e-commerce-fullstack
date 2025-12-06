@@ -68,7 +68,7 @@ func (a *AddressServiceImpl) DeleteAddress(id int64) error {
 		return err
 	}
 
-	err = a.addressRepo.Delete(address)
+	err = a.addressRepo.Delete(*address)
 
 	if err != nil {
 		return err

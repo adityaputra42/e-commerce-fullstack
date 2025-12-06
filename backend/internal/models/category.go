@@ -41,3 +41,13 @@ type CategoryListRequest struct {
 	SortBy string
 	Search string
 }
+
+func (s *Category) ToResponseCategory() *CategoryResponse {
+	return &CategoryResponse{
+		ID:        s.ID,
+		Name:      s.Name,
+		Icon:      s.Icon,
+		UpdatedAt: s.UpdatedAt,
+		CreatedAt: s.CreatedAt,
+	}
+}

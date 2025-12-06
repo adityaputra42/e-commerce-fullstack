@@ -11,7 +11,7 @@ type ShippingRepository interface {
 	Create(param models.Shipping, tx *gorm.DB) (models.Shipping, error)
 	Update(param models.Shipping, tx *gorm.DB) (models.Shipping, error)
 	Delete(param models.Shipping) error
-	FindById(paramId uint) (models.Shipping, error)
+	FindById(paramId uint) (*models.Shipping, error)
 	FindAll(param models.ShippingListRequest) ([]models.Shipping, error)
 }
 
@@ -68,11 +68,11 @@ func (a *ShippingRepositoryImpl) FindAll(param models.ShippingListRequest) ([]mo
 }
 
 // FindById implements ShippingRepository.
-func (a *ShippingRepositoryImpl) FindById(paramId uint) (models.Shipping, error) {
+func (a *ShippingRepositoryImpl) FindById(paramId uint) (*models.Shipping, error) {
 	Shipping := models.Shipping{}
-	err := database.DB.Model(&models.User{}).Take(&Shipping, "id =?", paramId).Error
+	err := database.DB.Model(&models.Shipping{}).Take(&Shipping, "id =?", paramId).Error
 
-	return Shipping, err
+	return &Shipping, err
 }
 
 // Update implements ShippingRepository.
