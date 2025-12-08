@@ -121,8 +121,8 @@ func (a *TransactionRepositoryImpl) Update(param models.Transaction, tx *gorm.DB
 	err = db.Preload("Address").
 		Preload("Shipping").
 		Preload("PaymentMethod").
-		Preload("Orders", func(db *gorm.DB) *gorm.DB {
-			return db.
+		Preload("Orders", func(dbf *gorm.DB) *gorm.DB {
+			return dbf.
 				Preload("Product").
 				Preload("ColorVarian").
 				Preload("SizeVarian")

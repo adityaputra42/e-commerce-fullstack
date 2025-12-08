@@ -11,7 +11,7 @@ type OrderRepository interface {
 	Create(param models.Order, tx *gorm.DB) (models.Order, error)
 	Update(param models.Order, tx *gorm.DB) (models.Order, error)
 	Delete(param models.Order) error
-	FindById(paramId uint) (models.Order, error)
+	FindById(paramId string) (models.Order, error)
 	FindAll(param models.OrderListRequest) ([]models.Order, error)
 	FindAllByTxId(txId string) ([]models.Order, error)
 }
@@ -88,7 +88,7 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 }
 
 // FindById implements OrderRepository.
-func (a *OrderRepositoryImpl) FindById(paramId uint) (models.Order, error) {
+func (a *OrderRepositoryImpl) FindById(paramId string) (models.Order, error) {
 	Order := models.Order{}
 	err := database.DB.Model(&models.Order{}).Preload("Product").
 		Preload("ColorVarian").

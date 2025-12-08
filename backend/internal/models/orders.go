@@ -9,6 +9,7 @@ import (
 // Order Model
 type Order struct {
 	ID            string         `json:"id" gorm:"primaryKey;type:char(36)" validate:"required,uuid4"`
+	UserID        int64          `json:"user_id" validate:"required" gorm:"not null;index"`
 	TransactionID string         `json:"transaction_id" gorm:"type:char(36);index" validate:"required,uuid4"`
 	ProductID     int64          `json:"product_id" gorm:"not null" validate:"required"`
 	ColorVarianID int64          `json:"color_varian_id" gorm:"not null" validate:"required"`
@@ -21,9 +22,10 @@ type Order struct {
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
 
-	Product     Product     `json:"-" gorm:"foreignKey:ProductID"`
-	ColorVarian ColorVarian `json:"-" gorm:"foreignKey:ColorVarianID"`
-	SizeVarian  SizeVarian  `json:"-" gorm:"foreignKey:SizeVarianID"`
+	User        User        `json:"user" gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Product     Product     `json:"product" gorm:"foreignKey:ProductID"`
+	ColorVarian ColorVarian `json:"color_varian" gorm:"foreignKey:ColorVarianID"`
+	SizeVarian  SizeVarian  `json:"size_varian" gorm:"foreignKey:SizeVarianID"`
 }
 
 // Payload untuk Update
@@ -81,6 +83,7 @@ type ColorVarianOrderResponse struct {
 type OrderListRequest struct {
 	Limit  int
 	Page   int
+	UserId int
 	SortBy string
 }
 
