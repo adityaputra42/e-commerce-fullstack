@@ -16,7 +16,7 @@ type Payment struct {
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// Relasi ke Transaction
-	Transaction Transaction `json:"-" gorm:"foreignKey:TransactionID;references:TxID"`
+	Transaction Transaction `json:"transaction" gorm:"foreignKey:TransactionID;references:TxID"`
 }
 
 // Request untuk membuat pembayaran
@@ -35,4 +35,26 @@ type PaymentListRequest struct {
 	Limit  int
 	Page   int
 	SortBy string
+}
+
+type PaymentResponse struct {
+	ID            int64                `json:"id"`
+	TransactionID string               `json:"transaction_id"`
+	TotalPayment  float64              `json:"total_payment"`
+	Status        string               `json:"status"`
+	Transaction   *TransactionResponse `json:"transaction,omitempty"`
+	CreatedAt     time.Time            `json:"created_at"`
+	UpdatedAt     time.Time            `json:"updated_at"`
+}
+
+func (cl *Payment) ToResponsePayment() *PaymentResponse {
+	return &PaymentResponse{
+		ID:            cl.ID,
+		TransactionID: cl.TransactionID,
+		TotalPayment:  cl.TotalPayment,
+		Status:        cl.Status,
+		Transaction:   cl.Transaction.ToResponseTransaction(),
+		UpdatedAt:     cl.UpdatedAt,
+		CreatedAt:     cl.CreatedAt,
+	}
 }

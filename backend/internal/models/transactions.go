@@ -57,3 +57,23 @@ type TransactionResponse struct {
 	UpdatedAt     time.Time             `json:"updated_at"`
 	CreatedAt     time.Time             `json:"created_at"`
 }
+
+func (tx *Transaction) ToResponseTransaction() *TransactionResponse {
+	var orderResponse []OrderResponse
+
+	for _, v := range tx.Orders {
+		orderResponse = append(orderResponse, v.ToOrderResponse())
+	}
+	return &TransactionResponse{
+		TxID:          tx.TxID,
+		Address:       *tx.Address.ToResponseAddress(),
+		Shipping:      *tx.Shipping.ToResponseShipping(),
+		PaymentMethod: *tx.PaymentMethod.ToResponsePaymentMethod(),
+		ShippingPrice: tx.ShippingPrice,
+		TotalPrice:    tx.TotalPrice,
+		Status:        tx.Status,
+		Orders:        orderResponse,
+		UpdatedAt:     tx.UpdatedAt,
+		CreatedAt:     tx.CreatedAt,
+	}
+}

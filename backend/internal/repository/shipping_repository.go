@@ -60,7 +60,7 @@ func (a *ShippingRepositoryImpl) FindAll(param models.ShippingListRequest) ([]mo
 		db = db.Offset(offset)
 	}
 
-	if err := db.Preload("Shippings").Find(&Shippings).Error; err != nil {
+	if err := db.Find(&Shippings).Error; err != nil {
 		return nil, err
 	}
 
