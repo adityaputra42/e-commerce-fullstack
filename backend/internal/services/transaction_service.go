@@ -107,12 +107,12 @@ func (t *TransactionServiceImpl) CreateTransaction(ctx context.Context, param mo
 			return nil, fmt.Errorf("context canceled: %w", err)
 		}
 
-		product, err := t.productRepo.FindProductById(po.ProductID)
+		product, err := t.productRepo.FindProductById(po.ProductID, tx)
 		if err != nil {
 			return nil, fmt.Errorf("product not found at index %d: %w", idx, err)
 		}
 
-		colorVariant, err := t.productRepo.FindColorVarianById(po.ColorVarianID)
+		colorVariant, err := t.productRepo.FindColorVarianById(po.ColorVarianID, tx)
 		if err != nil {
 			return nil, fmt.Errorf("color variant not found at index %d: %w", idx, err)
 		}
@@ -192,7 +192,7 @@ func (t *TransactionServiceImpl) FindAllTransaction(param models.TransactionList
 
 	var responses []models.TransactionResponse
 	for _, transaction := range transactions {
-	
+
 		response := models.TransactionResponse{
 			TxID:          transaction.TxID,
 			ShippingPrice: transaction.ShippingPrice,
@@ -201,7 +201,6 @@ func (t *TransactionServiceImpl) FindAllTransaction(param models.TransactionList
 			CreatedAt:     transaction.CreatedAt,
 			UpdatedAt:     transaction.UpdatedAt,
 		}
-
 
 		responses = append(responses, response)
 	}
