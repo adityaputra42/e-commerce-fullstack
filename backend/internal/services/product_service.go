@@ -19,7 +19,7 @@ type ProductService interface {
 	UpdateProduct(param models.UpdateProductParam) (*models.ProductDetailResponse, error)
 	DeleteProduct(id int64) error
 	AddColorVarianProduct(productId int64, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error)
-	updateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error
+	UpdateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error
 }
 
 type ProductServiceImpl struct {
@@ -28,7 +28,7 @@ type ProductServiceImpl struct {
 }
 
 // updateSizeVariants implements ProductService.
-func (p *ProductServiceImpl) updateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error {
+func (p *ProductServiceImpl) UpdateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error {
 
 	var existingSizes []models.SizeVarian
 	err := tx.Where("color_varian_id = ? AND deleted_at IS NULL", colorVarianID).
@@ -494,7 +494,7 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 
 					// UPDATE SIZES
 					if len(cv.Sizes) > 0 {
-						if err := p.updateSizeVariants(*cv.ID, cv.Sizes, tx); err != nil {
+						if err := p.UpdateSizeVariants(*cv.ID, cv.Sizes, tx); err != nil {
 							return err
 						}
 					}

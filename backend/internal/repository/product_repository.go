@@ -121,6 +121,8 @@ func (r *ProductRepositoryImpl) FindProductById(id int64, tx *gorm.DB) (*models.
 }
 
 func (r *ProductRepositoryImpl) FindAllProduct(param models.ProductListRequest, tx *gorm.DB) ([]models.Product, int64, error) {
+
+	offset := (param.Page - 1) * param.Limit
 	db := getDB(tx)
 
 	var products []models.Product
@@ -156,8 +158,8 @@ func (r *ProductRepositoryImpl) FindAllProduct(param models.ProductListRequest, 
 	if param.Limit > 0 {
 		query = query.Limit(param.Limit)
 	}
-	if param.Offset > 0 {
-		query = query.Offset(param.Offset)
+	if offset > 0 {
+		query = query.Offset(offset)
 	}
 
 	if err := query.Find(&products).Error; err != nil {
