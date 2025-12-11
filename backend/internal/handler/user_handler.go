@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type UserHandler struct {
@@ -19,22 +18,6 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
 	}
-}
-
-// Helper function untuk extract ID dari URL
-func extractIDFromPath(path string) (uint, error) {
-	pathParts := strings.Split(strings.Trim(path, "/"), "/")
-	if len(pathParts) < 2 {
-		return 0, nil
-	}
-
-	idStr := pathParts[len(pathParts)-1]
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return uint(id), nil
 }
 
 // GetUsers - GET /api/users
@@ -69,7 +52,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 // GetUserById - GET /api/users/:id
 func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -130,7 +113,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser - PUT /api/users/:id
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -156,7 +139,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser - DELETE /api/users/:id
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -175,7 +158,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // ActivateUser - PUT /api/users/:id/activate
 func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -195,7 +178,7 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeactivateUser - PUT /api/users/:id/deactivate
 func (h *UserHandler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
@@ -234,7 +217,7 @@ func (h *UserHandler) BulkUserActions(w http.ResponseWriter, r *http.Request) {
 
 // UpdatePassword - PUT /api/users/:id/password
 func (h *UserHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
-	id, err := extractIDFromPath(r.URL.Path)
+	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return

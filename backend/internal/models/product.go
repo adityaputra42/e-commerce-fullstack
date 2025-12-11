@@ -135,7 +135,7 @@ type SizeVarianResponse struct {
 }
 type ProductListRequest struct {
 	Limit      int
-	Offset     int
+	Page     int
 	SortBy     string
 	Search     string
 	CategoryID int64

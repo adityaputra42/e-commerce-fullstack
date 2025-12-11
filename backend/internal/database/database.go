@@ -37,12 +37,22 @@ func Connect(cfg *config.Config) error {
 
 func Migrate() error {
 	err := DB.AutoMigrate(
+		&models.SeedTracker{},
 		&models.User{},
 		&models.Role{},
 		&models.Permission{},
 		&models.ActivityLog{},
 		&models.PasswordResetToken{},
-		&models.SeedTracker{},
+		&models.Address{},
+		&models.Category{},
+		&models.Product{},
+		&models.ColorVarian{},
+		&models.SizeVarian{},
+		&models.Shipping{},
+		&models.PaymentMethod{},
+		&models.Transaction{},
+		&models.Order{},
+		&models.Payment{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)

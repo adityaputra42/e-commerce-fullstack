@@ -21,7 +21,7 @@ func NewAddressHandler(addressService services.AddressService) *AddressHandler {
 	}
 }
 
-// CreateAddress handles POST /addresses
+// CreateAddress handles POSaT /addresses
 func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 

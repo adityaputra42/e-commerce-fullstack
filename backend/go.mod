@@ -3,9 +3,11 @@ module e-commerce/backend
 go 1.24.4
 
 require (
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/google/wire v0.7.0
 	github.com/spf13/viper v1.20.1
 	github.com/supabase-community/storage-go v0.8.1
 	golang.org/x/crypto v0.40.0
