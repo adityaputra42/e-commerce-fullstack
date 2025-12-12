@@ -81,9 +81,9 @@ type ColorVarianOrderResponse struct {
 }
 
 type OrderListRequest struct {
-	Limit  int
-	Page   int
-	UserId int
+	Limit  int64
+	Page   int64
+	UserId int64
 	SortBy string
 }
 

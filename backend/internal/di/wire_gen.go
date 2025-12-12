@@ -37,10 +37,28 @@ func InitializeAllHandler(config2 *config.Config) *Handler {
 	authHandler := handler.NewAuthHandler(authService)
 	userService := services.NewUserService(userRepository, activityLogRepository, roleRepository)
 	userHandler := handler.NewUserHandler(userService)
+	permissionRepository := repository.NewPermissionRepository()
+	roleService := services.NewRoleService(roleRepository, permissionRepository)
+	roleHandler := handler.NewRoleHandler(roleService)
+	orderRepository := repository.NewOrderRepository()
+	orderService := services.NewOrderService(orderRepository)
+	orderHandler := handler.NewOrderHandler(orderService)
+	paymentRepository := repository.NewPaymentRepository()
+	transactionRepository := repository.NewTransactionRepository()
+	paymentService := services.NewPaymentService(paymentRepository, transactionRepository)
+	paymentHandler := handler.NewPaymentHandler(paymentService)
+	paymentMethodRepository := repository.NewPaymentMethodRepository()
+	paymentMethodService := services.NewPaymentMethodService(paymentMethodRepository)
+	paymentMethodHandler := handler.NewPaymentMethodHandler(paymentMethodService)
+	shippingRepository := repository.NewShippingRepository()
+	shippingService := services.NewShippingService(shippingRepository)
+	shippingHandler := handler.NewShippingHandler(shippingService)
+	transactionService := services.NewTransactionService(transactionRepository, shippingRepository, addressRepository, paymentMethodRepository, orderRepository, productRepository)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 	db := ProvideDB()
 	rbacRepository := repository.NewRBACRepository(db)
 	rbacService := services.NewRBACService(rbacRepository)
-	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, rbacService, userService, jwtService)
+	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, roleHandler, orderHandler, paymentHandler, paymentMethodHandler, shippingHandler, transactionHandler, rbacService, userService, jwtService)
 	return diHandler
 }
 
@@ -70,14 +88,20 @@ var utilsSet = wire.NewSet(
 )
 
 // Handler Providers
-var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler)
+var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler, handler.NewRoleHandler, handler.NewOrderHandler, handler.NewShippingHandler, handler.NewPaymentHandler, handler.NewPaymentMethodHandler, handler.NewTransactionHandler)
 
 // Handler struct contains all handler and services
 type Handler struct {
-	ProductHandler *handler.ProductHandler
-	AddressHandler *handler.AddressHandler
-	AuthHandler    *handler.AuthHandler
-	UserHandler    *handler.UserHandler
+	ProductHandler       *handler.ProductHandler
+	AddressHandler       *handler.AddressHandler
+	AuthHandler          *handler.AuthHandler
+	UserHandler          *handler.UserHandler
+	RoleHandler          *handler.RoleHandler
+	OrderHandler         *handler.OrderHandler
+	PaymentHandler       *handler.PaymentHandler
+	PaymentMethodHandler *handler.PaymentMethodHandler
+	ShippingHandler      *handler.ShippingHandler
+	TransactionHandler   *handler.TransactionHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -91,17 +115,29 @@ func NewHandler(
 	addressHandler *handler.AddressHandler,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
+	roleHandler *handler.RoleHandler,
+	orderHandler *handler.OrderHandler,
+	paymentHandler *handler.PaymentHandler,
+	paymentMethodHandler *handler.PaymentMethodHandler,
+	shippingHandler *handler.ShippingHandler,
+	transactionHandler *handler.TransactionHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
 ) *Handler {
 	return &Handler{
-		ProductHandler: productHandler,
-		AddressHandler: addressHandler,
-		AuthHandler:    authHandler,
-		UserHandler:    userHandler,
-		RBACService:    rbacService,
-		UserService:    userService,
-		JWTService:     jwtService,
+		ProductHandler:       productHandler,
+		AddressHandler:       addressHandler,
+		AuthHandler:          authHandler,
+		UserHandler:          userHandler,
+		RoleHandler:          roleHandler,
+		OrderHandler:         orderHandler,
+		PaymentHandler:       paymentHandler,
+		PaymentMethodHandler: paymentMethodHandler,
+		ShippingHandler:      shippingHandler,
+		TransactionHandler:   transactionHandler,
+		RBACService:          rbacService,
+		UserService:          userService,
+		JWTService:           jwtService,
 	}
 }

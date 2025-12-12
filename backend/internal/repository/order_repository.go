@@ -71,11 +71,11 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 	}
 
 	if param.Limit > 0 {
-		db = db.Limit(param.Limit)
+		db = db.Limit(int(param.Limit))
 	}
 
 	if offset > 0 {
-		db = db.Offset(offset)
+		db = db.Offset(int(offset))
 	}
 
 	if err := db.Preload("Product").
