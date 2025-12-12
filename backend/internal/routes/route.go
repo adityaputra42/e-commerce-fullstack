@@ -29,6 +29,12 @@ func SetupRoutes(handler *di.Handler) *chi.Mux {
 		UserRoutes(api, handler.UserHandler, deps)
 		ProductRoutes(api, handler.ProductHandler, deps)
 		AddressRoutes(api, handler.AddressHandler, deps)
+		RoleRoutes(api, handler.RoleHandler, deps)
+		ShippingRoutes(api, handler.ShippingHandler, deps)
+		OrderRoutes(api, handler.OrderHandler, deps)
+		TransactionRoutes(api, handler.TransactionHandler, deps)
+		PaymentMethodRoutes(api, handler.PaymentMethodHandler, deps)
+		PaymentRoutes(api, handler.PaymentHandler, deps)
 	})
 
 	return r

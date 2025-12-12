@@ -70,6 +70,12 @@ var handlerSet = wire.NewSet(
 	handler.NewAddressHandler,
 	handler.NewUserHandler,
 	handler.NewAuthHandler,
+	handler.NewRoleHandler,
+	handler.NewOrderHandler,
+	handler.NewShippingHandler,
+	handler.NewPaymentHandler,
+	handler.NewPaymentMethodHandler,
+	handler.NewTransactionHandler,
 )
 
 // InitializeAllHandler initializes all handler with config
@@ -86,10 +92,16 @@ func InitializeAllHandler(config *config.Config) *Handler {
 
 // Handler struct contains all handler and services
 type Handler struct {
-	ProductHandler *handler.ProductHandler
-	AddressHandler *handler.AddressHandler
-	AuthHandler    *handler.AuthHandler
-	UserHandler    *handler.UserHandler
+	ProductHandler       *handler.ProductHandler
+	AddressHandler       *handler.AddressHandler
+	AuthHandler          *handler.AuthHandler
+	UserHandler          *handler.UserHandler
+	RoleHandler          *handler.RoleHandler
+	OrderHandler         *handler.OrderHandler
+	PaymentHandler       *handler.PaymentHandler
+	PaymentMethodHandler *handler.PaymentMethodHandler
+	ShippingHandler      *handler.ShippingHandler
+	TransactionHandler   *handler.TransactionHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -103,17 +115,29 @@ func NewHandler(
 	addressHandler *handler.AddressHandler,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
+	roleHandler *handler.RoleHandler,
+	orderHandler *handler.OrderHandler,
+	paymentHandler *handler.PaymentHandler,
+	paymentMethodHandler *handler.PaymentMethodHandler,
+	shippingHandler *handler.ShippingHandler,
+	transactionHandler *handler.TransactionHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
 ) *Handler {
 	return &Handler{
-		ProductHandler: productHandler,
-		AddressHandler: addressHandler,
-		AuthHandler:    authHandler,
-		UserHandler:    userHandler,
-		RBACService:    rbacService,
-		UserService:    userService,
-		JWTService:     jwtService,
+		ProductHandler:       productHandler,
+		AddressHandler:       addressHandler,
+		AuthHandler:          authHandler,
+		UserHandler:          userHandler,
+		RoleHandler:          roleHandler,
+		OrderHandler:         orderHandler,
+		PaymentHandler:       paymentHandler,
+		PaymentMethodHandler: paymentMethodHandler,
+		ShippingHandler:      shippingHandler,
+		TransactionHandler:   transactionHandler,
+		RBACService:          rbacService,
+		UserService:          userService,
+		JWTService:           jwtService,
 	}
 }

@@ -24,7 +24,6 @@ func UserRoutes(r chi.Router, h *handler.UserHandler, deps Dependencies) {
 				r.Put("/{id}/deactivate", h.DeactivateUser)
 				r.Post("/bulk", h.BulkUserActions)
 				r.Put("/{id}/password", h.UpdatePassword)
-
 			})
 			r.Group(func(r chi.Router) {
 				r.Use(mw.SelfOrPermission(deps.RBACService, "user", "update"))

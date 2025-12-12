@@ -10,9 +10,10 @@ import (
 )
 
 func SeedDatabase(cfg *config.Config) error {
-	// Check if initial seeding has been completed
-	var seedTracker models.SeedTracker
-	if err := DB.Where("seed_name = ? AND is_completed = ?", "initial_seed", true).First(&seedTracker).Error; err == nil {
+	// Check if permissions already exist (simple check without seed tracker)
+	var permissionCount int64
+	DB.Model(&models.Permission{}).Count(&permissionCount)
+	if permissionCount > 0 {
 		log.Println("Database already seeded, skipping seeding process")
 		return nil
 	}
@@ -45,15 +46,6 @@ func SeedDatabase(cfg *config.Config) error {
 
 	if err := seedShippingMethods(); err != nil {
 		return err
-	}
-
-	// Mark seeding as completed
-	seedTracker = models.SeedTracker{
-		SeedName:    "initial_seed",
-		IsCompleted: true,
-	}
-	if err := DB.Create(&seedTracker).Error; err != nil {
-		log.Printf("Warning: Failed to mark seeding as completed: %v", err)
 	}
 
 	log.Println("Database seeding completed successfully")
@@ -100,6 +92,31 @@ func seedPermissions() error {
 		{Name: "orders.delete", Resource: "orders", Action: "delete", Description: "Delete orders"},
 		{Name: "orders.read_own", Resource: "orders", Action: "read_own", Description: "View own orders"},
 
+		// Payment Method permissions
+		{Name: "payment_methods.create", Resource: "payment_methods", Action: "create", Description: "Create payment methods"},
+		{Name: "payment_methods.read", Resource: "payment_methods", Action: "read", Description: "View payment methods"},
+		{Name: "payment_methods.update", Resource: "payment_methods", Action: "update", Description: "Update payment methods"},
+		{Name: "payment_methods.delete", Resource: "payment_methods", Action: "delete", Description: "Delete payment methods"},
+
+		// Shipping permissions
+		{Name: "shipping.create", Resource: "shipping", Action: "create", Description: "Create shipping methods"},
+		{Name: "shipping.read", Resource: "shipping", Action: "read", Description: "View shipping methods"},
+		{Name: "shipping.update", Resource: "shipping", Action: "update", Description: "Update shipping methods"},
+		{Name: "shipping.delete", Resource: "shipping", Action: "delete", Description: "Delete shipping methods"},
+
+		// Transaction permissions
+		{Name: "transactions.create", Resource: "transactions", Action: "create", Description: "Create transactions"},
+		{Name: "transactions.read", Resource: "transactions", Action: "read", Description: "View transactions"},
+		{Name: "transactions.update", Resource: "transactions", Action: "update", Description: "Update transactions"},
+		{Name: "transactions.read_own", Resource: "transactions", Action: "read_own", Description: "View own transactions"},
+
+		// Payment permissions
+		{Name: "payments.create", Resource: "payments", Action: "create", Description: "Create payments"},
+		{Name: "payments.read", Resource: "payments", Action: "read", Description: "View payments"},
+		{Name: "payments.update", Resource: "payments", Action: "update", Description: "Update payments"},
+		{Name: "payments.delete", Resource: "payments", Action: "delete", Description: "Delete payments"},
+		{Name: "payments.read_own", Resource: "payments", Action: "read_own", Description: "View own payments"},
+
 		// Dashboard & Analytics
 		{Name: "dashboard.read", Resource: "dashboard", Action: "read", Description: "View dashboard"},
 		{Name: "analytics.read", Resource: "analytics", Action: "read", Description: "View analytics"},
@@ -108,11 +125,15 @@ func seedPermissions() error {
 
 	for _, permission := range permissions {
 		var existingPermission models.Permission
-		if err := DB.Where("name = ?", permission.Name).First(&existingPermission).Error; err != nil {
+		err := DB.Where("name = ?", permission.Name).First(&existingPermission).Error
+		if err != nil {
 			if err := DB.Create(&permission).Error; err != nil {
+				log.Printf("Error creating permission %s: %v", permission.Name, err)
 				return err
 			}
 			log.Printf("Created permission: %s", permission.Name)
+		} else {
+			log.Printf("Permission already exists: %s", permission.Name)
 		}
 	}
 
@@ -135,6 +156,10 @@ func seedRoles() error {
 			"products.create", "products.read", "products.update", "products.delete",
 			"categories.create", "categories.read", "categories.update", "categories.delete",
 			"orders.create", "orders.read", "orders.update", "orders.delete",
+			"payment_methods.create", "payment_methods.read", "payment_methods.update", "payment_methods.delete",
+			"shipping.create", "shipping.read", "shipping.update", "shipping.delete",
+			"transactions.create", "transactions.read", "transactions.update",
+			"payments.create", "payments.read", "payments.update", "payments.delete",
 			"dashboard.read", "analytics.read", "activity_logs.read",
 		},
 		"Admin": {
@@ -143,6 +168,10 @@ func seedRoles() error {
 			"products.create", "products.read", "products.update", "products.delete",
 			"categories.create", "categories.read", "categories.update", "categories.delete",
 			"orders.read", "orders.update",
+			"payment_methods.read", "payment_methods.update",
+			"shipping.read", "shipping.update",
+			"transactions.read", "transactions.update",
+			"payments.read", "payments.update",
 			"dashboard.read", "analytics.read", "activity_logs.read",
 		},
 		"Vendor": {
@@ -150,12 +179,20 @@ func seedRoles() error {
 			"products.create", "products.read", "products.update",
 			"categories.read",
 			"orders.read",
+			"payment_methods.read",
+			"shipping.read",
+			"transactions.read",
+			"payments.read",
 			"dashboard.read",
 		},
 		"Customer": {
 			"profile.read", "profile.update",
 			"products.read", "categories.read",
 			"orders.create", "orders.read_own",
+			"payment_methods.read",
+			"shipping.read",
+			"transactions.create", "transactions.read_own",
+			"payments.create", "payments.read_own",
 		},
 	}
 
@@ -712,7 +749,8 @@ func seedShippingMethods() error {
 
 // ResetSeedingStatus resets the seeding status - useful for fresh migrations
 func ResetSeedingStatus() error {
-	if err := DB.Where("seed_name = ?", "initial_seed").Delete(&models.SeedTracker{}).Error; err != nil {
+	// Simply truncate permissions to trigger re-seeding
+	if err := DB.Exec("TRUNCATE TABLE permissions CASCADE").Error; err != nil {
 		return fmt.Errorf("failed to reset seeding status: %w", err)
 	}
 	log.Println("Seeding status reset successfully")
@@ -749,23 +787,6 @@ func ForceSeedDatabase(cfg *config.Config) error {
 
 	if err := seedShippingMethods(); err != nil {
 		return err
-	}
-
-	// Update or create seed tracker
-	var seedTracker models.SeedTracker
-	if err := DB.Where("seed_name = ?", "initial_seed").First(&seedTracker).Error; err != nil {
-		seedTracker = models.SeedTracker{
-			SeedName:    "initial_seed",
-			IsCompleted: true,
-		}
-		if err := DB.Create(&seedTracker).Error; err != nil {
-			log.Printf("Warning: Failed to mark seeding as completed: %v", err)
-		}
-	} else {
-		seedTracker.IsCompleted = true
-		if err := DB.Save(&seedTracker).Error; err != nil {
-			log.Printf("Warning: Failed to update seeding status: %v", err)
-		}
 	}
 
 	log.Println("Force seeding completed successfully")
