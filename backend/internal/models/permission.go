@@ -26,6 +26,7 @@ type PermissionInput struct {
 	Description string `json:"description" validate:"max=500"`
 }
 
+
 func (Permission) TableName() string {
 	return "permissions"
 }

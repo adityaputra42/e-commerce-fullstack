@@ -72,6 +72,13 @@ type UserListResponse struct {
 	TotalPages int            `json:"total_pages"`
 }
 
+type UserListRequest struct {
+	UserId *uint
+	Limit  int
+	Page   int
+	SortBy string
+}
+
 func (User) TableName() string {
 	return "users"
 }

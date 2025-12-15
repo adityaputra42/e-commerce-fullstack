@@ -17,7 +17,7 @@ type ActivityLog struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
-	User User `json:"user" gorm:"foreignKey:UserID"`
+	User      User           `json:"user" gorm:"foreignKey:UserID"`
 }
 
 type ActivityLogInput struct {
@@ -54,6 +54,13 @@ type ActivityLogListResponse struct {
 	TotalPages int                   `json:"total_pages"`
 }
 
+type ActivityLogListRequest struct {
+	UserId *uint
+	Limit  int
+	Page   int
+	SortBy string
+}
+
 func (ActivityLog) TableName() string {
 	return "activity_logs"
 }
@@ -69,7 +76,7 @@ func (a *ActivityLog) ToResponse() *ActivityLogResponse {
 		UserAgent: a.UserAgent,
 		CreatedAt: a.CreatedAt,
 	}
-	
+
 	response.User.ID = a.User.ID
 	response.User.Username = a.User.Username
 	response.User.FirstName = a.User.FirstName

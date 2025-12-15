@@ -29,26 +29,6 @@ This project is designed with scalability, modularity, and developer experience 
 
 ---
 
-## 📁 Project Structure
-
-ecommerce-fullstack/
-├── backend/ 
-│ ├── cmd/
-│ └── internal/
-├── admin-panel/ 
-│ ├── src/
-│ ├── public/
-│ └── vite.config.ts
-├── mobile-app/
-│ ├── lib/
-│ ├── assets/
-│ └── pubspec.yaml
-├── docker-compose.yml 
-└── README.md
-
-
----
-
 ## 🔧 Tech Stack
 
 ### Backend

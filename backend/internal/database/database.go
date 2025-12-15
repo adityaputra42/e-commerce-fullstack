@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -14,16 +14,16 @@ import (
 var DB *gorm.DB
 
 func Connect(cfg *config.Config) error {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
+		cfg.Database.Host,
 		cfg.Database.User,
 		cfg.Database.Password,
-		cfg.Database.Host,
-		cfg.Database.Port,
 		cfg.Database.Name,
+		cfg.Database.Port,
 	)
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 
@@ -37,12 +37,22 @@ func Connect(cfg *config.Config) error {
 
 func Migrate() error {
 	err := DB.AutoMigrate(
+		&models.SeedTracker{},
 		&models.User{},
 		&models.Role{},
 		&models.Permission{},
 		&models.ActivityLog{},
 		&models.PasswordResetToken{},
-		&models.SeedTracker{},
+		&models.Address{},
+		&models.Category{},
+		&models.Product{},
+		&models.ColorVarian{},
+		&models.SizeVarian{},
+		&models.Shipping{},
+		&models.PaymentMethod{},
+		&models.Transaction{},
+		&models.Order{},
+		&models.Payment{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
