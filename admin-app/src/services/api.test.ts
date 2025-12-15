@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAuthStore } from '../hooks/useAuth';
 
+
+vi.stubEnv('VITE_API_URL', 'http://localhost:8080/api/v1');
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: { [key: string]: string } = {};
@@ -42,10 +45,7 @@ vi.mock('axios', () => ({
   __esModule: true,
   default: {
     create: vi.fn(() => mockAxiosInstance),
-    get: vi.fn(),
     post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
   },
 }));
 
@@ -137,9 +137,13 @@ describe('api interceptors', () => {
 
     const response = await promise;
 
-    expect(mockedAxios.post).toHaveBeenCalledWith('/auth/refresh', {
-      refresh_token: 'old_refresh_token',
-    });
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/refresh'),
+      {
+        refresh_token: 'old_refresh_token',
+      }
+    );
+
     expect(useAuthStore.getState().accessToken).toBe('new_access_token');
     expect(response.data).toEqual({ message: 'Success' });
     expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2); // Original and retried
