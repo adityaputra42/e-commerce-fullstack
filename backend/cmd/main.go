@@ -12,14 +12,24 @@ import (
 
 func main() {
 	cfg := config.Load()
+
+	log.Println("========================================")
+	log.Println("🔧 Initializing Application...")
+	log.Println("========================================")
+
+	log.Println("📦 Connecting to database...")
 	config.InitSupabase(*cfg)
 	if err := database.Connect(cfg); err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
+
+	log.Println("🔄 Running database migrations...")
 	if err := database.Migrate(); err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
+	log.Println("✅ Migrations completed")
 
+	log.Println("🌱 Running database seeders...")
 	if err := database.SeedDatabase(cfg); err != nil {
 		log.Fatal("Failed to seed database:", err)
 	}

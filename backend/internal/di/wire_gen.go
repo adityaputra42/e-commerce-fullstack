@@ -55,10 +55,11 @@ func InitializeAllHandler(config2 *config.Config) *Handler {
 	shippingHandler := handler.NewShippingHandler(shippingService)
 	transactionService := services.NewTransactionService(transactionRepository, shippingRepository, addressRepository, paymentMethodRepository, orderRepository, productRepository)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
+	healthHandler := handler.NewHealthHandler()
 	db := ProvideDB()
 	rbacRepository := repository.NewRBACRepository(db)
 	rbacService := services.NewRBACService(rbacRepository)
-	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, roleHandler, orderHandler, paymentHandler, paymentMethodHandler, shippingHandler, transactionHandler, rbacService, userService, jwtService)
+	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, roleHandler, orderHandler, paymentHandler, paymentMethodHandler, shippingHandler, transactionHandler, healthHandler, rbacService, userService, jwtService)
 	return diHandler
 }
 
@@ -88,7 +89,7 @@ var utilsSet = wire.NewSet(
 )
 
 // Handler Providers
-var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler, handler.NewRoleHandler, handler.NewOrderHandler, handler.NewShippingHandler, handler.NewPaymentHandler, handler.NewPaymentMethodHandler, handler.NewTransactionHandler)
+var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler, handler.NewRoleHandler, handler.NewOrderHandler, handler.NewShippingHandler, handler.NewPaymentHandler, handler.NewPaymentMethodHandler, handler.NewTransactionHandler, handler.NewHealthHandler)
 
 // Handler struct contains all handler and services
 type Handler struct {
@@ -102,6 +103,7 @@ type Handler struct {
 	PaymentMethodHandler *handler.PaymentMethodHandler
 	ShippingHandler      *handler.ShippingHandler
 	TransactionHandler   *handler.TransactionHandler
+	HealthHandler        *handler.HealthHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -121,6 +123,7 @@ func NewHandler(
 	paymentMethodHandler *handler.PaymentMethodHandler,
 	shippingHandler *handler.ShippingHandler,
 	transactionHandler *handler.TransactionHandler,
+	healthHandler *handler.HealthHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
@@ -136,6 +139,7 @@ func NewHandler(
 		PaymentMethodHandler: paymentMethodHandler,
 		ShippingHandler:      shippingHandler,
 		TransactionHandler:   transactionHandler,
+		HealthHandler:        healthHandler,
 		RBACService:          rbacService,
 		UserService:          userService,
 		JWTService:           jwtService,
