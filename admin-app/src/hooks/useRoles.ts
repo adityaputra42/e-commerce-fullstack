@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
-import { Role } from '../types/rbac';
+import type { Role } from '../types/rbac';
 
 interface RolesResponse {
   success: boolean;

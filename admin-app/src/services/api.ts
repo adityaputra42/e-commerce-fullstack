@@ -1,17 +1,10 @@
 import axios from 'axios';
-import { useAuthStore } from '../hooks/useAuth'; // Zustand store
+import { useAuthStore } from '../hooks/useAuth';
 
-interface ImportMetaEnv {
-  VITE_API_URL?: string;
-}
+const API_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
-interface ImportMeta {
-  env: ImportMetaEnv;
-}
-declare const importMeta: ImportMeta;
-
-// @ts-ignore
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+console.log('API_URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,7 +13,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add the auth token to headers
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const { accessToken } = useAuthStore.getState();
@@ -32,14 +25,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle token refresh
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     const { refreshToken, setTokens, logout } = useAuthStore.getState();
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       if (!refreshToken) {

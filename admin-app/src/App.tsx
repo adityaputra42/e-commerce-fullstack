@@ -1,32 +1,37 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/Login';
 import DashboardPage from './pages/Dashboard';
-import UsersPage from './pages/Users/UsersPage'; // Placeholder
-import RolesPage from './pages/Roles/RolesPage'; // Placeholder
+import UsersPage from './pages/Users/UsersPage';
+import RolesPage from './pages/Roles/RolesPage';
+import ProfilePage from './pages/Profile';
 import { useAuthStore } from './hooks/useAuth';
 import ProtectedRoute from './guards/ProtectedRoute';
-import ProfilePage from './pages/Profile';
 
-import './App.css'
 const App = () => {
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" />} />
-        {/* Add register route here later */}
+        {/* Public */}
+        <Route
+          path="/login"
+          element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />}
+        />
 
+        {/* Protected */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          {/* Add other protected routes here */}
         </Route>
 
-        {/* Default route */}
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+        {/* Catch-all */}
+        <Route
+          path="*"
+          element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />}
+        />
       </Routes>
     </Router>
   );

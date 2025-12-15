@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Permission } from '../types/rbac';
+import type { Permission } from '../types/rbac';
 
 export const usePermissions = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
