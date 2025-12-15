@@ -76,6 +76,7 @@ var handlerSet = wire.NewSet(
 	handler.NewPaymentHandler,
 	handler.NewPaymentMethodHandler,
 	handler.NewTransactionHandler,
+	handler.NewHealthHandler,
 )
 
 // InitializeAllHandler initializes all handler with config
@@ -102,6 +103,7 @@ type Handler struct {
 	PaymentMethodHandler *handler.PaymentMethodHandler
 	ShippingHandler      *handler.ShippingHandler
 	TransactionHandler   *handler.TransactionHandler
+	HealthHandler        *handler.HealthHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -121,6 +123,7 @@ func NewHandler(
 	paymentMethodHandler *handler.PaymentMethodHandler,
 	shippingHandler *handler.ShippingHandler,
 	transactionHandler *handler.TransactionHandler,
+	healthHandler *handler.HealthHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
@@ -136,6 +139,7 @@ func NewHandler(
 		PaymentMethodHandler: paymentMethodHandler,
 		ShippingHandler:      shippingHandler,
 		TransactionHandler:   transactionHandler,
+		HealthHandler: 				healthHandler,
 		RBACService:          rbacService,
 		UserService:          userService,
 		JWTService:           jwtService,
