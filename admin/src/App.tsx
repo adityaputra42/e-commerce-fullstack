@@ -9,7 +9,7 @@ import ProtectedRoute from './guards/ProtectedRoute';
 
 const App = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
+console.log('isAuthenticated:', isAuthenticated);
   return (
     <Router>
       <Routes>
