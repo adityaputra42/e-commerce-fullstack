@@ -8,9 +8,9 @@ import api from '../../services/api';
 import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
 
 const UsersPage = () => {
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [search, setSearch] = useState('');
-  const { users, total, isLoading, error, mutate } = useUsers(page, 10, search);
+  const { users, isLoading, error, mutate } = useUsers(page, 10, search);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);

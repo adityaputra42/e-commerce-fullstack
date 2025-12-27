@@ -57,9 +57,12 @@ func InitializeAllHandler(config2 *config.Config) *Handler {
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 	healthHandler := handler.NewHealthHandler()
 	db := ProvideDB()
+	dashboardRepository := repository.NewDashboardRepository(db)
+	dashboardService := services.NewDashboardService(dashboardRepository)
+	dashboardHandler := handler.NewDashboardHandler(dashboardService)
 	rbacRepository := repository.NewRBACRepository(db)
 	rbacService := services.NewRBACService(rbacRepository)
-	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, roleHandler, orderHandler, paymentHandler, paymentMethodHandler, shippingHandler, transactionHandler, healthHandler, rbacService, userService, jwtService)
+	diHandler := NewHandler(productHandler, addressHandler, authHandler, userHandler, roleHandler, orderHandler, paymentHandler, paymentMethodHandler, shippingHandler, transactionHandler, healthHandler, dashboardHandler, rbacService, userService, jwtService)
 	return diHandler
 }
 
@@ -77,11 +80,11 @@ func ProvideJWTService(config2 *config.Config) *utils.JWTService {
 
 // Repository Providers
 var repositorySet = wire.NewSet(
-	ProvideDB, repository.NewCategoryRepository, repository.NewProductRepository, repository.NewAddressRepository, repository.NewOrderRepository, repository.NewPasswordResetTokenRepository, repository.NewPaymentMethodRepository, repository.NewPaymentRepository, repository.NewPermissionRepository, repository.NewRBACRepository, repository.NewShippingRepository, repository.NewTransactionRepository, repository.NewUserReposiory, repository.NewActivityLogRepository, repository.NewRoleRepository,
+	ProvideDB, repository.NewCategoryRepository, repository.NewProductRepository, repository.NewAddressRepository, repository.NewOrderRepository, repository.NewPasswordResetTokenRepository, repository.NewPaymentMethodRepository, repository.NewPaymentRepository, repository.NewPermissionRepository, repository.NewRBACRepository, repository.NewShippingRepository, repository.NewTransactionRepository, repository.NewUserReposiory, repository.NewActivityLogRepository, repository.NewRoleRepository, repository.NewDashboardRepository,
 )
 
 // Service Providers
-var serviceSet = wire.NewSet(services.NewProductService, services.NewAddressService, services.NewAuthService, services.NewOrderService, services.NewPaymentMethodService, services.NewPaymentService, services.NewRBACService, services.NewRoleService, services.NewShippingService, services.NewTransactionService, services.NewUserService)
+var serviceSet = wire.NewSet(services.NewProductService, services.NewAddressService, services.NewAuthService, services.NewOrderService, services.NewPaymentMethodService, services.NewPaymentService, services.NewRBACService, services.NewRoleService, services.NewShippingService, services.NewTransactionService, services.NewUserService, services.NewDashboardService)
 
 // Utils Providers
 var utilsSet = wire.NewSet(
@@ -89,7 +92,7 @@ var utilsSet = wire.NewSet(
 )
 
 // Handler Providers
-var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler, handler.NewRoleHandler, handler.NewOrderHandler, handler.NewShippingHandler, handler.NewPaymentHandler, handler.NewPaymentMethodHandler, handler.NewTransactionHandler, handler.NewHealthHandler)
+var handlerSet = wire.NewSet(handler.NewProductHandler, handler.NewAddressHandler, handler.NewUserHandler, handler.NewAuthHandler, handler.NewRoleHandler, handler.NewOrderHandler, handler.NewShippingHandler, handler.NewPaymentHandler, handler.NewPaymentMethodHandler, handler.NewTransactionHandler, handler.NewHealthHandler, handler.NewDashboardHandler)
 
 // Handler struct contains all handler and services
 type Handler struct {
@@ -104,6 +107,7 @@ type Handler struct {
 	ShippingHandler      *handler.ShippingHandler
 	TransactionHandler   *handler.TransactionHandler
 	HealthHandler        *handler.HealthHandler
+	DashboardHandler     *handler.DashboardHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -124,6 +128,7 @@ func NewHandler(
 	shippingHandler *handler.ShippingHandler,
 	transactionHandler *handler.TransactionHandler,
 	healthHandler *handler.HealthHandler,
+	dashboardHandler *handler.DashboardHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
@@ -140,6 +145,7 @@ func NewHandler(
 		ShippingHandler:      shippingHandler,
 		TransactionHandler:   transactionHandler,
 		HealthHandler:        healthHandler,
+		DashboardHandler:     dashboardHandler,
 		RBACService:          rbacService,
 		UserService:          userService,
 		JWTService:           jwtService,

@@ -5,6 +5,7 @@ import (
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -59,60 +60,54 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders, err := h.orderService.FindAllOrder(param)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch orders")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch orders", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "success",
-		"data":    orders,
-	})
+	utils.WriteJSON(w, http.StatusOK, "success", orders)
 }
 
 func (h *OrderHandler) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Order ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Order ID is required", fmt.Errorf("Order ID is required"))
 		return
 	}
 
 	userID, ok := r.Context().Value("user_id").(int64)
 	if !ok {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
 	order, err := h.orderService.FindById(orderID, userID)
 	if err != nil {
 		if err.Error() == "order not found" {
-			utils.WriteError(w, http.StatusNotFound, "Order not found")
+			utils.WriteError(w, http.StatusNotFound, "Order not found", err)
 			return
 		}
 		if err.Error() == "unauthorized: order does not belong to user" {
-			utils.WriteError(w, http.StatusForbidden, "You don't have permission to access this order")
+			utils.WriteError(w, http.StatusForbidden, "You don't have permission to access this order", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch order")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch order", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Order retrieved successfully",
-		"data":    order,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Order retrieved successfully", order)
 }
 
 // @Router /orders/{id} [put]
 func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Order ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Order ID is required", fmt.Errorf("Order ID is required"))
 		return
 	}
 
 	var updateData models.UpdateOrder
 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -128,82 +123,74 @@ func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isValidStatus {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid order status")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid order status", fmt.Errorf("Invalid order status"))
 		return
 	}
 
 	updatedOrder, err := h.orderService.UpdateOrder(updateData)
 	if err != nil {
 		if err.Error() == "order not found" {
-			utils.WriteError(w, http.StatusNotFound, "Order not found")
+			utils.WriteError(w, http.StatusNotFound, "Order not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to update order")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to update order", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Order updated successfully",
-		"data":    updatedOrder,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Order updated successfully", updatedOrder)
 }
 
 // @Router /orders/{id}/cancel [patch]
 func (h *OrderHandler) CancelOrder(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Order ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Order ID is required", fmt.Errorf("Order ID is required"))
 		return
 	}
 
 	userID, ok := r.Context().Value("user_id").(int64)
 	if !ok {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
 	cancelledOrder, err := h.orderService.CancelOrder(orderID, userID)
 	if err != nil {
 		if err.Error() == "order not found" {
-			utils.WriteError(w, http.StatusNotFound, "Order not found")
+			utils.WriteError(w, http.StatusNotFound, "Order not found", err)
 			return
 		}
 		if err.Error() == "unauthorized: order does not belong to user" {
-			utils.WriteError(w, http.StatusForbidden, "You don't have permission to cancel this order")
+			utils.WriteError(w, http.StatusForbidden, "You don't have permission to cancel this order", err)
 			return
 		}
 		if err.Error() == "cannot cancel order with current status" {
-			utils.WriteError(w, http.StatusBadRequest, "Cannot cancel order with current status")
+			utils.WriteError(w, http.StatusBadRequest, "Cannot cancel order with current status", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to cancel order")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to cancel order", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Order cancelled successfully",
-		"data":    cancelledOrder,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Order cancelled successfully", cancelledOrder)
 }
 
 func (h *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Order ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Order ID is required", fmt.Errorf("Order ID is required"))
 		return
 	}
 
 	err := h.orderService.DeleteOrder(orderID)
 	if err != nil {
 		if err.Error() == "order not found" {
-			utils.WriteError(w, http.StatusNotFound, "Order not found")
+			utils.WriteError(w, http.StatusNotFound, "Order not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to delete order")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to delete order", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Order deleted successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Order deleted successfully", nil)
 }

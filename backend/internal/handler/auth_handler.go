@@ -6,6 +6,7 @@ import (
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -23,20 +24,17 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	resp, err := h.authService.SignUp(req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"message": "User registered successfully",
-		"data":    resp,
-	})
+	utils.WriteJSON(w, http.StatusCreated, "User registered successfully", resp)
 }
 
 // SignIn - POST /api/auth/signin
@@ -44,7 +42,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -54,14 +52,11 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.authService.SignIn(req, ipAddress, userAgent)
 	if err != nil {
-		utils.WriteError(w, http.StatusUnauthorized, err.Error())
+		utils.WriteError(w, http.StatusUnauthorized, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Login successful",
-		"data":    resp,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
 }
 
 // SignOut - POST /api/auth/signout
@@ -69,81 +64,71 @@ func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	userID := middleware.GetUserIDFromContext(r)
 	if userID == 0 {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
 	// Optional: Implement token blacklist or session invalidation
 	// For now, just return success as JWT is stateless
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Logout successful",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Logout successful", nil)
 }
 
 // Refresh - POST /api/auth/refresh
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req models.RefreshTokenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	resp, err := h.authService.RefreshToken(req)
 	if err != nil {
-		utils.WriteError(w, http.StatusUnauthorized, err.Error())
+		utils.WriteError(w, http.StatusUnauthorized, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Token refreshed successfully",
-		"data":    resp,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Token refreshed successfully", resp)
 }
 
 // ForgotPassword - POST /api/auth/forgot-password
 func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var req models.ForgotPasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	token, err := h.authService.ForgotPassword(req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Password reset token sent successfully",
-		"token":   token,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Password reset token sent successfully", token)
 }
 
 // ResetPassword - POST /api/auth/reset-password
 func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	var req models.ResetPasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	err := h.authService.ResetPassword(req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Password reset successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Password reset successfully", nil)
 }
 
 // VerifyEmail - GET /api/auth/verify-email?token=xxx
 func (h *AuthHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 	if token == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Verification token is required")
+		utils.WriteError(w, http.StatusBadRequest, "Verification token is required", fmt.Errorf("Verification token is required"))
 		return
 	}
 
@@ -154,9 +139,7 @@ func (h *AuthHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Email verified successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Email verified successfully", nil)
 }
 
 // ResendVerification - POST /api/auth/resend-verification
@@ -166,12 +149,12 @@ func (h *AuthHandler) ResendVerification(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	if req.Email == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Email is required")
+		utils.WriteError(w, http.StatusBadRequest, "Email is required", fmt.Errorf("Email is required"))
 		return
 	}
 
@@ -182,9 +165,7 @@ func (h *AuthHandler) ResendVerification(w http.ResponseWriter, r *http.Request)
 	// 	return
 	// }
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Verification email sent successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Verification email sent successfully", nil)
 }
 
 // GetProfile - GET /api/auth/profile (requires auth middleware)
@@ -192,21 +173,18 @@ func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user := middleware.GetUserFromContext(r)
 	if user == nil {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Profile retrieved successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Profile retrieved successfully", user)
 }
 
 // ChangePassword - PUT /api/auth/change-password (requires auth middleware)
 func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 	if userID == 0 {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
@@ -216,12 +194,12 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	if req.OldPassword == "" || req.NewPassword == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Old password and new password are required")
+		utils.WriteError(w, http.StatusBadRequest, "Old password and new password are required", fmt.Errorf("Old password and new password are required"))
 		return
 	}
 
@@ -232,7 +210,5 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Password changed successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Password changed successfully", nil)
 }

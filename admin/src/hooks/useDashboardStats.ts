@@ -1,69 +1,92 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { useAuthStore } from './useAuth';
+
+interface DashboardStats {
+  total_users: number;
+  active_users: number;
+  inactive_users: number;
+  new_users_today: number;
+  new_users_this_week: number;
+  total_roles: number;
+}
+
+interface RoleDistribution {
+  role_name: string;
+  user_count: number;
+}
+
+interface ActivityLog {
+  id: number;
+  action: string;
+  resource: string;
+  ip_address: string;
+  user_agent: string;
+  created_at: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+  };
+}
+
+interface UserAnalytics {
+  date: string;
+  user_count: number;
+}
+
+interface DashboardData {
+  stats: DashboardStats | null;
+  roleDistribution: RoleDistribution[] | null;
+  recentActivity: ActivityLog[] | null;
+  userAnalytics: UserAnalytics[] | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
 export const useDashboardData = () => {
-  const { isAuthenticated, isInitialized } = useAuthStore();
-
-  const [stats, setStats] = useState<any>(null);
-  const [roleDistribution, setRoleDistribution] = useState<any[]>([]);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [userAnalytics, setUserAnalytics] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<DashboardData>({
+    stats: null,
+    roleDistribution: null,
+    recentActivity: null,
+    userAnalytics: null,
+    isLoading: true,
+    error: null,
+  });
 
   useEffect(() => {
-    if (!isInitialized || !isAuthenticated) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchDashboard = async () => {
+    const fetchData = async () => {
+      setData((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        setIsLoading(true);
-        setError(null);
-
-     
-        const [usersRes, rolesRes] = await Promise.all([
-          api.get('/users').catch(() => null),
-          api.get('/roles').catch(() => null),
+        const [statsRes, roleDistRes, recentActivityRes, userAnalyticsRes] = await Promise.all([
+          api.get('/dashboard/stats'),
+          api.get('/dashboard/role-distribution'),
+          api.get('/dashboard/recent-activity'),
+          api.get('/dashboard/user-analytics'),
         ]);
 
-        setStats({
-          total_users: usersRes?.data?.data?.length ?? 0,
-          active_users: usersRes?.data?.data?.filter((u: any) => u.is_active)?.length ?? 0,
-          inactive_users: usersRes?.data?.data?.filter((u: any) => !u.is_active)?.length ?? 0,
-          new_users_today: 0,
-          new_users_this_week: 0,
-          total_roles: rolesRes?.data?.data?.length ?? 0,
+        console.log('Dashboard Stats Response:', statsRes.data);
+        console.log('Role Distribution Response:', roleDistRes.data);
+        console.log('Recent Activity Response:', recentActivityRes.data);
+        console.log('User Analytics Response:', userAnalyticsRes.data);
+
+        setData({
+          stats: statsRes.data?.data || null,
+          roleDistribution: Array.isArray(roleDistRes.data?.data) ? roleDistRes.data.data : [],
+          recentActivity: Array.isArray(recentActivityRes.data?.data) ? recentActivityRes.data.data : [],
+          userAnalytics: Array.isArray(userAnalyticsRes.data?.data) ? userAnalyticsRes.data.data : [],
+          isLoading: false,
+          error: null,
         });
-
-        setRoleDistribution(
-          rolesRes?.data?.data?.map((r: any) => ({
-            role_name: r.name,
-            user_count: r.users?.length ?? 0,
-          })) ?? []
-        );
-
-        setRecentActivity([]); // backend belum ada
-        setUserAnalytics([]);  // backend belum ada
       } catch (err) {
-        console.error('Dashboard fetch error:', err);
-        setError('Failed to load dashboard data');
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to fetch dashboard data:', err);
+        setData((prev) => ({ ...prev, isLoading: false, error: 'Failed to load dashboard data.' }));
       }
     };
 
-    fetchDashboard();
-  }, [isAuthenticated, isInitialized]);
+    fetchData();
+  }, []);
 
-  return {
-    stats,
-    roleDistribution,
-    recentActivity,
-    userAnalytics,
-    isLoading,
-    error,
-  };
+  return data;
 };

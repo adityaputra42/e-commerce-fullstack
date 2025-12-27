@@ -42,6 +42,7 @@ var repositorySet = wire.NewSet(
 	repository.NewUserReposiory,
 	repository.NewActivityLogRepository,
 	repository.NewRoleRepository,
+	repository.NewDashboardRepository,
 )
 
 // Service Providers
@@ -57,6 +58,7 @@ var serviceSet = wire.NewSet(
 	services.NewShippingService,
 	services.NewTransactionService,
 	services.NewUserService,
+	services.NewDashboardService,
 )
 
 // Utils Providers
@@ -77,6 +79,7 @@ var handlerSet = wire.NewSet(
 	handler.NewPaymentMethodHandler,
 	handler.NewTransactionHandler,
 	handler.NewHealthHandler,
+	handler.NewDashboardHandler,
 )
 
 // InitializeAllHandler initializes all handler with config
@@ -104,6 +107,7 @@ type Handler struct {
 	ShippingHandler      *handler.ShippingHandler
 	TransactionHandler   *handler.TransactionHandler
 	HealthHandler        *handler.HealthHandler
+	DashboardHandler     *handler.DashboardHandler
 
 	// Services untuk middleware
 	RBACService services.RBACService
@@ -124,6 +128,7 @@ func NewHandler(
 	shippingHandler *handler.ShippingHandler,
 	transactionHandler *handler.TransactionHandler,
 	healthHandler *handler.HealthHandler,
+	dashboardHandler *handler.DashboardHandler,
 	rbacService services.RBACService,
 	userService services.UserService,
 	jwtService *utils.JWTService,
@@ -139,7 +144,8 @@ func NewHandler(
 		PaymentMethodHandler: paymentMethodHandler,
 		ShippingHandler:      shippingHandler,
 		TransactionHandler:   transactionHandler,
-		HealthHandler: 				healthHandler,
+		HealthHandler:        healthHandler,
+		DashboardHandler:     dashboardHandler,
 		RBACService:          rbacService,
 		UserService:          userService,
 		JWTService:           jwtService,

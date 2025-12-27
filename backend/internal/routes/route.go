@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type Dependencies struct {
@@ -20,13 +21,45 @@ type Dependencies struct {
 
 func SetupRoutes(handler *di.Handler) *chi.Mux {
 	r := chi.NewRouter()
+
+	// Basic middleware
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{
+			"http://localhost:3000",
+			"http://localhost:3575",
+		},
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowedHeaders: []string{
+			"Accept",
+			"Authorization",
+			"Content-Type",
+			"X-CSRF-Token",
+			"X-Requested-With",
+		},
+		ExposedHeaders: []string{
+			"Link",
+		},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
+
 	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
+
 	r.Get("/", handler.HealthHandler.Root)
+
 	r.Get("/health", handler.HealthHandler.HealthCheck)
 	r.Head("/health", handler.HealthHandler.HealthCheck) // T
 
@@ -44,6 +77,7 @@ func SetupRoutes(handler *di.Handler) *chi.Mux {
 		TransactionRoutes(api, handler.TransactionHandler, deps)
 		PaymentMethodRoutes(api, handler.PaymentMethodHandler, deps)
 		PaymentRoutes(api, handler.PaymentHandler, deps)
+		DashboardRoutes(api, handler.DashboardHandler, deps)
 	})
 
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {

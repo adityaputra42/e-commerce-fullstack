@@ -6,6 +6,7 @@ import (
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -40,34 +41,28 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.userService.GetUsers(req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Users retrieved successfully",
-		"data":    users,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Users retrieved successfully", users)
 }
 
 // GetUserById - GET /api/users/:id
 func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	user, err := h.userService.GetUserById(id)
 	if err != nil {
-		utils.WriteError(w, http.StatusNotFound, err.Error())
+		utils.WriteError(w, http.StatusNotFound, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "User retrieved successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "User retrieved successfully", user)
 }
 
 // GetCurrentUser - GET /api/users/me
@@ -75,125 +70,108 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context (set by auth middleware)
 	userID := middleware.GetUserIDFromContext(r)
 	if userID == 0 {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
 	user, err := h.userService.GetUserById(userID)
 	if err != nil {
-		utils.WriteError(w, http.StatusNotFound, err.Error())
+		utils.WriteError(w, http.StatusNotFound, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Current user retrieved successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Current user retrieved successfully", user)
 }
 
 // CreateUser - POST /api/users
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req models.UserInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	user, err := h.userService.CreateUser(&req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"message": "User created successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusCreated, "User created successfully", user)
 }
 
 // UpdateUser - PUT /api/users/:id
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	var req models.UserUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	user, err := h.userService.UpdateUser(id, &req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "User updated successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "User updated successfully", user)
 }
 
 // DeleteUser - DELETE /api/users/:id
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	err = h.userService.DeleteUser(id)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "User deleted successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "User deleted successfully", nil)
 }
 
 // ActivateUser - PUT /api/users/:id/activate
 func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	user, err := h.userService.ActivateUser(id)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "User activated successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "User activated successfully", user)
 }
 
 // DeactivateUser - PUT /api/users/:id/deactivate
 func (h *UserHandler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	user, err := h.userService.DeactivateUser(id)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "User deactivated successfully",
-		"data":    user,
-	})
+	utils.WriteJSON(w, http.StatusOK, "User deactivated successfully", user)
 }
 
 // BulkUserActions - POST /api/users/bulk
@@ -201,43 +179,39 @@ func (h *UserHandler) BulkUserActions(w http.ResponseWriter, r *http.Request) {
 	var req services.BulkActionRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	if err := h.userService.BulkUserActions(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Bulk action completed successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Bulk action completed successfully", nil)
 }
 
 // UpdatePassword - PUT /api/users/:id/password
 func (h *UserHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
 	var req models.PasswordUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	err = h.userService.UpdatePassword(id, &req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Password updated successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Password updated successfully", nil)
 }
 
 // UpdateCurrentUserPassword - PUT /api/users/me/password
@@ -245,23 +219,21 @@ func (h *UserHandler) UpdateCurrentUserPassword(w http.ResponseWriter, r *http.R
 	// Get authenticated user ID from context
 	userID := middleware.GetUserIDFromContext(r)
 	if userID == 0 {
-		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated")
+		utils.WriteError(w, http.StatusUnauthorized, "User not authenticated", fmt.Errorf("User not authenticated"))
 		return
 	}
 
 	var req models.PasswordUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	err := h.userService.UpdatePassword(userID, &req)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Password updated successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Password updated successfully", nil)
 }

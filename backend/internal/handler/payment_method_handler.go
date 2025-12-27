@@ -51,14 +51,11 @@ func (h *PaymentMethodHandler) GetAllPaymentMethods(w http.ResponseWriter, r *ht
 
 	paymentMethods, err := h.paymentMethodService.FindAllPaymentMethod(param)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch payment methods")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch payment methods", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Payment methods retrieved successfully",
-		"data":    paymentMethods,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Payment methods retrieved successfully", paymentMethods)
 }
 
 // @Router /payment-methods/{id} [get]
@@ -66,24 +63,21 @@ func (h *PaymentMethodHandler) GetPaymentMethodByID(w http.ResponseWriter, r *ht
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID", err)
 		return
 	}
 
 	paymentMethod, err := h.paymentMethodService.FindById(id)
 	if err != nil {
 		if err.Error() == "payment method not found" || err.Error() == "invalid payment method id" {
-			utils.WriteError(w, http.StatusNotFound, "Payment method not found")
+			utils.WriteError(w, http.StatusNotFound, "Payment method not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch payment method")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch payment method", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Payment method retrieved successfully",
-		"data":    paymentMethod,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Payment method retrieved successfully", paymentMethod)
 }
 
 // @Router /payment-methods [post]
@@ -91,7 +85,7 @@ func (h *PaymentMethodHandler) CreatePaymentMethod(w http.ResponseWriter, r *htt
 	// Parse multipart form (max 10MB)
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Failed to parse form data")
+		utils.WriteError(w, http.StatusBadRequest, "Failed to parse form data", err)
 		return
 	}
 
@@ -100,13 +94,13 @@ func (h *PaymentMethodHandler) CreatePaymentMethod(w http.ResponseWriter, r *htt
 	bankName := r.FormValue("bank_name")
 
 	if accountName == "" || accountNumber == "" || bankName == "" {
-		utils.WriteError(w, http.StatusBadRequest, "All fields are required")
+		utils.WriteError(w, http.StatusBadRequest, "All fields are required", err)
 		return
 	}
 
 	file, fileHeader, err := r.FormFile("bank_image")
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Bank image is required")
+		utils.WriteError(w, http.StatusBadRequest, "Bank image is required", err)
 		return
 	}
 	defer file.Close()
@@ -119,14 +113,11 @@ func (h *PaymentMethodHandler) CreatePaymentMethod(w http.ResponseWriter, r *htt
 
 	paymentMethod, err := h.paymentMethodService.CreatePaymentMethod(param, fileHeader)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"message": "Payment method created successfully",
-		"data":    paymentMethod,
-	})
+	utils.WriteJSON(w, http.StatusCreated, "Payment method created successfully", paymentMethod)
 }
 
 // @Router /payment-methods/{id} [put]
@@ -134,13 +125,13 @@ func (h *PaymentMethodHandler) UpdatePaymentMethod(w http.ResponseWriter, r *htt
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID", err)
 		return
 	}
 
 	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Failed to parse form data")
+		utils.WriteError(w, http.StatusBadRequest, "Failed to parse form data", err)
 		return
 	}
 
@@ -149,7 +140,7 @@ func (h *PaymentMethodHandler) UpdatePaymentMethod(w http.ResponseWriter, r *htt
 	bankName := r.FormValue("bank_name")
 
 	if accountName == "" || accountNumber == "" || bankName == "" {
-		utils.WriteError(w, http.StatusBadRequest, "All fields are required")
+		utils.WriteError(w, http.StatusBadRequest, "All fields are required", err)
 		return
 	}
 
@@ -170,17 +161,14 @@ func (h *PaymentMethodHandler) UpdatePaymentMethod(w http.ResponseWriter, r *htt
 	paymentMethod, err := h.paymentMethodService.UpdatePaymentMethod(param, fileHeader)
 	if err != nil {
 		if err.Error() == "payment method not found" {
-			utils.WriteError(w, http.StatusNotFound, "Payment method not found")
+			utils.WriteError(w, http.StatusNotFound, "Payment method not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusBadRequest, err.Error())
+		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Payment method updated successfully",
-		"data":    paymentMethod,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Payment method updated successfully", paymentMethod)
 }
 
 // @Router /payment-methods/{id} [delete]
@@ -188,21 +176,19 @@ func (h *PaymentMethodHandler) DeletePaymentMethod(w http.ResponseWriter, r *htt
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid payment method ID", err)
 		return
 	}
 
 	err = h.paymentMethodService.DeletePaymentMethod(id)
 	if err != nil {
 		if err.Error() == "payment method not found" || err.Error() == "invalid payment method id" {
-			utils.WriteError(w, http.StatusNotFound, "Payment method not found")
+			utils.WriteError(w, http.StatusNotFound, "Payment method not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to delete payment method")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to delete payment method", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Payment method deleted successfully",
-	})
+	utils.WriteJSON(w, http.StatusOK, "Payment method deleted successfully", nil)
 }

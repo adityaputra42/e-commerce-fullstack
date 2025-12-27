@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { Role } from '../../types/rbac';
+import type { Role } from '../../types/rbac';
 import { X, Shield, Users, Key } from 'lucide-react';
 
 interface RoleDetailModalProps {

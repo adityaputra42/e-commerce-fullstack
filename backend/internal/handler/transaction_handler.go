@@ -5,6 +5,7 @@ import (
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,25 +26,25 @@ func NewTransactionHandler(transactionService services.TransactionService) *Tran
 func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	var input models.CreateTransaction
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
 	// Validate input
 	if input.AddressID <= 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Address ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Address ID is required", fmt.Errorf("Address ID is required"))
 		return
 	}
 	if input.ShippingID <= 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Shipping ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Shipping ID is required", fmt.Errorf("Shipping ID is required"))
 		return
 	}
 	if input.PaymentMethodID <= 0 {
-		utils.WriteError(w, http.StatusBadRequest, "Payment method ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Payment method ID is required", fmt.Errorf("Payment method ID is required"))
 		return
 	}
 	if len(input.ProductOrders) == 0 {
-		utils.WriteError(w, http.StatusBadRequest, "At least one product order is required")
+		utils.WriteError(w, http.StatusBadRequest, "At least one product order is required", fmt.Errorf("At least one product order is required"))
 		return
 	}
 
@@ -56,25 +57,22 @@ func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Re
 		// Handle specific errors
 		errMsg := err.Error()
 		if contains(errMsg, "not found") {
-			utils.WriteError(w, http.StatusNotFound, errMsg)
+			utils.WriteError(w, http.StatusNotFound, errMsg, err)
 			return
 		}
 		if contains(errMsg, "insufficient stock") {
-			utils.WriteError(w, http.StatusBadRequest, errMsg)
+			utils.WriteError(w, http.StatusBadRequest, errMsg, err)
 			return
 		}
 		if contains(errMsg, "context canceled") {
-			utils.WriteError(w, http.StatusRequestTimeout, "Request timeout")
+			utils.WriteError(w, http.StatusRequestTimeout, "Request timeout", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to create transaction")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to create transaction", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"message": "Transaction created successfully",
-		"data":    transaction,
-	})
+	utils.WriteJSON(w, http.StatusCreated, "Transaction created successfully", transaction)
 }
 
 // @Router /transactions [get]
@@ -110,51 +108,45 @@ func (h *TransactionHandler) GetAllTransactions(w http.ResponseWriter, r *http.R
 
 	transactions, err := h.transactionService.FindAllTransaction(param)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch transactions")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch transactions", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Transactions retrieved successfully",
-		"data":    transactions,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Transactions retrieved successfully", transactions)
 }
 
 // @Router /transactions/{tx_id} [get]
 func (h *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 	txID := chi.URLParam(r, "tx_id")
 	if txID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Transaction ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Transaction ID is required", fmt.Errorf("Transaction ID is required"))
 		return
 	}
 
 	transaction, err := h.transactionService.FindTransactionById(txID)
 	if err != nil {
 		if err.Error() == "transaction not found" {
-			utils.WriteError(w, http.StatusNotFound, "Transaction not found")
+			utils.WriteError(w, http.StatusNotFound, "Transaction not found", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch transaction")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to fetch transaction", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Transaction retrieved successfully",
-		"data":    transaction,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Transaction retrieved successfully", transaction)
 }
 
 // @Router /transactions/{tx_id} [put]
 func (h *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	txID := chi.URLParam(r, "tx_id")
 	if txID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "Transaction ID is required")
+		utils.WriteError(w, http.StatusBadRequest, "Transaction ID is required", fmt.Errorf("Transaction ID is required"))
 		return
 	}
 
 	var input models.UpdateTransaction
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -172,28 +164,25 @@ func (h *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	if !isValid {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid transaction status")
+		utils.WriteError(w, http.StatusBadRequest, "Invalid transaction status", fmt.Errorf("Invalid transaction status"))
 		return
 	}
 
 	transaction, err := h.transactionService.UpdateTransaction(input)
 	if err != nil {
 		if err.Error() == "transaction not found" {
-			utils.WriteError(w, http.StatusNotFound, "Transaction not found")
+			utils.WriteError(w, http.StatusNotFound, "Transaction not found", err)
 			return
 		}
 		if err.Error() == "invalid status transition" {
-			utils.WriteError(w, http.StatusBadRequest, "Invalid status transition")
+			utils.WriteError(w, http.StatusBadRequest, "Invalid status transition", err)
 			return
 		}
-		utils.WriteError(w, http.StatusInternalServerError, "Failed to update transaction")
+		utils.WriteError(w, http.StatusInternalServerError, "Failed to update transaction", err)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"message": "Transaction updated successfully",
-		"data":    transaction,
-	})
+	utils.WriteJSON(w, http.StatusOK, "Transaction updated successfully", transaction)
 }
 
 // Helper function

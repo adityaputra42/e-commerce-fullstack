@@ -5,7 +5,6 @@ import { z } from 'zod';
 import api from '../services/api';
 import { showSuccessAlert, showErrorAlert } from '../utils/alerts';
 
-// Schema for profile update
 const profileSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
@@ -15,7 +14,6 @@ const profileSchema = z.object({
 
 type ProfileFormInputs = z.infer<typeof profileSchema>;
 
-// Schema for password change
 const passwordSchema = z.object({
   current_password: z.string().min(8, 'Current password must be at least 8 characters'),
   new_password: z.string().min(8, 'New password must be at least 8 characters'),

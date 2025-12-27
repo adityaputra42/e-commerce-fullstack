@@ -1,5 +1,5 @@
 import { Edit, PowerOff, Power, Trash2, Lock } from 'lucide-react';
-import { User } from '../../types/user';
+import type { User } from '../../types/user';
 
 interface UserTableProps {
   users: User[];

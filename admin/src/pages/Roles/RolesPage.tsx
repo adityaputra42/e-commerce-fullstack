@@ -38,13 +38,13 @@ const RolesPage = () => {
   const handleSave = async (data: any, roleId: number | null) => {
     try {
       if (roleId) {
-        await api.put(`/roles/${roleId}`, { name: data.name, description: data.description });
-        await api.put(`/roles/${roleId}/permissions`, { permission_ids: data.permission_ids });
+        await api.put(`/role/${roleId}`, { name: data.name, description: data.description });
+        await api.put(`/role/${roleId}/permissions`, { permission_ids: data.permission_ids });
         showSuccessAlert('Role updated successfully!');
       } else {
-        const response = await api.post('/roles', { name: data.name, description: data.description });
+        const response = await api.post('/role', { name: data.name, description: data.description });
         if (response.data.data && data.permission_ids && data.permission_ids.length > 0) {
-          await api.put(`/roles/${response.data.data.id}/permissions`, { permission_ids: data.permission_ids });
+          await api.put(`/role/${response.data.data.id}/permissions`, { permission_ids: data.permission_ids });
         }
         showSuccessAlert('Role created successfully!');
       }
@@ -59,7 +59,7 @@ const RolesPage = () => {
     const confirmed = await showConfirmAlert('Delete Role', `Are you sure you want to delete role ${role.name}?`);
     if (confirmed) {
       try {
-        await api.delete(`/roles/${role.id}`);
+        await api.delete(`/role/${role.id}`);
         mutate();
         showSuccessAlert('Role deleted successfully!');
       } catch (error: any) {

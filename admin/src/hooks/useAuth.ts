@@ -1,51 +1,48 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { User } from '../types/user';
 
 interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
+  user: User | null;
   isAuthenticated: boolean;
-  isInitialized: boolean;
-  setTokens: (access: string, refresh: string) => void;
+  permissions: string[];
+  setTokens: (accessToken: string, refreshToken: string) => void;
+  setUser: (user: User) => void;
+  login: (accessToken: string, refreshToken: string, user: User) => void;
   logout: () => void;
-  init: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       accessToken: null,
       refreshToken: null,
+      user: null,
       isAuthenticated: false,
-      isInitialized: false,
-
-      init: () => {
-        const { accessToken } = get();
+      permissions: [],
+      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+      setUser: (user) => set({ user, isAuthenticated: true }),
+      login: (accessToken, refreshToken, user) =>
         set({
-          isAuthenticated: !!accessToken,
-          isInitialized: true,
-        });
-      },
-
-      setTokens: (access, refresh) =>
-        set({
-          accessToken: access,
-          refreshToken: refresh,
+          accessToken,
+          refreshToken,
+          user,
           isAuthenticated: true,
+          permissions: user.permissions || [],
         }),
-
       logout: () =>
         set({
           accessToken: null,
           refreshToken: null,
+          user: null,
           isAuthenticated: false,
+          permissions: [],
         }),
     }),
     {
-      name: 'auth-storage',
-      onRehydrateStorage: () => (state) => {
-        state?.init();
-      },
+      name: 'auth-storage', // unique name for localStorage key
     }
   )
 );
