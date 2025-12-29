@@ -139,20 +139,40 @@ func seedPermissions() error {
 
 	return nil
 }
-
 func seedRoles() error {
 	roles := []models.Role{
-		{Name: "Super Admin", Description: "Full system access with all permissions", IsSystemRole: true},
-		{Name: "Admin", Description: "Administrative access to manage store", IsSystemRole: true},
-		{Name: "Vendor", Description: "Vendor access to manage own products", IsSystemRole: true},
-		{Name: "Customer", Description: "Customer access to browse and purchase", IsSystemRole: true},
+		{
+			Name:         "super_admin",
+			Description:  "Full system access with all permissions",
+			Level:        4,
+			IsSystemRole: true,
+		},
+		{
+			Name:         "admin",
+			Description:  "Administrative access to manage store",
+			Level:        3,
+			IsSystemRole: true,
+		},
+		{
+			Name:         "vendor",
+			Description:  "Vendor access to manage own products",
+			Level:        2,
+			IsSystemRole: true,
+		},
+		{
+			Name:         "customer",
+			Description:  "Customer access to browse and purchase",
+			Level:        1,
+			IsSystemRole: true,
+		},
 	}
 
 	rolePermissions := map[string][]string{
-		"Super Admin": {
+		"super_admin": {
 			"users.create", "users.read", "users.update", "users.delete",
 			"roles.create", "roles.read", "roles.update", "roles.delete",
-			"permissions.read", "profile.read", "profile.update",
+			"permissions.read",
+			"profile.read", "profile.update",
 			"products.create", "products.read", "products.update", "products.delete",
 			"categories.create", "categories.read", "categories.update", "categories.delete",
 			"orders.create", "orders.read", "orders.update", "orders.delete",
@@ -162,9 +182,10 @@ func seedRoles() error {
 			"payments.create", "payments.read", "payments.update", "payments.delete",
 			"dashboard.read", "analytics.read", "activity_logs.read",
 		},
-		"Admin": {
+		"admin": {
 			"users.read", "users.update",
-			"roles.read", "permissions.read", "profile.read", "profile.update",
+			"roles.read", "permissions.read",
+			"profile.read", "profile.update",
 			"products.create", "products.read", "products.update", "products.delete",
 			"categories.create", "categories.read", "categories.update", "categories.delete",
 			"orders.read", "orders.update",
@@ -174,7 +195,7 @@ func seedRoles() error {
 			"payments.read", "payments.update",
 			"dashboard.read", "analytics.read", "activity_logs.read",
 		},
-		"Vendor": {
+		"vendor": {
 			"profile.read", "profile.update",
 			"products.create", "products.read", "products.update",
 			"categories.read",
@@ -185,7 +206,7 @@ func seedRoles() error {
 			"payments.read",
 			"dashboard.read",
 		},
-		"Customer": {
+		"customer": {
 			"profile.read", "profile.update",
 			"products.read", "categories.read",
 			"orders.create", "orders.read_own",
@@ -198,23 +219,36 @@ func seedRoles() error {
 
 	for _, role := range roles {
 		var existingRole models.Role
-		if err := DB.Where("name = ?", role.Name).First(&existingRole).Error; err != nil {
-			if err := DB.Create(&role).Error; err != nil {
-				return err
-			}
 
-			var permissions []models.Permission
-			permissionNames := rolePermissions[role.Name]
-			if err := DB.Where("name IN ?", permissionNames).Find(&permissions).Error; err != nil {
-				return err
-			}
-
-			if err := DB.Model(&role).Association("Permissions").Append(&permissions); err != nil {
-				return err
-			}
-
-			log.Printf("Created role: %s with %d permissions", role.Name, len(permissions))
+		err := DB.Where("name = ?", role.Name).First(&existingRole).Error
+		if err == nil {
+			log.Printf("Role already exists: %s", role.Name)
+			continue
 		}
+
+		if err := DB.Create(&role).Error; err != nil {
+			return err
+		}
+
+		var permissions []models.Permission
+		if err := DB.
+			Where("name IN ?", rolePermissions[role.Name]).
+			Find(&permissions).Error; err != nil {
+			return err
+		}
+
+		if err := DB.Model(&role).
+			Association("Permissions").
+			Replace(&permissions); err != nil {
+			return err
+		}
+
+		log.Printf(
+			"Created role: %s (level=%d) with %d permissions",
+			role.Name,
+			role.Level,
+			len(permissions),
+		)
 	}
 
 	return nil
@@ -227,13 +261,15 @@ func seedDefaultAdmin(cfg *config.Config) error {
 	}
 
 	var existingAdmin models.User
-	if err := DB.Where("email = ?", cfg.System.DefaultAdminEmail).First(&existingAdmin).Error; err == nil {
+	if err := DB.Where("email = ?", cfg.System.DefaultAdminEmail).
+		First(&existingAdmin).Error; err == nil {
 		log.Println("Default admin already exists")
 		return nil
 	}
 
 	var superAdminRole models.Role
-	if err := DB.Where("name = ?", "Super Admin").First(&superAdminRole).Error; err != nil {
+	if err := DB.Where("name = ?", "super_admin").
+		First(&superAdminRole).Error; err != nil {
 		return err
 	}
 
@@ -245,7 +281,7 @@ func seedDefaultAdmin(cfg *config.Config) error {
 	now := time.Now()
 	admin := models.User{
 		Email:           cfg.System.DefaultAdminEmail,
-		Username:        "admin",
+		Username:        "superadmin",
 		PasswordHash:    hashedPassword,
 		FirstName:       "System",
 		LastName:        "Administrator",
@@ -258,7 +294,7 @@ func seedDefaultAdmin(cfg *config.Config) error {
 		return err
 	}
 
-	log.Printf("Created default admin user: %s", admin.Email)
+	log.Printf("Created default super admin user: %s", admin.Email)
 	return nil
 }
 

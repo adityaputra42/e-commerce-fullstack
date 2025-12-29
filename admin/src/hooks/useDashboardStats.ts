@@ -1,92 +1,123 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
-
-interface DashboardStats {
-  total_users: number;
-  active_users: number;
-  inactive_users: number;
-  new_users_today: number;
-  new_users_this_week: number;
-  total_roles: number;
-}
-
-interface RoleDistribution {
-  role_name: string;
-  user_count: number;
-}
-
-interface ActivityLog {
-  id: number;
-  action: string;
-  resource: string;
-  ip_address: string;
-  user_agent: string;
-  created_at: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-  };
-}
-
-interface UserAnalytics {
-  date: string;
-  user_count: number;
-}
-
-interface DashboardData {
-  stats: DashboardStats | null;
-  roleDistribution: RoleDistribution[] | null;
-  recentActivity: ActivityLog[] | null;
-  userAnalytics: UserAnalytics[] | null;
-  isLoading: boolean;
-  error: string | null;
-}
+import type { DashboardState } from '../types/dashboard';
 
 export const useDashboardData = () => {
-  const [data, setData] = useState<DashboardData>({
+  const [data, setData] = useState<DashboardState>({
     stats: null,
-    roleDistribution: null,
-    recentActivity: null,
-    userAnalytics: null,
+    revenue: null,
+    orderStats: null,
+
+    recentOrders: [],
+    topProducts: [],
+    lowStockProducts: [],
+
+    orderAnalytics: [],
+    userAnalytics: [],
+
+    recentActivity: [],
+
     isLoading: true,
     error: null,
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setData((prev) => ({ ...prev, isLoading: true, error: null }));
-      try {
-        const [statsRes, roleDistRes, recentActivityRes, userAnalyticsRes] = await Promise.all([
-          api.get('/dashboard/stats'),
-          api.get('/dashboard/role-distribution'),
-          api.get('/dashboard/recent-activity'),
-          api.get('/dashboard/user-analytics'),
-        ]);
+  const fetchDashboard = useCallback(async () => {
+    setData((prev) => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+    }));
 
-        console.log('Dashboard Stats Response:', statsRes.data);
-        console.log('Role Distribution Response:', roleDistRes.data);
-        console.log('Recent Activity Response:', recentActivityRes.data);
-        console.log('User Analytics Response:', userAnalyticsRes.data);
+    try {
+      const results = await Promise.allSettled([
+        api.get('/dashboard/stats'),
+        api.get('/dashboard/revenue'),
+        api.get('/dashboard/orders/stats'),
+        api.get('/dashboard/orders/recent'),
+        api.get('/dashboard/products/top'),
+        api.get('/dashboard/products/low-stock'),
+        api.get('/dashboard/analytics/orders'),
+        api.get('/dashboard/analytics/users'),
+        api.get('/dashboard/activity'),
+      ]);
 
-        setData({
-          stats: statsRes.data?.data || null,
-          roleDistribution: Array.isArray(roleDistRes.data?.data) ? roleDistRes.data.data : [],
-          recentActivity: Array.isArray(recentActivityRes.data?.data) ? recentActivityRes.data.data : [],
-          userAnalytics: Array.isArray(userAnalyticsRes.data?.data) ? userAnalyticsRes.data.data : [],
-          isLoading: false,
-          error: null,
-        });
-      } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
-        setData((prev) => ({ ...prev, isLoading: false, error: 'Failed to load dashboard data.' }));
-      }
-    };
+      const [
+        statsRes,
+        revenueRes,
+        orderStatsRes,
+        recentOrdersRes,
+        topProductsRes,
+        lowStockRes,
+        orderAnalyticsRes,
+        userAnalyticsRes,
+        activityRes,
+      ] = results;
 
-    fetchData();
+      setData({
+        stats:
+          statsRes.status === 'fulfilled'
+            ? statsRes.value.data?.data ?? null
+            : null,
+
+        revenue:
+          revenueRes.status === 'fulfilled'
+            ? revenueRes.value.data?.data ?? null
+            : null,
+
+        orderStats:
+          orderStatsRes.status === 'fulfilled'
+            ? orderStatsRes.value.data?.data ?? null
+            : null,
+
+        recentOrders:
+          recentOrdersRes.status === 'fulfilled'
+            ? recentOrdersRes.value.data?.data ?? []
+            : [],
+
+        topProducts:
+          topProductsRes.status === 'fulfilled'
+            ? topProductsRes.value.data?.data ?? []
+            : [],
+
+        lowStockProducts:
+          lowStockRes.status === 'fulfilled'
+            ? lowStockRes.value.data?.data ?? []
+            : [],
+
+        orderAnalytics:
+          orderAnalyticsRes.status === 'fulfilled'
+            ? orderAnalyticsRes.value.data?.data ?? []
+            : [],
+
+        userAnalytics:
+          userAnalyticsRes.status === 'fulfilled'
+            ? userAnalyticsRes.value.data?.data ?? []
+            : [],
+
+        recentActivity:
+          activityRes.status === 'fulfilled'
+            ? activityRes.value.data?.data ?? []
+            : [],
+
+        isLoading: false,
+        error: null,
+      });
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      setData((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: 'Failed to load dashboard data',
+      }));
+    }
   }, []);
 
-  return data;
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  return {
+    ...data,
+    refetch: fetchDashboard, // 🔥 optional but useful
+  };
 };

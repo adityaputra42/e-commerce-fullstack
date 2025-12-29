@@ -15,7 +15,6 @@ type Permission struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
-
 	Roles []*Role `json:"roles,omitempty" gorm:"many2many:role_permissions;"`
 }
 

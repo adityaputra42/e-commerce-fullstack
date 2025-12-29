@@ -3,98 +3,85 @@ package services
 import (
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/repository"
-	"errors"
-	"fmt"
-
-	"gorm.io/gorm"
 )
 
 type RBACService interface {
 	CheckPermission(userID uint, resource, action string) (bool, error)
-	GetUserPermissions(userID uint) ([]*models.Permission, error)
+	CheckPermissionOrOwn(userID uint, resource, action string, resourceID uint) (bool, error)
+
 	HasRole(userID uint, roleName string) (bool, error)
 	GetUserRole(userID uint) (*models.Role, error)
+
 	CanManageUser(managerID, targetUserID uint) (bool, error)
 	GetRoleHierarchyLevel(roleName string) int
 }
 
 type RBACServiceImpl struct {
-	rbacRepo repository.RBACRepository
+	repo repository.RBACRepository
 }
 
-func NewRBACService(rbacRepo repository.RBACRepository) RBACService {
-	return &RBACServiceImpl{
-		rbacRepo: rbacRepo,
-	}
+func NewRBACService(repo repository.RBACRepository) RBACService {
+	return &RBACServiceImpl{repo: repo}
 }
 
-// CheckPermission - Check if user has specific permission
-func (s *RBACServiceImpl) CheckPermission(userID uint, resource, action string) (bool, error) {
-	user, err := s.rbacRepo.FindUserWithRoleAndPermissions(userID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, errors.New("user not found")
-		}
-		return false, err
+// =======================
+// PERMISSION
+// =======================
+
+func (s *RBACServiceImpl) CheckPermission(
+	userID uint,
+	resource string,
+	action string,
+) (bool, error) {
+	return s.repo.HasPermission(userID, resource, action)
+}
+
+func (s *RBACServiceImpl) CheckPermissionOrOwn(
+	userID uint,
+	resource string,
+	action string,
+	resourceID uint,
+) (bool, error) {
+
+	if ok, _ := s.CheckPermission(userID, resource, action); ok {
+		return true, nil
 	}
 
-	// Build required permission name
-	requiredPermission := fmt.Sprintf("%s.%s", resource, action)
-
-	// Check if user has the permission
-	for _, permission := range user.Role.Permissions {
-		// Check by full permission name (e.g., "user.create")
-		if permission.Name == requiredPermission {
-			return true, nil
-		}
-
-		// Check by resource and action separately
-		if permission.Resource == resource && permission.Action == action {
-			return true, nil
-		}
+	if ok, _ := s.CheckPermission(userID, resource, action+"_own"); ok {
+		return s.repo.IsOwner(userID, resource, resourceID)
 	}
 
 	return false, nil
 }
 
-// GetUserPermissions - Get all permissions for a user
-func (s *RBACServiceImpl) GetUserPermissions(userID uint) ([]*models.Permission, error) {
-	user, err := s.rbacRepo.FindUserWithRoleAndPermissions(userID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
-		}
-		return nil, err
-	}
-
-	return user.Role.Permissions, nil
-}
+// =======================
+// ROLE
+// =======================
 
 func (s *RBACServiceImpl) HasRole(userID uint, roleName string) (bool, error) {
-	user, err := s.rbacRepo.FindUserWithRole(userID)
+	userRole, err := s.repo.GetUserRole(userID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, errors.New("user not found")
-		}
 		return false, err
 	}
 
-	return user.Role.Name == roleName, nil
+	userLevel := s.GetRoleHierarchyLevel(userRole.Name)
+	requiredLevel := s.GetRoleHierarchyLevel(roleName)
+
+	return userLevel >= requiredLevel, nil
 }
 
 func (s *RBACServiceImpl) GetUserRole(userID uint) (*models.Role, error) {
-	user, err := s.rbacRepo.FindUserWithRoleAndPermissions(userID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
-		}
-		return nil, err
-	}
-
-	return &user.Role, nil
+	return s.repo.GetUserRole(userID)
 }
 
-func (s *RBACServiceImpl) CanManageUser(managerID, targetUserID uint) (bool, error) {
+// =======================
+// USER MANAGEMENT
+// =======================
+
+func (s *RBACServiceImpl) CanManageUser(
+	managerID uint,
+	targetUserID uint,
+) (bool, error) {
 
 	managerRole, err := s.GetUserRole(managerID)
 	if err != nil {
@@ -106,26 +93,24 @@ func (s *RBACServiceImpl) CanManageUser(managerID, targetUserID uint) (bool, err
 		return false, err
 	}
 
-	managerLevel := s.GetRoleHierarchyLevel(managerRole.Name)
-	targetLevel := s.GetRoleHierarchyLevel(targetRole.Name)
-
-	return managerLevel > targetLevel, nil
+	return s.GetRoleHierarchyLevel(managerRole.Name) >
+		s.GetRoleHierarchyLevel(targetRole.Name), nil
 }
 
+// =======================
+// ROLE HIERARCHY
+// =======================
+
 func (s *RBACServiceImpl) GetRoleHierarchyLevel(roleName string) int {
-	roleHierarchy := map[string]int{
-		"Super Admin": 5,
-		"Admin":       4,
-		"Manager":     3,
-		"Seller":      2,
-		"User":        1,
-		"Guest":       0,
+	hierarchy := map[string]int{
+		"Super Admin": 4,
+		"Admin":       3,
+		"Vendor":      2,
+		"Customer":    1,
 	}
 
-	level, exists := roleHierarchy[roleName]
-	if !exists {
-		return 0 
+	if level, ok := hierarchy[roleName]; ok {
+		return level
 	}
-
-	return level
+	return 0
 }

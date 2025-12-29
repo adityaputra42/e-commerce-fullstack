@@ -26,7 +26,7 @@ func UserRoutes(r chi.Router, h *handler.UserHandler, deps Dependencies) {
 				r.Put("/{id}/password", h.UpdatePassword)
 			})
 			r.Group(func(r chi.Router) {
-				r.Use(mw.SelfOrPermission(deps.RBACService, "user", "update"))
+				r.Use(mw.RequirePermissionOrOwn(deps.RBACService, "user", "update"))
 				r.Put("/{userId}", h.UpdateUser)
 			})
 		})

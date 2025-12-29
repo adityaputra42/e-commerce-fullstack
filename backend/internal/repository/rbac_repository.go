@@ -7,12 +7,9 @@ import (
 )
 
 type RBACRepository interface {
-	FindUserWithRole(userID uint) (*models.User, error)
-	FindUserWithRoleAndPermissions(userID uint) (*models.User, error)
-	FindRoleByName(roleName string) (*models.Role, error)
-	FindRoleByID(roleID uint) (*models.Role, error)
-	FindPermissionByName(permissionName string) (*models.Permission, error)
-	FindPermissionsByRoleID(roleID uint) ([]*models.Permission, error)
+	GetUserRole(userID uint) (*models.Role, error)
+	HasPermission(userID uint, resource, action string) (bool, error)
+	IsOwner(userID uint, resource string, resourceID uint) (bool, error)
 }
 
 type RBACRepositoryImpl struct {
@@ -23,62 +20,62 @@ func NewRBACRepository(db *gorm.DB) RBACRepository {
 	return &RBACRepositoryImpl{db: db}
 }
 
-// FindUserWithRole - Get user with role data
-func (r *RBACRepositoryImpl) FindUserWithRole(userID uint) (*models.User, error) {
+// GetUserRole - Ambil role user
+func (r *RBACRepositoryImpl) GetUserRole(userID uint) (*models.Role, error) {
 	var user models.User
-	err := r.db.Preload("Role").First(&user, userID).Error
-	if err != nil {
+	if err := r.db.Preload("Role").
+		Select("id", "role_id").
+		First(&user, userID).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &user.Role, nil
 }
 
-// FindUserWithRoleAndPermissions - Get user with role and permissions
-func (r *RBACRepositoryImpl) FindUserWithRoleAndPermissions(userID uint) (*models.User, error) {
-	var user models.User
-	err := r.db.Preload("Role.Permissions").First(&user, userID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
+// HasPermission - Cek permission via join table (FAST)
+func (r *RBACRepositoryImpl) HasPermission(
+	userID uint,
+	resource string,
+	action string,
+) (bool, error) {
+
+	var count int64
+
+	err := r.db.
+		Table("users").
+		Joins("JOIN roles ON roles.id = users.role_id").
+		Joins("JOIN role_permissions ON role_permissions.role_id = roles.id").
+		Joins("JOIN permissions ON permissions.id = role_permissions.permission_id").
+		Where("users.id = ?", userID).
+		Where("(permissions.name = ? OR (permissions.resource = ? AND permissions.action = ?))",
+			resource+"."+action, resource, action).
+		Count(&count).Error
+
+	return count > 0, err
 }
 
-// FindRoleByName - Find role by name
-func (r *RBACRepositoryImpl) FindRoleByName(roleName string) (*models.Role, error) {
-	var role models.Role
-	err := r.db.Where("name = ?", roleName).First(&role).Error
-	if err != nil {
-		return nil, err
-	}
-	return &role, nil
-}
+// IsOwner - Cek ownership untuk *_own permission
+func (r *RBACRepositoryImpl) IsOwner(
+	userID uint,
+	resource string,
+	resourceID uint,
+) (bool, error) {
 
-// FindRoleByID - Find role by ID with permissions
-func (r *RBACRepositoryImpl) FindRoleByID(roleID uint) (*models.Role, error) {
-	var role models.Role
-	err := r.db.Preload("Permissions").First(&role, roleID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &role, nil
-}
+	switch resource {
+	case "orders":
+		var count int64
+		err := r.db.Table("orders").
+			Where("id = ? AND user_id = ?", resourceID, userID).
+			Count(&count).Error
+		return count > 0, err
 
-// FindPermissionByName - Find permission by name
-func (r *RBACRepositoryImpl) FindPermissionByName(permissionName string) (*models.Permission, error) {
-	var permission models.Permission
-	err := r.db.Where("name = ?", permissionName).First(&permission).Error
-	if err != nil {
-		return nil, err
-	}
-	return &permission, nil
-}
+	case "transactions":
+		var count int64
+		err := r.db.Table("transactions").
+			Where("id = ? AND user_id = ?", resourceID, userID).
+			Count(&count).Error
+		return count > 0, err
 
-// FindPermissionsByRoleID - Get all permissions for a role
-func (r *RBACRepositoryImpl) FindPermissionsByRoleID(roleID uint) ([]*models.Permission, error) {
-	var role models.Role
-	err := r.db.Preload("Permissions").First(&role, roleID).Error
-	if err != nil {
-		return nil, err
+	default:
+		return false, nil
 	}
-	return role.Permissions, nil
 }

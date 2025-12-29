@@ -12,21 +12,20 @@ type OrderAnalytics struct {
 	OrderCount int64   `json:"order_count"`
 	Revenue    float64 `json:"revenue"`
 }
-
 type TopProduct struct {
-	ProductID   int64   `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	TotalSold   int64   `json:"total_sold"`
-	Revenue     float64 `json:"revenue"`
+	ProductID   int64   `json:"product_id" gorm:"column:product_id"`
+	ProductName string  `json:"product_name" gorm:"column:product_name"`
+	TotalSold   int64   `json:"total_sold" gorm:"column:total_sold"`
+	Revenue     float64 `json:"revenue" gorm:"column:revenue"`
 }
 
 type LowStockProduct struct {
-	ProductID   int64   `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	ColorName   string  `json:"color_name"`
-	Size        string  `json:"size"`
-	Stock       int64   `json:"stock"`
-	Price       float64 `json:"price"`
+	ProductID   int64   `json:"product_id" gorm:"column:product_id"`
+	ProductName string  `json:"product_name" gorm:"column:product_name"`
+	ColorName   string  `json:"color_name" gorm:"column:color_name"`
+	Size        string  `json:"size" gorm:"column:size"`
+	Stock       int64   `json:"stock" gorm:"column:stock"`
+	Price       float64 `json:"price" gorm:"column:price"`
 }
 type UserGrowthAnalytics struct {
 	Date      string `json:"date"`

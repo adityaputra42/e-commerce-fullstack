@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"e-commerce/backend/internal/models"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -141,6 +142,7 @@ func (r *dashboardRepository) GetRevenueThisMonth(ctx context.Context) (float64,
 func (r *dashboardRepository) GetRecentOrders(ctx context.Context, limit int) ([]models.Order, error) {
 	var orders []models.Order
 	err := r.db.WithContext(ctx).
+		Preload("User").
 		Preload("Product").
 		Preload("ColorVarian").
 		Preload("SizeVarian").
@@ -176,40 +178,75 @@ func (r *dashboardRepository) GetOrderAnalytics(ctx context.Context, days int) (
 }
 
 // ==================== Products Methods ====================
-
 func (r *dashboardRepository) GetTopSellingProducts(ctx context.Context, limit int) ([]models.TopProduct, error) {
+	log.Printf("🗄️  DashboardRepo.GetTopSellingProducts - Limit: %d", limit)
+
 	var products []models.TopProduct
+
+	// Query menggunakan tabel orders langsung
 	err := r.db.WithContext(ctx).
-		Model(&models.Order{}).
-		Select("products.id as product_id, products.name as product_name, SUM(orders.quantity) as total_sold, SUM(orders.subtotal) as revenue").
-		Joins("JOIN products ON products.id = orders.product_id").
-		Where("orders.status IN ?", []string{"completed", "paid"}).
-		Group("products.id, products.name").
+		Table("orders o").
+		Select(`
+			p.id AS product_id,
+			p.name AS product_name,
+			COALESCE(SUM(o.quantity), 0) AS total_sold,
+			COALESCE(SUM(o.subtotal), 0) AS revenue
+		`).
+		Joins("JOIN products p ON p.id = o.product_id").
+		Where("o.status IN ?", []string{"completed", "paid"}).
+		Where("p.deleted_at IS NULL").
+		Where("o.deleted_at IS NULL").
+		Group("p.id, p.name").
 		Order("total_sold DESC").
 		Limit(limit).
 		Scan(&products).Error
-	return products, err
+
+	if err != nil {
+		log.Printf("❌ GetTopSellingProducts ERROR: %v", err)
+		return nil, err
+	}
+
+	log.Printf("✅ Found %d top selling products", len(products))
+	return products, nil
 }
 
-func (r *dashboardRepository) GetLowStockProducts(ctx context.Context, threshold int, limit int) ([]models.LowStockProduct, error) {
+// GetLowStockProducts - Get products with low stock
+func (r *dashboardRepository) GetLowStockProducts(
+	ctx context.Context,
+	threshold int,
+	limit int,
+) ([]models.LowStockProduct, error) {
+	log.Printf("🗄️  DashboardRepo.GetLowStockProducts - Threshold: %d, Limit: %d", threshold, limit)
+
 	var products []models.LowStockProduct
+
 	err := r.db.WithContext(ctx).
-		Model(&models.SizeVarian{}).
+		Table("size_varian sv").
 		Select(`
-			products.id as product_id,
-			products.name as product_name,
-			color_varian.name as color_name,
-			size_varian.size as size,
-			size_varian.stock as stock,
-			products.price as price
+			p.id AS product_id,
+			p.name AS product_name,
+			cv.name AS color_name,
+			sv.size AS size,
+			sv.stock AS stock,
+			p.price AS price
 		`).
-		Joins("JOIN color_varian ON color_varian.id = size_varian.color_varian_id").
-		Joins("JOIN products ON products.id = color_varian.product_id").
-		Where("size_varian.stock <= ?", threshold).
-		Order("size_varian.stock ASC").
+		Joins("JOIN color_varian cv ON cv.id = sv.color_varian_id").
+		Joins("JOIN products p ON p.id = cv.product_id").
+		Where("sv.stock <= ?", threshold).
+		Where("sv.deleted_at IS NULL").
+		Where("cv.deleted_at IS NULL").
+		Where("p.deleted_at IS NULL").
+		Order("sv.stock ASC").
 		Limit(limit).
 		Scan(&products).Error
-	return products, err
+
+	if err != nil {
+		log.Printf("❌ GetLowStockProducts ERROR: %v", err)
+		return nil, err
+	}
+
+	log.Printf("✅ Found %d low stock products", len(products))
+	return products, nil
 }
 
 // ==================== Users Methods ====================

@@ -10,53 +10,80 @@ type UserRepository interface {
 	Create(param models.User) (models.User, error)
 	Update(param *models.User) (models.User, error)
 	Delete(param models.User) error
-	FindById(paramId int64) (models.User, error)
+	FindById(id uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
 	FindAll(param models.UserListRequest) (*models.UserListResponse, error)
 }
 
-type UserRepositoryImpl struct {
-}
+type UserRepositoryImpl struct{}
 
-// FindByEmail implements UserRepository.
+/*
+	============================
+	  FIND BY EMAIL
+
+============================
+*/
 func (u *UserRepositoryImpl) FindByEmail(email string) (models.User, error) {
 	user := models.User{}
-	err := database.DB.Preload("Role.Permissions").Where("email = ?", email).First(&user).Error
+
+	err := database.DB.
+		Preload("Role.Permissions").
+		Where("email = ?", email).
+		First(&user).Error
+
 	return user, err
 }
 
-// Create implements UserRepository.
+/*
+	============================
+	  CREATE USER
+
+============================
+*/
 func (u *UserRepositoryImpl) Create(param models.User) (models.User, error) {
 	var result models.User
 
 	db := database.DB
 
-	err := db.Create(&param).Error
-	if err != nil {
+	if err := db.Create(&param).Error; err != nil {
 		return result, err
 	}
 
-	err = db.Preload("Role.Permissions").First(&result, param.ID).Error
+	err := db.
+		Preload("Role.Permissions").
+		First(&result, param.ID).Error
+
 	return result, err
 }
 
-// Delete implements UserRepository.
+/*
+	============================
+	  DELETE USER
+
+============================
+*/
 func (u *UserRepositoryImpl) Delete(param models.User) error {
 	return database.DB.Delete(&param).Error
 }
 
-// FindAll implements UserRepository.
+/*
+	============================
+	  FIND ALL (PAGINATION)
+
+============================
+*/
 func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.UserListResponse, error) {
 	offset := (param.Page - 1) * param.Limit
 
-	query := database.DB.Model(&models.User{}).Preload("Role")
+	query := database.DB.
+		Model(&models.User{}).
+		Preload("Role")
 
 	if param.SortBy == "" {
-		param.SortBy = "created_at"
+		param.SortBy = "created_at desc"
 	}
 
-	orderClause := param.SortBy
-	query = query.Order(orderClause)
+	query = query.Order(param.SortBy)
 
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
@@ -84,30 +111,51 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.User
 	}, nil
 }
 
-// FindById implements UserRepository.
-func (u *UserRepositoryImpl) FindById(paramId int64) (models.User, error) {
-	user := models.User{}
-	err := database.DB.Preload("Role.Permissions.Address").First(&user, user.ID).Error
+/*
+	============================
+	  FIND BY ID  ✅ FIXED
 
+============================
+*/
+func (u *UserRepositoryImpl) FindById(id uint) (models.User, error) {
+	var user models.User
+	err := database.DB.
+		Preload("Role").
+		Preload("Role.Permissions").
+		First(&user, id).Error
 	return user, err
 }
 
-// Update implements UserRepository.
+/*
+	============================
+	  UPDATE USER
+
+============================
+*/
 func (u *UserRepositoryImpl) Update(param *models.User) (models.User, error) {
 	var result models.User
 
 	db := database.DB
 
-	err := db.Model(&param).Updates(param).Error
-	if err != nil {
+	if err := db.Model(&models.User{}).
+		Where("id = ?", param.ID).
+		Updates(param).Error; err != nil {
 		return result, err
 	}
 
-	err = db.Preload("Role.Permissions").First(&result, param.ID).Error
-	return result, err
+	err := db.
+		Preload("Role.Permissions").
+		First(&result, param.ID).Error
 
+	return result, err
 }
 
+/*
+	============================
+	  CONSTRUCTOR
+
+============================
+*/
 func NewUserReposiory() UserRepository {
 	return &UserRepositoryImpl{}
 }

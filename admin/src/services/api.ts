@@ -1,46 +1,81 @@
-import axios from 'axios';
-import { useAuthStore } from '../hooks/useAuth'; // Zustand store
+import axios, {
+  AxiosError,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { useAuthStore } from '../hooks/useAuth';
 
-interface ImportMetaEnv {
-  VITE_API_URL?: string;
+/* ============================
+   Axios typing extension
+============================ */
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig {
+    _retry?: boolean;
+  }
 }
 
-interface ImportMeta {
-  env: ImportMetaEnv;
-}
-declare const importMeta: ImportMeta;
+/* ============================
+   Base URL
+============================ */
+const API_URL =
+  import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api/v1';
 
-// @ts-ignore
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1/';
-
+/* ============================
+   Axios instance
+============================ */
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false,
 });
 
-// Request interceptor to add the auth token to headers
+/* ============================
+   REQUEST INTERCEPTOR
+============================ */
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
+    // 🚫 JANGAN PASANG TOKEN SAAT LOGIN / REFRESH
+    if (
+      config.url?.includes('/auth/login') ||
+      config.url?.includes('/auth/refresh')
+    ) {
+      delete config.headers.Authorization;
+      return config;
+    }
+
     const { accessToken } = useAuthStore.getState();
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle token refresh
+/* ============================
+   RESPONSE INTERCEPTOR
+============================ */
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    const { refreshToken, setTokens, logout } = useAuthStore.getState();
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig;
+    const status = error.response?.status;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (
+      status === 401 &&
+      !originalRequest?._retry &&
+      !originalRequest?.url?.includes('/auth/login')
+    ) {
       originalRequest._retry = true;
+
+      const {
+        refreshToken,
+        setTokens,
+        logout,
+      } = useAuthStore.getState();
 
       if (!refreshToken) {
         logout();
@@ -48,12 +83,17 @@ api.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post(`${API_URL}auth/refresh`, {
-          refresh_token: refreshToken,
-        });
+        const refreshResponse = await axios.post(
+          `${API_URL}/auth/refresh`,
+          { refresh_token: refreshToken }
+        );
 
-        setTokens(data.access_token, data.refresh_token);
-        originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+        const { access_token, refresh_token } = refreshResponse.data.data;
+
+        setTokens(access_token, refresh_token);
+
+        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+
         return api(originalRequest);
       } catch (refreshError) {
         logout();

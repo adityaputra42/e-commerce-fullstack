@@ -25,7 +25,7 @@ type AddressServiceImpl struct {
 func (a *AddressServiceImpl) CreateAddress(userId int64, param models.CreateAddress) (*models.AddressResponse, error) {
 	var result models.AddressResponse
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
-		user, err := a.userRepo.FindById(userId)
+		user, err := a.userRepo.FindById(uint(userId))
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("user not found")

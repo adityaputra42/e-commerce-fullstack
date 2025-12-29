@@ -8,6 +8,7 @@ import (
 	"e-commerce/backend/internal/utils"
 	"encoding/hex"
 	"errors"
+	"log"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -89,7 +90,7 @@ func (a *AuthServiceImpl) RefreshToken(req models.RefreshTokenRequest) (*models.
 		return nil, errors.New("invalid refresh token")
 	}
 
-	user, err := a.userRepo.FindById(int64(claims.UserID))
+	user, err := a.userRepo.FindById(claims.UserID)
 	if err != nil {
 		return nil, errors.New("user not found")
 	}
@@ -136,14 +137,23 @@ func (a *AuthServiceImpl) ResetPassword(req models.ResetPasswordRequest) error {
 
 // SignIn implements AuthService.
 func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error) {
+
 	var userResult models.User
+
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
-		userResult, err := a.userRepo.FindByEmail(req.Email)
+		var err error
+
+		userResult, err = a.userRepo.FindByEmail(req.Email)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("invalid credentials")
 			}
 			return err
+		}
+
+		if userResult.ID == 0 {
+			log.Printf("❌ LOGIN ERROR: user.ID is 0 for email: %s", req.Email)
+			return errors.New("invalid credentials")
 		}
 
 		if !userResult.IsActive {
@@ -156,7 +166,10 @@ func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent s
 
 		now := time.Now()
 		userResult.LastLoginAt = &now
-		database.DB.Save(&userResult)
+
+		if err := tx.Save(&userResult).Error; err != nil {
+			return err
+		}
 
 		activityLog := models.ActivityLog{
 			UserID:    userResult.ID,
@@ -166,12 +179,14 @@ func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent s
 			IPAddress: ipAddress,
 			UserAgent: userAgent,
 		}
-		_, err = a.acitvityLogRepo.Create(activityLog, tx)
-		if err != nil {
-			return errors.New("failed create activity log")
+
+		if _, err := a.acitvityLogRepo.Create(activityLog, tx); err != nil {
+			return err
 		}
+
 		return nil
 	})
+
 	if err != nil {
 		return nil, err
 	}

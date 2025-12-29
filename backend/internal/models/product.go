@@ -135,7 +135,7 @@ type SizeVarianResponse struct {
 }
 type ProductListRequest struct {
 	Limit      int
-	Page     int
+	Page       int
 	SortBy     string
 	Search     string
 	CategoryID int64
@@ -161,7 +161,7 @@ func (Product) TableName() string {
 	return "products"
 }
 
-func (SizeVarianResponse) TableName() string {
+func (SizeVarian) TableName() string {
 	return "size_varian"
 }
 

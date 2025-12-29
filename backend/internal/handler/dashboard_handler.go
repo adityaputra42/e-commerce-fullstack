@@ -3,6 +3,7 @@ package handler
 import (
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -20,6 +21,7 @@ func NewDashboardHandler(dashboardService services.DashboardService) *DashboardH
 // GetDashboardStats retrieves overall dashboard statistics
 func (h *DashboardHandler) GetDashboardStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	log.Println("Authorization Header:", r.Header.Get("Authorization"))
 
 	stats, err := h.dashboardService.GetDashboardStats(ctx)
 	if err != nil {
@@ -33,6 +35,7 @@ func (h *DashboardHandler) GetDashboardStats(w http.ResponseWriter, r *http.Requ
 // GetRevenueStats retrieves revenue statistics
 func (h *DashboardHandler) GetRevenueStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	log.Println("Authorization Header:", r.Header.Get("Authorization"))
 
 	stats, err := h.dashboardService.GetRevenueStats(ctx)
 	if err != nil {

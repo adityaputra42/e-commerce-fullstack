@@ -21,6 +21,33 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
+//   const onSubmit = async (data: LoginFormInputs) => {
+//   try {
+//     const response = await api.post('/auth/login', data);
+//     const payload = response.data?.data;
+
+//     if (
+//       !payload?.access_token ||
+//       !payload?.refresh_token ||
+//       !payload?.user
+//     ) {
+//       throw new Error('Invalid login response');
+//     }
+
+//     login(payload.access_token, payload.refresh_token, payload.user);
+
+//     showSuccessAlert('Login successful!');
+//     navigate('/dashboard');
+//   } catch (error: any) {
+//     showErrorAlert(
+//       error.response?.data?.message ||
+//       error.message ||
+//       'Login failed'
+//     );
+//   }
+// };
+
+
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       const response = await api.post('/auth/login', data);
@@ -34,7 +61,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-blue-950">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-2xl transform transition-all duration-300 hover:scale-105">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-gray-900">Welcome Back!</h1>

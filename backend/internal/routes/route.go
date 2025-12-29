@@ -1,16 +1,17 @@
 package routes
 
 import (
+	"e-commerce/backend/internal/config"
 	"e-commerce/backend/internal/di"
+	"e-commerce/backend/internal/middleware"
 	"e-commerce/backend/internal/services"
 	"e-commerce/backend/internal/utils"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/sirupsen/logrus"
 )
 
 type Dependencies struct {
@@ -19,21 +20,17 @@ type Dependencies struct {
 	JWTService  *utils.JWTService
 }
 
-func SetupRoutes(handler *di.Handler) *chi.Mux {
+func SetupRoutes(handler *di.Handler, logger *logrus.Logger, cfg config.CORSConfig) *chi.Mux {
 	r := chi.NewRouter()
 
-	// Basic middleware
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.RealIP)
+	r.Use(middleware.Recovery(logger))
+	r.Use(middleware.Logger(logger)) // Logger middleware
+	r.Use(chimiddleware.Compress(5))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{
-			"http://localhost:3000",
-			"http://localhost:3575",
-		},
+		AllowedOrigins: cfg.AllowedOrigins,
 		AllowedMethods: []string{
 			http.MethodGet,
 			http.MethodPost,
@@ -56,7 +53,7 @@ func SetupRoutes(handler *di.Handler) *chi.Mux {
 		MaxAge:           300,
 	}))
 
-	r.Use(middleware.AllowContentType("application/json", "multipart/form-data"))
+	r.Use(chimiddleware.AllowContentType("application/json", "multipart/form-data"))
 
 	r.Get("/", handler.HealthHandler.Root)
 
@@ -79,14 +76,6 @@ func SetupRoutes(handler *di.Handler) *chi.Mux {
 		PaymentRoutes(api, handler.PaymentHandler, deps)
 		DashboardRoutes(api, handler.DashboardHandler, deps)
 	})
-
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		log.Printf("📌 Route registered: %s %s", method, route)
-		return nil
-	}
-	if err := chi.Walk(r, walkFunc); err != nil {
-		log.Printf("⚠️  Error walking routes: %s", err.Error())
-	}
 
 	return r
 }
