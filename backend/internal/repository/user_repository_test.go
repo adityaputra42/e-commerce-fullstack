@@ -5,30 +5,9 @@ import (
 	"e-commerce/backend/internal/repository"
 	"e-commerce/backend/internal/testhelper"
 	"testing"
-
-	"gorm.io/gorm"
 )
 
-var testDB *gorm.DB
 
-// TestMain sets up and tears down the test suite
-func TestMain(m *testing.M) {
-	// Setup
-	testDB = testhelper.SetupTestDB()
-	testhelper.CleanupTestDB(testDB)
-	testhelper.MigrateTestDB(testDB)
-
-	// Run tests
-	code := m.Run()
-
-	// Teardown
-	testhelper.TeardownTestSuite(testDB)
-	
-	// Exit
-	if code != 0 {
-		panic("Tests failed")
-	}
-}
 
 func TestUserRepository_Create(t *testing.T) {
 	// Setup

@@ -21,7 +21,6 @@ type AuthService interface {
 	ForgotPassword(req models.ForgotPasswordRequest) (string, error)
 	ResetPassword(req models.ResetPasswordRequest) error
 	RefreshToken(req models.RefreshTokenRequest) (*models.TokenResponse, error)
-	generateTokenResponse(user *models.User) (*models.TokenResponse, error)
 }
 type AuthServiceImpl struct {
 	jwtService         *utils.JWTService

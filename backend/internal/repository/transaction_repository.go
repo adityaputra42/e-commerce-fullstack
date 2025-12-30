@@ -49,7 +49,8 @@ func (a *TransactionRepositoryImpl) Create(param models.Transaction, tx *gorm.DB
 		return result, err
 	}
 
-	err = db.First(&result, param.TxID).Error
+	err = db.First(&result, "tx_id = ?", param.TxID).Error
+
 	return result, err
 }
 
@@ -126,7 +127,7 @@ func (a *TransactionRepositoryImpl) Update(param models.Transaction, tx *gorm.DB
 				Preload("Product").
 				Preload("ColorVarian").
 				Preload("SizeVarian")
-		}).First(&result, param.TxID).Error
+		}).First(&result, "tx_id = ?", param.TxID).Error
 	return result, err
 
 }

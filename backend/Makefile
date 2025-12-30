@@ -56,6 +56,8 @@ mock-gen:
 	@go run go.uber.org/mock/mockgen@latest -source=internal/services/user_service.go -destination=internal/mocks/mock_user_service.go -package=mocks
 	@go run go.uber.org/mock/mockgen@latest -source=internal/services/product_service.go -destination=internal/mocks/mock_product_service.go -package=mocks
 	@go run go.uber.org/mock/mockgen@latest -source=internal/services/auth_service.go -destination=internal/mocks/mock_auth_service.go -package=mocks
+	@go run go.uber.org/mock/mockgen@latest -source=internal/services/order_service.go -destination=internal/mocks/mock_order_service.go -package=mocks
+	@go run go.uber.org/mock/mockgen@latest -source=internal/services/transaction_service.go -destination=internal/mocks/mock_transaction_service.go -package=mocks
 	@echo "Mocks generated successfully"
 
 # Run specific test

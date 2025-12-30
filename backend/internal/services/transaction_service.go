@@ -18,8 +18,8 @@ type TransactionService interface {
 	UpdateTransaction(param models.UpdateTransaction) (*models.TransactionResponse, error)
 	FindAllTransaction(param models.TransactionListRequest) (*[]models.TransactionResponse, error)
 	FindTransactionById(txid string) (*models.TransactionResponse, error)
-	deleteTransaction(txid string) error
 }
+
 type TransactionServiceImpl struct {
 	transactionRepo repository.TransactionRepository
 	shippingRepo    repository.ShippingRepository
@@ -290,11 +290,6 @@ func (t *TransactionServiceImpl) UpdateTransaction(param models.UpdateTransactio
 	}
 
 	return response, nil
-}
-
-// deleteTransaction implements [TransactionService].
-func (t *TransactionServiceImpl) deleteTransaction(txid string) error {
-	panic("unimplemented")
 }
 
 func NewTransactionService(TransactionRepo repository.TransactionRepository,

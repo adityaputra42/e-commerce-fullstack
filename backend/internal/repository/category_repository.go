@@ -95,7 +95,7 @@ func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]mo
 // FindById implements CategoryRepository.
 func (a *CategoryRepositoryImpl) FindById(paramId int64) (models.Category, error) {
 	Category := models.Category{}
-	err := database.DB.Model(&models.User{}).Take(&Category, "id =?", paramId).Error
+	err := database.DB.Model(&models.Category{}).Take(&Category, "id =?", paramId).Error
 
 	return Category, err
 }

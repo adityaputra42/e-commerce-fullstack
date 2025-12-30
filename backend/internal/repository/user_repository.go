@@ -137,9 +137,7 @@ func (u *UserRepositoryImpl) Update(param *models.User) (models.User, error) {
 
 	db := database.DB
 
-	if err := db.Model(&models.User{}).
-		Where("id = ?", param.ID).
-		Updates(param).Error; err != nil {
+	if err := db.Save(param).Error; err != nil {
 		return result, err
 	}
 

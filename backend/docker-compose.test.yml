@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql-test:
     image: mysql:8.0
-    container_name: ecommerce-mysql-test
+    container_name: ecommerce-test-mysql
     environment:
       MYSQL_ROOT_PASSWORD: testpassword
       MYSQL_DATABASE: ecommerce_test

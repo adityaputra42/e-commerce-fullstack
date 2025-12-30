@@ -113,18 +113,3 @@ func (mr *MockAuthServiceMockRecorder) SignUp(req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUp", reflect.TypeOf((*MockAuthService)(nil).SignUp), req)
 }
-
-// generateTokenResponse mocks base method.
-func (m *MockAuthService) generateTokenResponse(user *models.User) (*models.TokenResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "generateTokenResponse", user)
-	ret0, _ := ret[0].(*models.TokenResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// generateTokenResponse indicates an expected call of generateTokenResponse.
-func (mr *MockAuthServiceMockRecorder) generateTokenResponse(user any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "generateTokenResponse", reflect.TypeOf((*MockAuthService)(nil).generateTokenResponse), user)
-}

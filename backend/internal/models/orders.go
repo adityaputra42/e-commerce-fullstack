@@ -120,6 +120,7 @@ func (p *Order) ToOrderResponse() OrderResponse {
 		ID:            p.ID,
 		TransactionID: p.TransactionID,
 		Product:       p.Product.ToResponseProductOrder(&p.ColorVarian),
+		Status:        p.Status,
 		UpdatedAt:     p.UpdatedAt,
 		CreatedAt:     p.CreatedAt,
 	}

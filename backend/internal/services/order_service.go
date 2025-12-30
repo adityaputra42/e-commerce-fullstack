@@ -121,5 +121,5 @@ func isValidStatusForCancel(status string) bool {
 }
 
 func NewOrderService(OrderRepo repository.OrderRepository) OrderService {
-	return &OrderServiceImpl{}
+	return &OrderServiceImpl{orderRepo: OrderRepo}
 }

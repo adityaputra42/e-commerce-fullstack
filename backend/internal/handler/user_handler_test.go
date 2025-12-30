@@ -356,7 +356,7 @@ func TestUserHandler_ActivateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn()
 
-			req := httptest.NewRequest(http.MethodPut, "/api/users/"+tt.userID+"/activate", nil)
+			req := httptest.NewRequest(http.MethodPut, "/api/users/activate/"+tt.userID, nil)
 			w := httptest.NewRecorder()
 
 			userHandler.ActivateUser(w, req)
@@ -402,7 +402,7 @@ func TestUserHandler_DeactivateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn()
 
-			req := httptest.NewRequest(http.MethodPut, "/api/users/"+tt.userID+"/deactivate", nil)
+			req := httptest.NewRequest(http.MethodPut, "/api/users/deactivate/"+tt.userID, nil)
 			w := httptest.NewRecorder()
 
 			userHandler.DeactivateUser(w, req)

@@ -28,7 +28,7 @@ func (a *OrderRepositoryImpl) FindAllByTxId(txId string) ([]models.Order, error)
 	if err := db.Preload("Product").
 		Preload("ColorVarian").
 		Preload("SizeVarian").
-		Where("tx_id = ?", txId).Where("tx_id = ?", txId).Find(&Orders).Error; err != nil {
+		Where("transaction_id = ?", txId).Find(&Orders).Error; err != nil {
 		return nil, err
 	}
 
@@ -49,7 +49,8 @@ func (a *OrderRepositoryImpl) Create(param models.Order, tx *gorm.DB) (models.Or
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.First(&result, "id = ?", param.ID).Error
+
 	return result, err
 }
 
@@ -111,7 +112,8 @@ func (a *OrderRepositoryImpl) Update(param models.Order, tx *gorm.DB) (models.Or
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.First(&result, "id = ?", param.ID).Error
+
 	return result, err
 
 }
