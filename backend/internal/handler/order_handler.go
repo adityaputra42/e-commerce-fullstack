@@ -22,7 +22,18 @@ func NewOrderHandler(orderService services.OrderService) *OrderHandler {
 	}
 }
 
+// GetAllOrders - GET /api/v1/orders
+// @Summary List all orders
+// @Description Get a paginated list of all orders
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param user_id query int false "Filter by User ID"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.Order} "Success"
 // @Router /orders [get]
+// @Security Bearer
 func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 	userIDStr := r.URL.Query().Get("user_id")
@@ -67,6 +78,17 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "success", orders)
 }
 
+// GetOrderByID - GET /api/v1/orders/{id}
+// @Summary Get order by ID
+// @Description Get detailed information about an order
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {object} utils.Response{data=models.Order} "Success"
+// @Failure 404 {object} utils.Response "Order not found"
+// @Router /orders/{id} [get]
+// @Security Bearer
 func (h *OrderHandler) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {
@@ -97,7 +119,17 @@ func (h *OrderHandler) GetOrderByID(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Order retrieved successfully", order)
 }
 
+// UpdateOrder - PUT /api/v1/orders/{id}
+// @Summary Update order status
+// @Description Update the status of an existing order
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Param request body models.UpdateOrder true "Update order request"
+// @Success 200 {object} utils.Response{data=models.Order} "Order updated successfully"
 // @Router /orders/{id} [put]
+// @Security Bearer
 func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "id")
 	if orderID == "" {

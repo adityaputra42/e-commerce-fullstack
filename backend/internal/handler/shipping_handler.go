@@ -22,7 +22,19 @@ func NewShippingHandler(shippingService services.ShippingService) *ShippingHandl
 	}
 }
 
+// GetAllShipping - GET /api/v1/shipping
+// @Summary List all shipping methods
+// @Description Get a paginated list of all shipping methods
+// @Tags Shipping
+// @Accept json
+// @Produce json
+// @Param sort_by query string false "Sort by field"
+// @Param search query string false "Search query"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.Shipping} "Success"
 // @Router /shipping [get]
+// @Security Bearer
 func (h *ShippingHandler) GetAllShipping(w http.ResponseWriter, r *http.Request) {
 
 	sortBy := r.URL.Query().Get("sort_by")
@@ -61,7 +73,17 @@ func (h *ShippingHandler) GetAllShipping(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, "Shipping methods retrieved successfully", shippings)
 }
 
+// GetShippingByID - GET /api/v1/shipping/{id}
+// @Summary Get shipping method by ID
+// @Description Get detailed information about a shipping method
+// @Tags Shipping
+// @Accept json
+// @Produce json
+// @Param id path int true "Shipping ID"
+// @Success 200 {object} utils.Response{data=models.Shipping} "Success"
+// @Failure 404 {object} utils.Response "Shipping method not found"
 // @Router /shipping/{id} [get]
+// @Security Bearer
 func (h *ShippingHandler) GetShippingByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -83,7 +105,16 @@ func (h *ShippingHandler) GetShippingByID(w http.ResponseWriter, r *http.Request
 	utils.WriteJSON(w, http.StatusOK, "Shipping method retrieved successfully", shipping)
 }
 
+// CreateShipping - POST /api/v1/shipping
+// @Summary Create a new shipping method
+// @Description Create a new shipping method for orders
+// @Tags Shipping
+// @Accept json
+// @Produce json
+// @Param request body models.CreateShipping true "Shipping request"
+// @Success 201 {object} utils.Response{data=models.Shipping} "Shipping method created successfully"
 // @Router /shipping [post]
+// @Security Bearer
 func (h *ShippingHandler) CreateShipping(w http.ResponseWriter, r *http.Request) {
 	var input models.CreateShipping
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

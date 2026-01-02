@@ -23,7 +23,16 @@ func NewAddressHandler(addressService services.AddressService) *AddressHandler {
 	}
 }
 
-// CreateAddress handles POSaT /addresses
+// CreateAddress - POST /api/v1/addresses
+// @Summary Create a new address
+// @Description Create a new shipping address for the authenticated user
+// @Tags Address
+// @Accept json
+// @Produce json
+// @Param request body models.CreateAddress true "Address request"
+// @Success 201 {object} utils.Response{data=models.Address} "Address created successfully"
+// @Router /addresses [post]
+// @Security Bearer
 func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 
@@ -42,7 +51,17 @@ func (h *AddressHandler) CreateAddress(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, "Address created successfully", result)
 }
 
-// UpdateAddress handles PUT /addresses/:id
+// UpdateAddress - PUT /api/v1/addresses/{id}
+// @Summary Update address
+// @Description Update an existing shipping address
+// @Tags Address
+// @Accept json
+// @Produce json
+// @Param id path int true "Address ID"
+// @Param request body models.UpdateAddress true "Update address request"
+// @Success 200 {object} utils.Response{data=models.Address} "Address updated successfully"
+// @Router /addresses/{id} [put]
+// @Security Bearer
 func (h *AddressHandler) UpdateAddress(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 
@@ -82,7 +101,17 @@ func (h *AddressHandler) UpdateAddress(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Address updated successfully", result)
 }
 
-// GetAddresses handles GET /addresses
+// GetAddresses - GET /api/v1/addresses
+// @Summary List addresses
+// @Description Get a paginated list of current user's addresses
+// @Tags Address
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.Address} "Addresses retrieved successfully"
+// @Router /addresses [get]
+// @Security Bearer
 func (h *AddressHandler) GetAddresses(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 
@@ -106,6 +135,17 @@ func (h *AddressHandler) GetAddresses(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Addresses retrieved successfully", result)
 }
 
+// GetAddressByID - GET /api/v1/addresses/{id}
+// @Summary Get address by ID
+// @Description Get detailed information about a shipping address
+// @Tags Address
+// @Accept json
+// @Produce json
+// @Param id path int true "Address ID"
+// @Success 200 {object} utils.Response{data=models.Address} "Address retrieved successfully"
+// @Failure 404 {object} utils.Response "Address not found"
+// @Router /addresses/{id} [get]
+// @Security Bearer
 func (h *AddressHandler) GetAddressByID(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserIDFromContext(r)
 

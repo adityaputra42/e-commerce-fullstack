@@ -20,6 +20,12 @@ type HealthResponse struct {
 }
 
 // HealthCheck handler - support GET and HEAD method
+// @Summary Check service health
+// @Description Get the current health status of the API service
+// @Tags Health
+// @Produce json
+// @Success 200 {object} HealthResponse
+// @Router /health [get]
 func (h *HealthHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	// Support both GET and HEAD methods
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
@@ -44,6 +50,12 @@ func (h *HealthHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 // Root handler
+// @Summary Server root
+// @Description Get general information about the API server
+// @Tags Health
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router / [get]
 func (h *HealthHandler) Root(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"message": "E-Commerce API Server",

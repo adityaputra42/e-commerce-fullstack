@@ -18,7 +18,14 @@ func NewDashboardHandler(dashboardService services.DashboardService) *DashboardH
 	}
 }
 
-// GetDashboardStats retrieves overall dashboard statistics
+// GetDashboardStats - GET /api/v1/dashboard/stats
+// @Summary Dashboard overview stats
+// @Description Get overall statistics for the dashboard
+// @Tags Dashboard
+// @Produce json
+// @Success 200 {object} utils.Response "Dashboard stats retrieved successfully"
+// @Router /dashboard/stats [get]
+// @Security Bearer
 func (h *DashboardHandler) GetDashboardStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log.Println("Authorization Header:", r.Header.Get("Authorization"))
@@ -32,7 +39,14 @@ func (h *DashboardHandler) GetDashboardStats(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusOK, "Dashboard stats retrieved successfully", stats)
 }
 
-// GetRevenueStats retrieves revenue statistics
+// GetRevenueStats - GET /api/v1/dashboard/revenue
+// @Summary Revenue statistics
+// @Description Get revenue-related statistics
+// @Tags Dashboard
+// @Produce json
+// @Success 200 {object} utils.Response "Revenue stats retrieved successfully"
+// @Router /dashboard/revenue [get]
+// @Security Bearer
 func (h *DashboardHandler) GetRevenueStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log.Println("Authorization Header:", r.Header.Get("Authorization"))
@@ -46,7 +60,14 @@ func (h *DashboardHandler) GetRevenueStats(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, "Revenue stats retrieved successfully", stats)
 }
 
-// GetOrderStats retrieves order statistics
+// GetOrderStats - GET /api/v1/dashboard/orders
+// @Summary Order statistics
+// @Description Get order-related statistics
+// @Tags Dashboard
+// @Produce json
+// @Success 200 {object} utils.Response "Order stats retrieved successfully"
+// @Router /dashboard/orders [get]
+// @Security Bearer
 func (h *DashboardHandler) GetOrderStats(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -59,7 +80,15 @@ func (h *DashboardHandler) GetOrderStats(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, "Order stats retrieved successfully", stats)
 }
 
-// GetRecentOrders retrieves recent orders
+// GetRecentOrders - GET /api/v1/dashboard/recent-orders
+// @Summary Recent orders
+// @Description Get a list of the most recent orders
+// @Tags Dashboard
+// @Produce json
+// @Param limit query int false "Limit number of orders" default(10)
+// @Success 200 {object} utils.Response "Recent orders retrieved successfully"
+// @Router /dashboard/recent-orders [get]
+// @Security Bearer
 func (h *DashboardHandler) GetRecentOrders(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

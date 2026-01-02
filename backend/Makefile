@@ -1,4 +1,9 @@
-.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen
+.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen swagger
+
+swagger:
+	@echo "Generating swagger docs..."
+	@swag init -g cmd/main.go -o ./docs
+	@echo "Swagger docs generated successfully"
 
 # Run all tests
 test: test-unit

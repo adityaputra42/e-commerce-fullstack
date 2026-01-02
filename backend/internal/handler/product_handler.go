@@ -21,6 +21,21 @@ func NewProductHandler(productService services.ProductService) *ProductHandler {
 	}
 }
 
+// CreateProduct - POST /api/v1/products
+// @Summary Create a new product
+// @Description Create a new product with images and variants
+// @Tags Product
+// @Accept multipart/form-data
+// @Produce json
+// @Param name formData string true "Product name"
+// @Param description formData string true "Product description"
+// @Param price formData number true "Product price"
+// @Param category_id formData int true "Category ID"
+// @Param image formData file true "Main product image"
+// @Param color_varian formData string true "JSON string of color variants"
+// @Success 201 {object} utils.Response{data=models.Product} "Product created successfully"
+// @Failure 400 {object} utils.Response "Invalid input"
+// @Router /products [post]
 func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		respondError(w, http.StatusBadRequest, "Gagal parse form data", err)
@@ -85,6 +100,16 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	respondSuccess(w, http.StatusCreated, "Produk berhasil dibuat", result)
 }
 
+// GetProductByID - GET /api/v1/products/{id}
+// @Summary Get product by ID
+// @Description Get detailed information about a product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} utils.Response{data=models.Product} "Product found"
+// @Failure 404 {object} utils.Response "Product not found"
+// @Router /products/{id} [get]
 func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
@@ -101,6 +126,19 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	respondSuccess(w, http.StatusOK, "Produk ditemukan", result)
 }
 
+// GetAllProducts - GET /api/v1/products
+// @Summary List products
+// @Description Get a paginated list of products with filters
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param search query string false "Search by name"
+// @Param category_id query int false "Filter by category"
+// @Param sort_by query string false "Sort by field" default(created_at)
+// @Success 200 {object} utils.Response{data=[]models.Product} "Data produk berhasil diambil"
+// @Router /products [get]
 func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page < 1 {

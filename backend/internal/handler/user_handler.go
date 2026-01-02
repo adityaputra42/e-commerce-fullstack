@@ -21,7 +21,17 @@ func NewUserHandler(userService services.UserService) *UserHandler {
 	}
 }
 
-// GetUsers - GET /api/users
+// GetUsers - GET /api/v1/users
+// @Summary List users
+// @Description Get a paginated list of users
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.UserResponse} "Success"
+// @Router /users [get]
+// @Security Bearer
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
@@ -48,7 +58,17 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Users retrieved successfully", users)
 }
 
-// GetUserById - GET /api/users/:id
+// GetUserById - GET /api/v1/users/{id}
+// @Summary Get user by ID
+// @Description Get detailed information about a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} utils.Response{data=models.UserResponse} "Success"
+// @Failure 404 {object} utils.Response "User not found"
+// @Router /users/{id} [get]
+// @Security Bearer
 func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.ExtractIDFromPath(r.URL.Path)
 	if err != nil || id == 0 {
@@ -83,7 +103,16 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Current user retrieved successfully", user)
 }
 
-// CreateUser - POST /api/users
+// CreateUser - POST /api/v1/users
+// @Summary Create a new user
+// @Description Create a new user with provided details
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body models.UserInput true "User input"
+// @Success 201 {object} utils.Response{data=models.UserResponse} "User created successfully"
+// @Router /users [post]
+// @Security Bearer
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req models.UserInput
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

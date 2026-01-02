@@ -1,0 +1,1968 @@
+basePath: /api/v1
+definitions:
+  handler.HealthResponse:
+    properties:
+      service:
+        type: string
+      status:
+        type: string
+      timestamp:
+        type: string
+      version:
+        type: string
+    type: object
+  models.ActivityLog:
+    properties:
+      action:
+        maxLength: 100
+        type: string
+      created_at:
+        type: string
+      details:
+        type: string
+      id:
+        type: integer
+      ip_address:
+        type: string
+      resource:
+        maxLength: 100
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - action
+    - resource
+    type: object
+  models.Address:
+    properties:
+      city:
+        type: string
+      created_at:
+        type: string
+      district:
+        type: string
+      full_address:
+        maxLength: 255
+        minLength: 10
+        type: string
+      id:
+        type: integer
+      postal_code:
+        type: string
+      province:
+        type: string
+      recipient_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      recipient_phone_number:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+      village:
+        type: string
+    required:
+    - city
+    - district
+    - full_address
+    - postal_code
+    - province
+    - recipient_name
+    - recipient_phone_number
+    - user_id
+    - village
+    type: object
+  models.ColorVarian:
+    properties:
+      color:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      images:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      product_id:
+        type: integer
+      size_varians:
+        items:
+          $ref: '#/definitions/models.SizeVarian'
+        type: array
+      updated_at:
+        type: string
+    required:
+    - color
+    - name
+    - product_id
+    type: object
+  models.CreateAddress:
+    properties:
+      city:
+        type: string
+      district:
+        type: string
+      full_address:
+        maxLength: 255
+        minLength: 10
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      recipient_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      recipient_phone_number:
+        type: string
+      village:
+        type: string
+    required:
+    - city
+    - district
+    - full_address
+    - postal_code
+    - province
+    - recipient_name
+    - recipient_phone_number
+    - village
+    type: object
+  models.CreateOrder:
+    properties:
+      color_varian_id:
+        type: integer
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      size_varian_id:
+        type: integer
+      subtotal:
+        type: number
+      unit_price:
+        type: number
+    required:
+    - color_varian_id
+    - product_id
+    - quantity
+    - size_varian_id
+    - subtotal
+    - unit_price
+    type: object
+  models.CreatePayment:
+    properties:
+      total_payment:
+        type: number
+      transaction_id:
+        type: string
+    required:
+    - total_payment
+    - transaction_id
+    type: object
+  models.CreateShipping:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      price:
+        type: number
+      state:
+        enum:
+        - active
+        - inactive
+        type: string
+    required:
+    - name
+    - price
+    type: object
+  models.CreateTransaction:
+    properties:
+      address_id:
+        type: integer
+      payment_method_id:
+        type: integer
+      product_orders:
+        items:
+          $ref: '#/definitions/models.CreateOrder'
+        type: array
+      shipping_id:
+        type: integer
+      shipping_price:
+        type: number
+      total_price:
+        type: number
+    required:
+    - address_id
+    - payment_method_id
+    - product_orders
+    - shipping_id
+    - shipping_price
+    - total_price
+    type: object
+  models.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.Order:
+    properties:
+      color_varian:
+        $ref: '#/definitions/models.ColorVarian'
+      color_varian_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      size_varian:
+        $ref: '#/definitions/models.SizeVarian'
+      size_varian_id:
+        type: integer
+      status:
+        enum:
+        - pending
+        - paid
+        - shipped
+        - completed
+        - cancelled
+        type: string
+      subtotal:
+        type: number
+      transaction_id:
+        type: string
+      unit_price:
+        type: number
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    required:
+    - color_varian_id
+    - id
+    - product_id
+    - quantity
+    - size_varian_id
+    - status
+    - subtotal
+    - transaction_id
+    - unit_price
+    - user_id
+    type: object
+  models.Payment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      status:
+        enum:
+        - pending
+        - success
+        - failed
+        - refunded
+        type: string
+      total_payment:
+        type: number
+      transaction:
+        allOf:
+        - $ref: '#/definitions/models.Transaction'
+        description: Relasi ke Transaction
+      transaction_id:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - status
+    - total_payment
+    - transaction_id
+    type: object
+  models.PaymentMethod:
+    properties:
+      account_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      account_number:
+        maxLength: 30
+        minLength: 5
+        type: string
+      bank_images:
+        type: string
+      bank_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      updated_at:
+        type: string
+    required:
+    - account_name
+    - account_number
+    - bank_name
+    type: object
+  models.Permission:
+    properties:
+      action:
+        maxLength: 50
+        minLength: 2
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      resource:
+        maxLength: 50
+        minLength: 2
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+      updated_at:
+        type: string
+    required:
+    - action
+    - name
+    - resource
+    type: object
+  models.Product:
+    properties:
+      category_id:
+        type: integer
+      color_varians:
+        items:
+          $ref: '#/definitions/models.ColorVarian'
+        type: array
+      created_at:
+        type: string
+      description:
+        maxLength: 255
+        type: string
+      id:
+        type: integer
+      images:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      price:
+        type: number
+      rating:
+        maximum: 5
+        minimum: 0
+        type: number
+      updated_at:
+        type: string
+    required:
+    - category_id
+    - name
+    - price
+    type: object
+  models.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  models.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - username
+    type: object
+  models.Role:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_system_role:
+        type: boolean
+      level:
+        minimum: 1
+        type: integer
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/models.Permission'
+        type: array
+      updated_at:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    required:
+    - level
+    - name
+    type: object
+  models.RoleInput:
+    properties:
+      description:
+        maxLength: 500
+        type: string
+      is_system_role:
+        type: boolean
+      level:
+        minimum: 1
+        type: integer
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      permission_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - level
+    - name
+    type: object
+  models.Shipping:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      price:
+        type: number
+      state:
+        enum:
+        - active
+        - inactive
+        type: string
+      updated_at:
+        type: string
+    required:
+    - name
+    - price
+    - state
+    type: object
+  models.SizeVarian:
+    properties:
+      color_varian_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      size:
+        type: string
+      stock:
+        minimum: 0
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - color_varian_id
+    - size
+    type: object
+  models.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserResponse'
+    type: object
+  models.Transaction:
+    properties:
+      address:
+        $ref: '#/definitions/models.Address'
+      address_id:
+        type: integer
+      created_at:
+        type: string
+      orders:
+        items:
+          $ref: '#/definitions/models.Order'
+        type: array
+      payment_method:
+        $ref: '#/definitions/models.PaymentMethod'
+      payment_method_id:
+        type: integer
+      shipping:
+        $ref: '#/definitions/models.Shipping'
+      shipping_id:
+        type: integer
+      shipping_price:
+        type: number
+      status:
+        type: string
+      total_price:
+        type: number
+      tx_id:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - address_id
+    - payment_method_id
+    - shipping_id
+    type: object
+  models.UpdateAddress:
+    properties:
+      city:
+        type: string
+      district:
+        type: string
+      full_address:
+        maxLength: 255
+        minLength: 10
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      recipient_name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      recipient_phone_number:
+        type: string
+      village:
+        type: string
+    type: object
+  models.UpdateOrder:
+    properties:
+      id:
+        type: string
+      status:
+        enum:
+        - pending
+        - paid
+        - shipped
+        - completed
+        - cancelled
+        type: string
+    required:
+    - id
+    - status
+    type: object
+  models.User:
+    properties:
+      activity_logs:
+        items:
+          $ref: '#/definitions/models.ActivityLog'
+        type: array
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified_at:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      role_id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - username
+    type: object
+  models.UserInput:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      role_id:
+        minimum: 1
+        type: integer
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - role_id
+    - username
+    type: object
+  models.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_verified_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      permissions:
+        items:
+          type: string
+        type: array
+      role:
+        $ref: '#/definitions/models.Role'
+      role_id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server for an e-commerce application.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: E-Commerce API
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: Get general information about the API server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Server root
+      tags:
+      - Health
+  /addresses:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of current user's addresses
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Addresses retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Address'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List addresses
+      tags:
+      - Address
+    post:
+      consumes:
+      - application/json
+      description: Create a new shipping address for the authenticated user
+      parameters:
+      - description: Address request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAddress'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Address created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Address'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new address
+      tags:
+      - Address
+  /addresses/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a shipping address
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Address'
+              type: object
+        "404":
+          description: Address not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get address by ID
+      tags:
+      - Address
+    put:
+      consumes:
+      - application/json
+      description: Update an existing shipping address
+      parameters:
+      - description: Address ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update address request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Address'
+              type: object
+      security:
+      - Bearer: []
+      summary: Update address
+      tags:
+      - Address
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Request password reset token
+      parameters:
+      - description: Forgot password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset token sent successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Forgot password
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password to get access token
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.TokenResponse'
+              type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: SignIn user
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Logout from the application
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: SignOut user
+      tags:
+      - Auth
+  /auth/profile:
+    get:
+      description: Get information about the currently logged in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get current user profile
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using refresh token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.RefreshTokenResponse'
+              type: object
+      summary: Refresh token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, username, and password
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.TokenResponse'
+              type: object
+        "400":
+          description: Invalid request body or service error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: SignUp user
+      tags:
+      - Auth
+  /dashboard/orders:
+    get:
+      description: Get order-related statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order stats retrieved successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Order statistics
+      tags:
+      - Dashboard
+  /dashboard/recent-orders:
+    get:
+      description: Get a list of the most recent orders
+      parameters:
+      - default: 10
+        description: Limit number of orders
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recent orders retrieved successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Recent orders
+      tags:
+      - Dashboard
+  /dashboard/revenue:
+    get:
+      description: Get revenue-related statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Revenue stats retrieved successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Revenue statistics
+      tags:
+      - Dashboard
+  /dashboard/stats:
+    get:
+      description: Get overall statistics for the dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dashboard stats retrieved successfully
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Dashboard overview stats
+      tags:
+      - Dashboard
+  /health:
+    get:
+      description: Get the current health status of the API service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.HealthResponse'
+      summary: Check service health
+      tags:
+      - Health
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all orders
+      parameters:
+      - description: Filter by User ID
+        in: query
+        name: user_id
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Order'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all orders
+      tags:
+      - Order
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Order'
+              type: object
+        "404":
+          description: Order not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get order by ID
+      tags:
+      - Order
+    put:
+      consumes:
+      - application/json
+      description: Update the status of an existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update order request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Order'
+              type: object
+      security:
+      - Bearer: []
+      summary: Update order status
+      tags:
+      - Order
+  /orders/{id}/cancel:
+    patch:
+      responses: {}
+  /payment-methods:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all payment methods
+      parameters:
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.PaymentMethod'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all payment methods
+      tags:
+      - Payment Method
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new payment method with bank details and image
+      parameters:
+      - description: Account holder name
+        in: formData
+        name: account_name
+        required: true
+        type: string
+      - description: Account number
+        in: formData
+        name: account_number
+        required: true
+        type: string
+      - description: Bank name
+        in: formData
+        name: bank_name
+        required: true
+        type: string
+      - description: Bank logo/image
+        in: formData
+        name: bank_image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment method created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PaymentMethod'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new payment method
+      tags:
+      - Payment Method
+  /payment-methods/{id}:
+    delete:
+      responses: {}
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a payment method
+      parameters:
+      - description: Payment Method ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PaymentMethod'
+              type: object
+        "404":
+          description: Payment method not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get payment method by ID
+      tags:
+      - Payment Method
+    put:
+      responses: {}
+  /payments:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all payments
+      parameters:
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Payment'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all payments
+      tags:
+      - Payment
+    post:
+      consumes:
+      - application/json
+      description: Record a new payment for a transaction
+      parameters:
+      - description: Payment request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePayment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Payment'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new payment
+      tags:
+      - Payment
+  /payments/{id}:
+    delete:
+      responses: {}
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a payment
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Payment'
+              type: object
+        "404":
+          description: Payment not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get payment by ID
+      tags:
+      - Payment
+    put:
+      responses: {}
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of products with filters
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Filter by category
+        in: query
+        name: category_id
+        type: integer
+      - default: created_at
+        description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data produk berhasil diambil
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Product'
+                  type: array
+              type: object
+      summary: List products
+      tags:
+      - Product
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new product with images and variants
+      parameters:
+      - description: Product name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Product description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Product price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Main product image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: JSON string of color variants
+        in: formData
+        name: color_varian
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Product created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Product'
+              type: object
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create a new product
+      tags:
+      - Product
+  /products/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product found
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Product'
+              type: object
+        "404":
+          description: Product not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get product by ID
+      tags:
+      - Product
+  /roles:
+    get:
+      description: Get all available user roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Role'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all roles
+      tags:
+      - Role
+    post:
+      consumes:
+      - application/json
+      description: Create a new system role
+      parameters:
+      - description: Role request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RoleInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Role created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Role'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new role
+      tags:
+      - Role
+  /roles/{id}:
+    delete:
+      responses: {}
+    get:
+      description: Get detail info about a role
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Role'
+              type: object
+      security:
+      - Bearer: []
+      summary: Get role by ID
+      tags:
+      - Role
+    put:
+      responses: {}
+  /roles/{id}/permissions:
+    get:
+      responses: {}
+    post:
+      responses: {}
+  /roles/permissions:
+    get:
+      responses: {}
+  /shipping:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all shipping methods
+      parameters:
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Shipping'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all shipping methods
+      tags:
+      - Shipping
+    post:
+      consumes:
+      - application/json
+      description: Create a new shipping method for orders
+      parameters:
+      - description: Shipping request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateShipping'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Shipping method created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Shipping'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new shipping method
+      tags:
+      - Shipping
+  /shipping/{id}:
+    delete:
+      responses: {}
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a shipping method
+      parameters:
+      - description: Shipping ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Shipping'
+              type: object
+        "404":
+          description: Shipping method not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get shipping method by ID
+      tags:
+      - Shipping
+    put:
+      responses: {}
+  /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all transactions
+      parameters:
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Search query
+        in: query
+        name: search
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Transaction'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List all transactions
+      tags:
+      - Transaction
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction with product orders
+      parameters:
+      - description: Transaction request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Transaction created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Transaction'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new transaction
+      tags:
+      - Transaction
+  /transactions/{tx_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a transaction
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: tx_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Transaction'
+              type: object
+        "404":
+          description: Transaction not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get transaction by ID
+      tags:
+      - Transaction
+    put:
+      responses: {}
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of users
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.UserResponse'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: List users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with provided details
+      parameters:
+      - description: User input
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: Create a new user
+      tags:
+      - User
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.UserResponse'
+              type: object
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Bearer: []
+      summary: Get user by ID
+      tags:
+      - User
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and then your token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

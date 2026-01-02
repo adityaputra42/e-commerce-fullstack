@@ -20,7 +20,16 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 	}
 }
 
-// SignUp - POST /api/auth/signup
+// SignUp - POST /api/auth/register
+// @Summary SignUp user
+// @Description Register a new user with email, username, and password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.RegisterRequest true "Register request"
+// @Success 201 {object} utils.Response{data=models.TokenResponse} "User registered successfully"
+// @Failure 400 {object} utils.Response "Invalid request body or service error"
+// @Router /auth/register [post]
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -37,7 +46,16 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, "User registered successfully", resp)
 }
 
-// SignIn - POST /api/auth/signin
+// SignIn - POST /api/auth/login
+// @Summary SignIn user
+// @Description Login with email and password to get access token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.LoginRequest true "Login request"
+// @Success 200 {object} utils.Response{data=models.TokenResponse} "Login successful"
+// @Failure 401 {object} utils.Response "Invalid credentials"
+// @Router /auth/login [post]
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginRequest
 
@@ -59,7 +77,14 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
 }
 
-// SignOut - POST /api/auth/signout
+// SignOut - POST /api/v1/auth/logout
+// @Summary SignOut user
+// @Description Logout from the application
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} utils.Response "Logout successful"
+// @Router /auth/logout [post]
+// @Security Bearer
 func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 
 	userID := middleware.GetUserIDFromContext(r)
@@ -73,7 +98,15 @@ func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Logout successful", nil)
 }
 
-// Refresh - POST /api/auth/refresh
+// Refresh - POST /api/v1/auth/refresh
+// @Summary Refresh token
+// @Description Get a new access token using refresh token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.RefreshTokenRequest true "Refresh token request"
+// @Success 200 {object} utils.Response{data=models.RefreshTokenResponse} "Token refreshed successfully"
+// @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req models.RefreshTokenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -90,7 +123,15 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Token refreshed successfully", resp)
 }
 
-// ForgotPassword - POST /api/auth/forgot-password
+// ForgotPassword - POST /api/v1/auth/forgot-password
+// @Summary Forgot password
+// @Description Request password reset token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.ForgotPasswordRequest true "Forgot password request"
+// @Success 200 {object} utils.Response "Password reset token sent successfully"
+// @Router /auth/forgot-password [post]
 func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var req models.ForgotPasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -168,7 +209,14 @@ func (h *AuthHandler) ResendVerification(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, "Verification email sent successfully", nil)
 }
 
-// GetProfile - GET /api/auth/profile (requires auth middleware)
+// GetProfile - GET /api/v1/auth/profile
+// @Summary Get current user profile
+// @Description Get information about the currently logged in user
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} utils.Response{data=models.User} "Profile retrieved successfully"
+// @Router /auth/profile [get]
+// @Security Bearer
 func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	// Get user from context
 	user := middleware.GetUserFromContext(r)

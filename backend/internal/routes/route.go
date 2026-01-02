@@ -12,6 +12,9 @@ import (
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/sirupsen/logrus"
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	_ "e-commerce/backend/docs"
 )
 
 type Dependencies struct {
@@ -76,6 +79,10 @@ func SetupRoutes(handler *di.Handler, logger *logrus.Logger, cfg config.CORSConf
 		PaymentRoutes(api, handler.PaymentHandler, deps)
 		DashboardRoutes(api, handler.DashboardHandler, deps)
 	})
+
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), // The url pointing to API definition
+	))
 
 	return r
 }

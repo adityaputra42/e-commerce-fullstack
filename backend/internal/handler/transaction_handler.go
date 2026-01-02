@@ -22,7 +22,16 @@ func NewTransactionHandler(transactionService services.TransactionService) *Tran
 	}
 }
 
+// CreateTransaction - POST /api/v1/transactions
+// @Summary Create a new transaction
+// @Description Create a new transaction with product orders
+// @Tags Transaction
+// @Accept json
+// @Produce json
+// @Param request body models.CreateTransaction true "Transaction request"
+// @Success 201 {object} utils.Response{data=models.Transaction} "Transaction created successfully"
 // @Router /transactions [post]
+// @Security Bearer
 func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	var input models.CreateTransaction
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -75,7 +84,19 @@ func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Re
 	utils.WriteJSON(w, http.StatusCreated, "Transaction created successfully", transaction)
 }
 
+// GetAllTransactions - GET /api/v1/transactions
+// @Summary List all transactions
+// @Description Get a paginated list of all transactions
+// @Tags Transaction
+// @Accept json
+// @Produce json
+// @Param sort_by query string false "Sort by field"
+// @Param search query string false "Search query"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.Transaction} "Success"
 // @Router /transactions [get]
+// @Security Bearer
 func (h *TransactionHandler) GetAllTransactions(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	sortBy := r.URL.Query().Get("sort_by")
@@ -115,7 +136,17 @@ func (h *TransactionHandler) GetAllTransactions(w http.ResponseWriter, r *http.R
 	utils.WriteJSON(w, http.StatusOK, "Transactions retrieved successfully", transactions)
 }
 
+// GetTransactionByID - GET /api/v1/transactions/{tx_id}
+// @Summary Get transaction by ID
+// @Description Get detailed information about a transaction
+// @Tags Transaction
+// @Accept json
+// @Produce json
+// @Param tx_id path string true "Transaction ID"
+// @Success 200 {object} utils.Response{data=models.Transaction} "Success"
+// @Failure 404 {object} utils.Response "Transaction not found"
 // @Router /transactions/{tx_id} [get]
+// @Security Bearer
 func (h *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 	txID := chi.URLParam(r, "tx_id")
 	if txID == "" {

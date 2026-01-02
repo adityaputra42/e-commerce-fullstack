@@ -22,7 +22,16 @@ func NewPaymentHandler(paymentService services.PaymentService) *PaymentHandler {
 	}
 }
 
+// CreatePayment - POST /api/v1/payments
+// @Summary Create a new payment
+// @Description Record a new payment for a transaction
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param request body models.CreatePayment true "Payment request"
+// @Success 201 {object} utils.Response{data=models.Payment} "Payment created successfully"
 // @Router /payments [post]
+// @Security Bearer
 func (h *PaymentHandler) CreatePayment(w http.ResponseWriter, r *http.Request) {
 	var input models.CreatePayment
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -58,7 +67,18 @@ func (h *PaymentHandler) CreatePayment(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusCreated, "Payment created successfully", payment)
 }
 
+// GetAllPayments - GET /api/v1/payments
+// @Summary List all payments
+// @Description Get a paginated list of all payments
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param sort_by query string false "Sort by field"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.Payment} "Success"
 // @Router /payments [get]
+// @Security Bearer
 func (h *PaymentHandler) GetAllPayments(w http.ResponseWriter, r *http.Request) {
 
 	sortBy := r.URL.Query().Get("sort_by")
@@ -96,7 +116,17 @@ func (h *PaymentHandler) GetAllPayments(w http.ResponseWriter, r *http.Request) 
 	utils.WriteJSON(w, http.StatusOK, "Payments retrieved successfully", payments)
 }
 
+// GetPaymentByID - GET /api/v1/payments/{id}
+// @Summary Get payment by ID
+// @Description Get detailed information about a payment
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment ID"
+// @Success 200 {object} utils.Response{data=models.Payment} "Success"
+// @Failure 404 {object} utils.Response "Payment not found"
 // @Router /payments/{id} [get]
+// @Security Bearer
 func (h *PaymentHandler) GetPaymentByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)

@@ -22,7 +22,14 @@ func NewRoleHandler(roleService services.RoleService) *RoleHandler {
 	}
 }
 
+// GetAllRoles - GET /api/v1/roles
+// @Summary List all roles
+// @Description Get all available user roles
+// @Tags Role
+// @Produce json
+// @Success 200 {object} utils.Response{data=[]models.Role} "Success"
 // @Router /roles [get]
+// @Security Bearer
 func (h *RoleHandler) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	roles, err := h.roleService.FindAllRole()
 	if err != nil {
@@ -33,7 +40,15 @@ func (h *RoleHandler) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Roles retrieved successfully", roles)
 }
 
+// GetRoleByID - GET /api/v1/roles/{id}
+// @Summary Get role by ID
+// @Description Get detail info about a role
+// @Tags Role
+// @Produce json
+// @Param id path int true "Role ID"
+// @Success 200 {object} utils.Response{data=models.Role} "Success"
 // @Router /roles/{id} [get]
+// @Security Bearer
 func (h *RoleHandler) GetRoleByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -55,7 +70,16 @@ func (h *RoleHandler) GetRoleByID(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Role retrieved successfully", role)
 }
 
+// CreateRole - POST /api/v1/roles
+// @Summary Create a new role
+// @Description Create a new system role
+// @Tags Role
+// @Accept json
+// @Produce json
+// @Param request body models.RoleInput true "Role request"
+// @Success 201 {object} utils.Response{data=models.Role} "Role created successfully"
 // @Router /roles [post]
+// @Security Bearer
 func (h *RoleHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 	var input models.RoleInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

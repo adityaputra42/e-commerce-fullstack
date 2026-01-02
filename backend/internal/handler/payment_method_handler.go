@@ -21,7 +21,18 @@ func NewPaymentMethodHandler(paymentMethodService services.PaymentMethodService)
 	}
 }
 
+// GetAllPaymentMethods - GET /api/v1/payment-methods
+// @Summary List all payment methods
+// @Description Get a paginated list of all payment methods
+// @Tags Payment Method
+// @Accept json
+// @Produce json
+// @Param sort_by query string false "Sort by field"
+// @Param page query int false "Page number"
+// @Param limit query int false "Items per page"
+// @Success 200 {object} utils.Response{data=[]models.PaymentMethod} "Success"
 // @Router /payment-methods [get]
+// @Security Bearer
 func (h *PaymentMethodHandler) GetAllPaymentMethods(w http.ResponseWriter, r *http.Request) {
 
 	sortBy := r.URL.Query().Get("sort_by")
@@ -58,7 +69,17 @@ func (h *PaymentMethodHandler) GetAllPaymentMethods(w http.ResponseWriter, r *ht
 	utils.WriteJSON(w, http.StatusOK, "Payment methods retrieved successfully", paymentMethods)
 }
 
+// GetPaymentMethodByID - GET /api/v1/payment-methods/{id}
+// @Summary Get payment method by ID
+// @Description Get detailed information about a payment method
+// @Tags Payment Method
+// @Accept json
+// @Produce json
+// @Param id path int true "Payment Method ID"
+// @Success 200 {object} utils.Response{data=models.PaymentMethod} "Success"
+// @Failure 404 {object} utils.Response "Payment method not found"
 // @Router /payment-methods/{id} [get]
+// @Security Bearer
 func (h *PaymentMethodHandler) GetPaymentMethodByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -80,7 +101,19 @@ func (h *PaymentMethodHandler) GetPaymentMethodByID(w http.ResponseWriter, r *ht
 	utils.WriteJSON(w, http.StatusOK, "Payment method retrieved successfully", paymentMethod)
 }
 
+// CreatePaymentMethod - POST /api/v1/payment-methods
+// @Summary Create a new payment method
+// @Description Create a new payment method with bank details and image
+// @Tags Payment Method
+// @Accept multipart/form-data
+// @Produce json
+// @Param account_name formData string true "Account holder name"
+// @Param account_number formData string true "Account number"
+// @Param bank_name formData string true "Bank name"
+// @Param bank_image formData file true "Bank logo/image"
+// @Success 201 {object} utils.Response{data=models.PaymentMethod} "Payment method created successfully"
 // @Router /payment-methods [post]
+// @Security Bearer
 func (h *PaymentMethodHandler) CreatePaymentMethod(w http.ResponseWriter, r *http.Request) {
 	// Parse multipart form (max 10MB)
 	err := r.ParseMultipartForm(10 << 20)
