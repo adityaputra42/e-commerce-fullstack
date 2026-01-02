@@ -142,7 +142,7 @@ func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent s
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
 		var err error
 
-		userResult, err = a.userRepo.FindByEmail(req.Email)
+		userResult, err = a.userRepo.FindByUsernameOrEmail(req.Email)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("invalid credentials")

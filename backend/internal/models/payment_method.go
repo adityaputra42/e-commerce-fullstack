@@ -13,6 +13,7 @@ type PaymentMethod struct {
 	AccountNumber string         `json:"account_number" validate:"required,numeric,min=5,max=30" gorm:"type:varchar(30);not null"`
 	BankName      string         `json:"bank_name" validate:"required,min=3,max=100" gorm:"type:varchar(100);not null"`
 	BankImages    string         `json:"bank_images" validate:"omitempty,url" gorm:"type:text"`
+	IsActive      bool           `json:"is_active" gorm:"default:true"`
 	UpdatedAt     time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`
@@ -33,6 +34,7 @@ type UpdatePaymentMethod struct {
 	AccountNumber string `json:"account_number" form:"account_number" validate:"omitempty,numeric,min=5,max=30"`
 	BankName      string `json:"bank_name" form:"bank_name" validate:"omitempty,min=3,max=100"`
 	BankImages    string `json:"bank_images" form:"bank_images" validate:"omitempty,url"`
+	IsActive      *bool  `json:"is_active" form:"is_active"`
 }
 
 // Response Struct (API Output)
@@ -42,6 +44,7 @@ type PaymentMethodResponse struct {
 	AccountNumber string    `json:"account_number"`
 	BankName      string    `json:"bank_name"`
 	BankImages    string    `json:"bank_images"`
+	IsActive      bool      `json:"is_active"`
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
 }
@@ -60,6 +63,7 @@ func (s *PaymentMethod) ToResponsePaymentMethod() *PaymentMethodResponse {
 		AccountNumber: s.AccountNumber,
 		BankName:      s.BankName,
 		BankImages:    s.BankImages,
+		IsActive:      s.IsActive,
 		UpdatedAt:     s.UpdatedAt,
 		CreatedAt:     s.CreatedAt,
 	}

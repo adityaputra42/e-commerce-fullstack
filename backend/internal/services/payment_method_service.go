@@ -84,10 +84,6 @@ func (pm *PaymentMethodServiceImpl) UpdatePaymentMethod(param models.UpdatePayme
 		return nil, errors.New("payment method not found")
 	}
 
-	if err := validatePMFields(param.AccountName, param.AccountNumber, param.BankName); err != nil {
-		return nil, err
-	}
-
 	var newImageURL string
 	oldImageURL := existing.BankImages
 
@@ -101,9 +97,18 @@ func (pm *PaymentMethodServiceImpl) UpdatePaymentMethod(param models.UpdatePayme
 	}
 
 	// Update field lain
-	existing.AccountName = param.AccountName
-	existing.AccountNumber = param.AccountNumber
-	existing.BankName = param.BankName
+	if param.AccountName != "" {
+		existing.AccountName = param.AccountName
+	}
+	if param.AccountNumber != "" {
+		existing.AccountNumber = param.AccountNumber
+	}
+	if param.BankName != "" {
+		existing.BankName = param.BankName
+	}
+	if param.IsActive != nil {
+		existing.IsActive = *param.IsActive
+	}
 
 	updated, err := pm.paymentMethodRepo.Update(*existing, nil)
 	if err != nil {

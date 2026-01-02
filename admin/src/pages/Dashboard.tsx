@@ -28,104 +28,143 @@ const DashboardPage = () => {
   } = useDashboardData();
 
   if (isLoading) {
-    return <div className="p-6 text-center">Loading dashboard data...</div>;
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p className="text-slate-500 font-medium">Preparing your insights...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-6 text-center text-red-500">{error}</div>;
+    return (
+      <div className="premium-card p-12 text-center">
+        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+           <Activity className="w-8 h-8" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">Something went wrong</h3>
+        <p className="text-slate-500">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Dashboard Overview
-      </h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight transition-all">Dashboard Overview</h1>
+        <p className="text-slate-500 mt-1">Welcome back! Here's what's happening with your store today.</p>
+      </div>
 
       {/* ===== STATS CARDS ===== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Users"
           value={stats?.total_users ?? 0}
-          icon={<Users />}
-          color="blue"
+          icon={<Users className="w-6 h-6" />}
+          color="indigo"
         />
         <StatCard
           title="Active Users"
           value={stats?.active_users ?? 0}
-          icon={<Users />}
-          color="green"
+          icon={<Activity className="w-6 h-6" />}
+          color="emerald"
         />
         <StatCard
           title="Total Revenue"
-          value={`$${revenue?.total_revenue ?? 0}`}
-          icon={<DollarSign />}
-          color="yellow"
+          value={new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(revenue?.total_revenue ?? 0)}
+          icon={<DollarSign className="w-6 h-6" />}
+          color="amber"
         />
         <StatCard
           title="Total Orders"
           value={orderStats?.total_orders ?? 0}
-          icon={<ShoppingCart />}
-          color="red"
+          icon={<ShoppingCart className="w-6 h-6" />}
+          color="rose"
         />
       </div>
 
       {/* ===== ANALYTICS ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">
-            User Growth Analytics
-          </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 premium-card p-6">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-lg font-bold text-slate-900">User Growth Analytics</h2>
+            <select className="bg-slate-50 border-none text-xs font-bold text-slate-500 rounded-lg px-3 py-1.5 focus:ring-0">
+                <option>Last 7 Days</option>
+                <option>Last 30 Days</option>
+            </select>
+          </div>
 
           {userAnalytics.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={userAnalytics}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Bar
-                  dataKey="user_count"
-                  name="New Users"
-                  fill="#3b82f6"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={userAnalytics} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 12 }} 
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 12 }} 
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar
+                    dataKey="user_count"
+                    name="New Users"
+                    fill="#6366f1"
+                    radius={[4, 4, 0, 0]}
+                    barSize={32}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           ) : (
-            <p className="text-gray-500">No analytics data.</p>
+            <div className="h-[300px] flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+               <p className="text-slate-400 text-sm">No analytics data available</p>
+            </div>
           )}
         </div>
 
         {/* ===== RECENT ACTIVITY ===== */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">
-            Recent Activity
-          </h2>
+        <div className="premium-card p-6 flex flex-col">
+          <h2 className="text-lg font-bold text-slate-900 mb-6">Recent Activity</h2>
 
           {recentActivity.length > 0 ? (
-            <ul className="divide-y">
+            <div className="flex-1 space-y-6 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
               {recentActivity.map((activity) => (
-                <li
+                <div
                   key={activity.id}
-                  className="py-3 flex justify-between"
+                  className="relative pl-6 pb-6 last:pb-0 border-l border-slate-100 last:border-0"
                 >
-                  <span className="text-gray-700">
-                    <span className="font-medium">
-                      {activity.user?.username ??
-                        activity.user?.email ??
-                        'Unknown'}
-                    </span>{' '}
-                    {activity.action} {activity.resource}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {new Date(
-                      activity.created_at
-                    ).toLocaleString()}
-                  </span>
-                </li>
+                  <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-white"></div>
+                  <div className="flex flex-col">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {activity.user?.username || 'System'}
+                      <span className="font-normal text-slate-500 ml-1">
+                        {activity.action} {activity.resource}
+                      </span>
+                    </p>
+                    <span className="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-wider">
+                      {new Date(activity.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(activity.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
-            <p className="text-gray-500">No recent activity.</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+               <Activity className="w-8 h-8 text-slate-300 mb-2" />
+               <p className="text-slate-400 text-sm">No recent activity detected</p>
+            </div>
           )}
         </div>
       </div>

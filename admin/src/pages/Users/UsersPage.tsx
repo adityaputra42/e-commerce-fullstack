@@ -10,6 +10,7 @@ import {
   showErrorAlert,
   showConfirmAlert,
 } from '../../utils/alerts';
+import { Users, Plus, Search, Filter } from 'lucide-react';
 
 const UsersPage = () => {
   const [page] = useState(1);
@@ -133,39 +134,66 @@ const UsersPage = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Users Management</h1>
-        <button
-          onClick={() => handleOpenModal(null)}
-          className="px-4 py-2 font-bold text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">User Directory</h1>
+          <p className="text-slate-500 mt-1">Manage administrative accounts and their system status.</p>
+        </div>
+        <button 
+            onClick={() => handleOpenModal(null)}
+            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
         >
-          Add User
+          <Plus className="w-5 h-5" /> 
+          <span>Add New User</span>
         </button>
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search users..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md"
-        />
+      {/* Filter & Search Bar */}
+      <div className="premium-card p-4 flex flex-col md:flex-row gap-4 items-center">
+         <div className="relative flex-1 group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search users by name, email or username..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none"
+            />
+         </div>
+         <div className="flex items-center gap-2">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+               <Filter className="w-4 h-4" />
+               Filter
+            </button>
+            <div className="w-px h-8 bg-slate-100 mx-1 hidden md:block"></div>
+            <p className="text-sm text-slate-500 font-medium whitespace-nowrap">
+               Sorted by <span className="text-slate-900 font-bold">Newest First</span>
+            </p>
+         </div>
       </div>
 
-      {isLoading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!isLoading && !error && (
-        <UserTable
-          users={users}
-          onEdit={handleOpenModal}
-          onDelete={handleDelete}
-          onToggleActivate={handleToggleActivate}
-          onUpdatePassword={handleOpenPasswordModal}
-        />
-      )}
+      <div className="premium-card overflow-hidden">
+        {isLoading ? (
+          <div className="p-20 flex flex-col items-center justify-center gap-4">
+             <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+             <p className="text-slate-500 font-medium italic">Fetching users...</p>
+          </div>
+        ) : error ? (
+          <div className="p-20 text-center">
+             <p className="text-rose-500 font-medium">{error}</p>
+             <button onClick={() => refetchUsers()} className="mt-4 text-indigo-600 font-semibold hover:underline">Try again</button>
+          </div>
+        ) : (
+          <UserTable
+            users={users}
+            onEdit={handleOpenModal}
+            onDelete={handleDelete}
+            onToggleActivate={handleToggleActivate}
+            onUpdatePassword={handleOpenPasswordModal}
+          />
+        )}
+      </div>
 
       <UserFormModal
         isOpen={isModalOpen}

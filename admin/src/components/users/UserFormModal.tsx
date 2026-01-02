@@ -3,28 +3,19 @@ import { Fragment, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { X, User as UserIcon, Mail, Shield, Lock } from 'lucide-react';
 
 import type { User } from '../../types/user';
 import { useRoles } from '../../hooks/useRoles';
 
-const userSchema = z
-  .object({
-    first_name: z.string().min(1, 'First name is required'),
-    last_name: z.string().min(1, 'Last name is required'),
-    email: z.string().email('Invalid email'),
-    username: z.string().min(3, 'Username must be at least 3 characters'),
-    password: z.string().min(8, 'Password must be at least 8 characters').optional(),
-    role_id: z.preprocess(
-      val => Number(val),
-      z.number().positive('Role is required')
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // Password required ONLY on create
-    if (!ctx.path.length && !ctx.parent && !data.password) {
-      // noop – needed to keep TS happy
-    }
-  });
+const userSchema = z.object({
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email'),
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  role_id: z.number().positive('Role is required'),
+});
 
 type UserFormInputs = z.infer<typeof userSchema>;
 
@@ -32,7 +23,7 @@ interface UserFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
-  onSave: (data: UserFormInputs, userId: number | null) => void;
+  onSave: (data: UserFormInputs, userId: number | null) => Promise<void> | void;
 }
 
 const UserFormModal: React.FC<UserFormModalProps> = ({
@@ -46,7 +37,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
     unregister,
   } = useForm<UserFormInputs>({
@@ -72,8 +63,6 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         username: user.username,
         role_id: user.role.id,
       });
-
-      // remove password completely in edit mode
       unregister('password');
     } else {
       reset({
@@ -87,18 +76,14 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
     }
   }, [isOpen, user, reset, unregister]);
 
-  const onSubmit = (data: UserFormInputs) => {
-    const payload =
-      user && !data.password
-        ? { ...data, password: undefined }
-        : data;
-
-    onSave(payload, user ? user.id : null);
+  const onSubmit = async (data: UserFormInputs) => {
+    const payload = user && !data.password ? { ...data, password: undefined } : data;
+    await onSave(payload, user ? user.id : null);
   };
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -108,7 +93,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/25" />
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -122,90 +107,84 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-95"
             >
-              <Dialog.Panel className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                <Dialog.Title className="text-lg font-semibold">
-                  {user ? 'Edit User' : 'Create User'}
-                </Dialog.Title>
-
-                <form
-                  onSubmit={handleSubmit(onSubmit)}
-                  className="mt-4 space-y-4"
-                >
-                  {['first_name', 'last_name', 'email', 'username'].map(
-                    field => (
-                      <div key={field}>
-                        <label className="block text-sm font-medium capitalize">
-                          {field.replace('_', ' ')}
-                        </label>
-                        <input
-                          {...register(field as keyof UserFormInputs)}
-                          className="mt-1 w-full rounded-md border px-3 py-2"
-                        />
-                        {errors[field as keyof UserFormInputs] && (
-                          <p className="text-sm text-red-500">
-                            {
-                              errors[field as keyof UserFormInputs]
-                                ?.message as string
-                            }
-                          </p>
-                        )}
-                      </div>
-                    )
-                  )}
-
-                  {!user && (
+              <Dialog.Panel className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                     <div>
-                      <label className="block text-sm font-medium">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        {...register('password')}
-                        className="mt-1 w-full rounded-md border px-3 py-2"
-                      />
-                      {errors.password && (
-                        <p className="text-sm text-red-500">
-                          {errors.password.message}
-                        </p>
-                      )}
+                        <Dialog.Title className="text-xl font-bold text-slate-900">
+                            {user ? 'Update Staff Member' : 'Add New Staff'}
+                        </Dialog.Title>
+                        <p className="text-xs text-slate-500 font-medium">Configure administrative access details.</p>
                     </div>
-                  )}
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium">Role</label>
-                    <select
-                      {...register('role_id')}
-                      className="mt-1 w-full rounded-md border px-3 py-2"
-                    >
-                      <option value="">Select role</option>
-                      {roles?.map(role => (
-                        <option key={role.id} value={role.id}>
-                          {role.name}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.role_id && (
-                      <p className="text-sm text-red-500">
-                        {errors.role_id.message}
-                      </p>
+                <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">First Name</label>
+                            <input {...register('first_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
+                            {errors.first_name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.first_name.message}</p>}
+                        </div>
+                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
+                            <input {...register('last_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
+                            {errors.last_name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.last_name.message}</p>}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                        <div className="relative">
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input type="email" {...register('email')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" />
+                        </div>
+                        {errors.email && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
+                    </div>
+
+                    <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
+                        <div className="relative">
+                            <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input {...register('username')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-semibold" />
+                        </div>
+                        {errors.username && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.username.message}</p>}
+                    </div>
+
+                    {!user && (
+                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Initial Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input type="password" {...register('password')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" />
+                            </div>
+                            {errors.password && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
+                        </div>
                     )}
-                  </div>
 
-                  <div className="flex justify-end gap-2 pt-4">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="rounded-md bg-gray-100 px-4 py-2"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="rounded-md bg-indigo-600 px-4 py-2 text-white"
-                    >
-                      Save
-                    </button>
-                  </div>
+                    <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Assign Security Role</label>
+                        <div className="relative">
+                            <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                            <select {...register('role_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-8 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-bold appearance-none">
+                                <option value="">Select a role...</option>
+                                {roles?.map(role => (
+                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {errors.role_id && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.role_id.message}</p>}
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-50">
+                        <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" disabled={isSubmitting} className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 disabled:opacity-50">
+                            {isSubmitting ? 'Saving...' : user ? 'Save Changes' : 'Create Account'}
+                        </button>
+                    </div>
                 </form>
               </Dialog.Panel>
             </Transition.Child>

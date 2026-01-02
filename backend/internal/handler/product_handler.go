@@ -112,27 +112,12 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 		limit = 10
 	}
 
-	var categoryID *int64
+	var categoryID int64
 	if catStr := r.URL.Query().Get("category_id"); catStr != "" {
-		cat, err := strconv.ParseInt(catStr, 10, 64)
-		if err == nil {
-			categoryID = &cat
+		if cat, err := strconv.ParseInt(catStr, 10, 64); err == nil {
+			categoryID = cat
 		}
 	}
-
-	// var minPrice, maxPrice *float64
-	// if minStr := r.URL.Query().Get("min_price"); minStr != "" {
-	// 	min, err := strconv.ParseFloat(minStr, 64)
-	// 	if err == nil {
-	// 		minPrice = &min
-	// 	}
-	// }
-	// if maxStr := r.URL.Query().Get("max_price"); maxStr != "" {
-	// 	max, err := strconv.ParseFloat(maxStr, 64)
-	// 	if err == nil {
-	// 		maxPrice = &max
-	// 	}
-	// }
 
 	sortBy := r.URL.Query().Get("sort_by")
 	if sortBy == "" {
@@ -143,7 +128,7 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 		Page:       page,
 		Limit:      limit,
 		Search:     r.URL.Query().Get("search"),
-		CategoryID: *categoryID,
+		CategoryID: categoryID,
 
 		SortBy: sortBy,
 	}

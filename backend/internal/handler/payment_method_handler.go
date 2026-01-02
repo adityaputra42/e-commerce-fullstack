@@ -139,9 +139,13 @@ func (h *PaymentMethodHandler) UpdatePaymentMethod(w http.ResponseWriter, r *htt
 	accountNumber := r.FormValue("account_number")
 	bankName := r.FormValue("bank_name")
 
-	if accountName == "" || accountNumber == "" || bankName == "" {
-		utils.WriteError(w, http.StatusBadRequest, "All fields are required", err)
-		return
+	var isActive *bool
+	isActiveStr := r.FormValue("is_active")
+	if isActiveStr != "" {
+		b, err := strconv.ParseBool(isActiveStr)
+		if err == nil {
+			isActive = &b
+		}
 	}
 
 	param := models.UpdatePaymentMethod{
@@ -149,6 +153,7 @@ func (h *PaymentMethodHandler) UpdatePaymentMethod(w http.ResponseWriter, r *htt
 		AccountName:   accountName,
 		AccountNumber: accountNumber,
 		BankName:      bankName,
+		IsActive:      isActive,
 	}
 
 	var fileHeader *multipart.FileHeader

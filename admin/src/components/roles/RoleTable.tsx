@@ -1,5 +1,5 @@
 import type { Role } from '../../types/rbac';
-import { Edit, Trash2, Eye } from 'lucide-react';
+import { Edit3, Trash2, Eye, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface RoleTableProps {
   roles: Role[];
@@ -10,59 +10,78 @@ interface RoleTableProps {
 
 const RoleTable: React.FC<RoleTableProps> = ({ roles, onEdit, onDelete, onViewDetails }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
-            <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Description</th>
-            <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Type</th>
-            <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Permissions</th>
-            <th className="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">Actions</th>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-slate-50">
+            <th className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Role Info</th>
+            <th className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Description</th>
+            <th className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Type</th>
+            <th className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Rights</th>
+            <th className="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Action</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-slate-50">
           {roles && roles.length > 0 ? (
             roles.map((role) => (
-              <tr key={role.id}>
+              <tr key={role.id} className="group hover:bg-slate-50/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <span className="font-medium">{role.name}</span>
-                    {role.is_system_role && (
-                      <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">System</span>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl ${role.is_system_role ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                        {role.is_system_role ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                    </div>
+                    <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{role.name}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{role.description}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-medium max-w-xs truncate">{role.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${role.is_system_role ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
-                    {role.is_system_role ? 'System Role' : 'Custom Role'}
-                  </span>
+                   <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+                       role.is_system_role 
+                       ? 'bg-slate-100 text-slate-600' 
+                       : 'bg-emerald-50 text-emerald-700'
+                   }`}>
+                     {role.is_system_role ? 'System' : 'Custom'}
+                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    {role.permissions?.length || 0} permissions
-                  </span>
+                <td className="px-6 py-4 whitespace-nowrap">
+                   <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-slate-700">{role.permissions?.length || 0}</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Permissions</span>
+                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                  <button onClick={() => onViewDetails(role)} className="text-blue-600 hover:text-blue-900">
-                    <Eye className="w-5 h-5" />
-                  </button>
-                  <button onClick={() => onEdit(role)} className="ml-4 text-indigo-600 hover:text-indigo-900">
-                    <Edit className="w-5 h-5" />
-                  </button>
-                  {!role.is_system_role && (
-                    <button onClick={() => onDelete(role)} className="ml-4 text-red-600 hover:text-red-900">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  )}
+                <td className="px-6 py-4 text-right whitespace-nowrap">
+                   <div className="flex items-center justify-end gap-1">
+                      <button 
+                        onClick={() => onViewDetails(role)} 
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                        title="View Permissions"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => onEdit(role)} 
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                        title="Edit Role"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      {!role.is_system_role && (
+                        <button 
+                            onClick={() => onDelete(role)} 
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                            title="Delete Role"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                   </div>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                No roles found.
+              <td colSpan={5} className="py-12 text-center text-slate-400 font-medium">
+                No roles found in the system.
               </td>
             </tr>
           )}

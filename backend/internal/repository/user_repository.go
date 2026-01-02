@@ -12,6 +12,7 @@ type UserRepository interface {
 	Delete(param models.User) error
 	FindById(id uint) (models.User, error)
 	FindByEmail(email string) (models.User, error)
+	FindByUsernameOrEmail(identifier string) (models.User, error)
 	FindAll(param models.UserListRequest) (*models.UserListResponse, error)
 }
 
@@ -29,6 +30,17 @@ func (u *UserRepositoryImpl) FindByEmail(email string) (models.User, error) {
 	err := database.DB.
 		Preload("Role.Permissions").
 		Where("email = ?", email).
+		First(&user).Error
+
+	return user, err
+}
+
+func (u *UserRepositoryImpl) FindByUsernameOrEmail(identifier string) (models.User, error) {
+	user := models.User{}
+
+	err := database.DB.
+		Preload("Role.Permissions").
+		Where("email = ? OR username = ?", identifier, identifier).
 		First(&user).Error
 
 	return user, err

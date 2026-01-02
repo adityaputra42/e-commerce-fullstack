@@ -15,20 +15,11 @@ import (
 func initLogger() *logrus.Logger {
 	logger := logrus.New()
 
-	// Set output ke stdout
 	logger.SetOutput(os.Stdout)
 
-	// Set formatter (pilih salah satu)
-	// Format JSON - bagus untuk production
-	// logger.SetFormatter(&logrus.JSONFormatter{
-	// 	TimestampFormat: "2006-01-02 15:04:05",
-	// 	PrettyPrint:     false,
-	// })
-
-	logger.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp:   true,
+	logger.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
-		ForceColors:     true,
+		PrettyPrint:     false,
 	})
 
 	// Set level logging

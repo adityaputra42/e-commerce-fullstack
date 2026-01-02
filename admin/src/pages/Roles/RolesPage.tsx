@@ -6,6 +6,7 @@ import RoleDetailModal from '../../components/roles/RoleDetailModal';
 import type { Role } from '../../types/rbac';
 import api from '../../services/api';
 import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
+import { Shield, Plus, Info } from 'lucide-react';
 
 const RolesPage = () => {
   const { roles, isLoading, error, mutate } = useRoles();
@@ -48,7 +49,7 @@ const RolesPage = () => {
         }
         showSuccessAlert('Role created successfully!');
       }
-      mutate(); // Re-fetch roles
+      mutate();
       handleCloseModal();
     } catch (error: any) {
       showErrorAlert(error.response?.data?.message || 'Failed to save role.');
@@ -69,23 +70,69 @@ const RolesPage = () => {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Roles Management</h1>
-        <button onClick={() => handleOpenModal(null)} className="px-4 py-2 font-bold text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
-          Add Role
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Access Control</h1>
+          <p className="text-slate-500 mt-1">Define roles and granular permissions for your administrative staff.</p>
+        </div>
+        <button 
+            onClick={() => handleOpenModal(null)}
+            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
+        >
+          <Plus className="w-5 h-5" /> 
+          <span>Create New Role</span>
         </button>
       </div>
-      {isLoading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {!isLoading && !error && (
-        <RoleTable 
-          roles={roles}
-          onEdit={handleOpenModal}
-          onDelete={handleDelete}
-          onViewDetails={handleViewDetails}
-        />
-      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+         <div className="lg:col-span-1 space-y-6">
+            <div className="premium-card p-6 bg-linear-to-br from-slate-800 to-slate-900 text-white">
+                <Shield className="w-10 h-10 text-indigo-400 mb-4" />
+                <h3 className="text-lg font-bold">RBAC Policy</h3>
+                <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+                   Roles determine what actions users can perform. Always follow the principle of least privilege.
+                </p>
+                <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500 uppercase">Total Defined</span>
+                    <span className="text-xl font-bold">{roles.length} Roles</span>
+                </div>
+            </div>
+
+            <div className="premium-card p-6 flex gap-3 border-l-4 border-indigo-500">
+                <Info className="w-5 h-5 text-indigo-600 shrink-0" />
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                   System roles like <span className="text-slate-900 font-bold">Super Admin</span> cannot be deleted or modified to ensure system stability.
+                </p>
+            </div>
+         </div>
+
+         <div className="lg:col-span-3">
+            <div className="premium-card overflow-hidden">
+                {isLoading && (
+                  <div className="p-20 flex flex-col items-center justify-center gap-4">
+                     <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                     <p className="text-slate-500 font-medium italic">Loading permissions...</p>
+                  </div>
+                )}
+                {error && (
+                  <div className="p-20 text-center">
+                     <p className="text-rose-500 font-medium">{error}</p>
+                     <button onClick={() => mutate()} className="mt-4 text-indigo-600 font-semibold hover:underline">Retry</button>
+                  </div>
+                )}
+                {!isLoading && !error && (
+                  <RoleTable 
+                    roles={roles}
+                    onEdit={handleOpenModal}
+                    onDelete={handleDelete}
+                    onViewDetails={handleViewDetails}
+                  />
+                )}
+            </div>
+         </div>
+      </div>
+
       <RoleFormModal 
         isOpen={isModalOpen}
         onClose={handleCloseModal}

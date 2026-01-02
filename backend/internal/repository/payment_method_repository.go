@@ -61,7 +61,7 @@ func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequ
 		db = db.Offset(offset)
 	}
 
-	if err := db.Preload("PaymentMethods").Find(&PaymentMethods).Error; err != nil {
+	if err := db.Find(&PaymentMethods).Error; err != nil {
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequ
 // FindById implements PaymentMethodRepository.
 func (a *PaymentMethodRepositoryImpl) FindById(paramId uint) (*models.PaymentMethod, error) {
 	PaymentMethod := models.PaymentMethod{}
-	err := database.DB.Model(&models.User{}).Take(&PaymentMethod, "id =?", paramId).Error
+	err := database.DB.First(&PaymentMethod, paramId).Error
 
 	return &PaymentMethod, err
 }
