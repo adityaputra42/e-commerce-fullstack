@@ -20,11 +20,13 @@ type TransactionRepository interface {
 type TransactionRepositoryImpl struct {
 }
 
-// FindByIdLocking implements [TransactionRepository].
+// FindByIdLocking implements TransactionRepository.
 func (r *TransactionRepositoryImpl) FindByIdLocking(tx *gorm.DB, id string) (*models.Transaction, error) {
 	var trx models.Transaction
 
-	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+	err := tx.
+		Select("tx_id", "address_id", "shipping_id", "payment_method_id", "total_price", "shipping_price", "status", "created_at", "updated_at").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("tx_id = ?", id).
 		First(&trx).Error
 
@@ -49,7 +51,9 @@ func (a *TransactionRepositoryImpl) Create(param models.Transaction, tx *gorm.DB
 		return result, err
 	}
 
-	err = db.First(&result, "tx_id = ?", param.TxID).Error
+	err = db.
+		Select("tx_id", "address_id", "shipping_id", "payment_method_id", "total_price", "shipping_price", "status", "created_at", "updated_at").
+		First(&result, "tx_id = ?", param.TxID).Error
 
 	return result, err
 }
@@ -61,11 +65,11 @@ func (a *TransactionRepositoryImpl) Delete(param models.Transaction) error {
 
 // FindAll implements TransactionRepository.
 func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest) ([]models.Transaction, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var Transactions []models.Transaction
-	db := database.DB
+	db := database.DB.
+		Select("tx_id", "address_id", "shipping_id", "payment_method_id", "total_price", "shipping_price", "status", "created_at", "updated_at")
 
 	if param.SortBy != "" {
 		db = db.Order(param.SortBy)
@@ -79,8 +83,7 @@ func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest)
 		db = db.Offset(offset)
 	}
 
-	if err := db.
-		Find(&Transactions).Error; err != nil {
+	if err := db.Find(&Transactions).Error; err != nil {
 		return nil, err
 	}
 
@@ -91,16 +94,30 @@ func (a *TransactionRepositoryImpl) FindAll(param models.TransactionListRequest)
 func (a *TransactionRepositoryImpl) FindById(paramId string) (models.Transaction, error) {
 	Transaction := models.Transaction{}
 	err := database.DB.
-		Preload("Address").
-		Preload("Shipping").
-		Preload("PaymentMethod").
+		Select("tx_id", "address_id", "shipping_id", "payment_method_id", "total_price", "shipping_price", "status", "created_at", "updated_at").
+		Preload("Address", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at")
+		}).
+		Preload("Shipping", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "price", "state", "created_at", "updated_at")
+		}).
+		Preload("PaymentMethod", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "account_name", "account_number", "bank_name", "bank_images", "is_active", "created_at", "updated_at")
+		}).
 		Preload("Orders", func(db *gorm.DB) *gorm.DB {
 			return db.
-				Preload("Product").
-				Preload("ColorVarian").
-				Preload("SizeVarian")
+				Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+				Preload("Product", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "category_id", "name", "description", "created_at", "updated_at")
+				}).
+				Preload("ColorVarian", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "product_id", "name", "color", "images", "created_at", "updated_at")
+				}).
+				Preload("SizeVarian", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at")
+				})
 		}).
-		First(&Transaction, "tx_id =?", paramId).Error
+		First(&Transaction, "tx_id = ?", paramId).Error
 
 	return Transaction, err
 }
@@ -119,17 +136,33 @@ func (a *TransactionRepositoryImpl) Update(param models.Transaction, tx *gorm.DB
 		return result, err
 	}
 
-	err = db.Preload("Address").
-		Preload("Shipping").
-		Preload("PaymentMethod").
+	err = db.
+		Select("tx_id", "address_id", "shipping_id", "payment_method_id", "total_price", "shipping_price", "status", "created_at", "updated_at").
+		Preload("Address", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at")
+		}).
+		Preload("Shipping", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "price", "state", "created_at", "updated_at")
+		}).
+		Preload("PaymentMethod", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "account_name", "account_number", "bank_name", "bank_images", "is_active", "created_at", "updated_at")
+		}).
 		Preload("Orders", func(dbf *gorm.DB) *gorm.DB {
 			return dbf.
-				Preload("Product").
-				Preload("ColorVarian").
-				Preload("SizeVarian")
-		}).First(&result, "tx_id = ?", param.TxID).Error
-	return result, err
+				Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+				Preload("Product", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "category_id", "name", "description", "created_at", "updated_at")
+				}).
+				Preload("ColorVarian", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "product_id", "name", "color", "images", "created_at", "updated_at")
+				}).
+				Preload("SizeVarian", func(db *gorm.DB) *gorm.DB {
+					return db.Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at")
+				})
+		}).
+		First(&result, "tx_id = ?", param.TxID).Error
 
+	return result, err
 }
 
 func NewTransactionRepository() TransactionRepository {

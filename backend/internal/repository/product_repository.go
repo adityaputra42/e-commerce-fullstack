@@ -44,6 +44,7 @@ func (r *ProductRepositoryImpl) FindSizeVarianLocked(tx *gorm.DB, id uint) (*mod
 	var sizeVarian models.SizeVarian
 
 	err := db.
+		Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at").
 		Clauses(clause.Locking{Strength: "UPDATE"}).
 		First(&sizeVarian, id).Error
 
@@ -66,7 +67,9 @@ func (r *ProductRepositoryImpl) FindByNameAndCategory(name string, categoryID in
 
 	var product models.Product
 
-	err := db.Where("name = ? AND category_id = ? AND deleted_at IS NULL", name, categoryID).
+	err := db.
+		Select("id", "category_id", "name", "description", "created_at", "updated_at", "deleted_at").
+		Where("name = ? AND category_id = ? AND deleted_at IS NULL", name, categoryID).
 		First(&product).Error
 
 	if err != nil {
@@ -104,11 +107,18 @@ func (r *ProductRepositoryImpl) FindProductById(id int64, tx *gorm.DB) (*models.
 
 	// Use preloads with the chosen db (tx or global)
 	err := db.
+		Select("id", "category_id", "name", "description", "created_at", "updated_at", "deleted_at").
 		Preload("ColorVarians", func(db *gorm.DB) *gorm.DB {
-			return db.Where("deleted_at IS NULL").Order("created_at ASC")
+			return db.
+				Select("id", "product_id", "name", "color", "images", "created_at", "updated_at", "deleted_at").
+				Where("deleted_at IS NULL").
+				Order("created_at ASC")
 		}).
 		Preload("ColorVarians.SizeVarians", func(db *gorm.DB) *gorm.DB {
-			return db.Where("deleted_at IS NULL").Order("size ASC")
+			return db.
+				Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at").
+				Where("deleted_at IS NULL").
+				Order("size ASC")
 		}).
 		Where("deleted_at IS NULL").
 		First(&product, id).Error
@@ -152,7 +162,9 @@ func (r *ProductRepositoryImpl) FindAllProduct(param models.ProductListRequest, 
 	if param.SortBy != "" {
 		sortBy = param.SortBy
 	}
-	query = query.Order(sortBy)
+	query = query.
+		Select("id", "category_id", "name", "description", "created_at", "updated_at", "deleted_at").
+		Order(sortBy)
 
 	// Pagination
 	if param.Limit > 0 {
@@ -193,7 +205,14 @@ func (r *ProductRepositoryImpl) DeleteColorVarian(param int64, tx *gorm.DB) erro
 func (r *ProductRepositoryImpl) FindColorVarianById(id int64, tx *gorm.DB) (models.ColorVarian, error) {
 	db := getDB(tx)
 	var cv models.ColorVarian
-	err := db.Preload("SizeVarians", "deleted_at IS NULL").First(&cv, "id = ? AND deleted_at IS NULL", id).Error
+	err := db.
+		Select("id", "product_id", "name", "color", "images", "created_at", "updated_at", "deleted_at").
+		Preload("SizeVarians", func(db *gorm.DB) *gorm.DB {
+			return db.
+				Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at").
+				Where("deleted_at IS NULL")
+		}).
+		First(&cv, "id = ? AND deleted_at IS NULL", id).Error
 	return cv, err
 }
 
@@ -201,7 +220,8 @@ func (r *ProductRepositoryImpl) FindAllColorVarian(param models.ColorVarianListR
 	db := getDB(tx)
 
 	var list []models.ColorVarian
-	q := db.Model(&models.ColorVarian{})
+	q := db.Model(&models.ColorVarian{}).
+		Select("id", "product_id", "name", "color", "images", "created_at", "updated_at", "deleted_at")
 
 	if param.ProductID != 0 {
 		q = q.Where("product_id = ?", param.ProductID)
@@ -222,7 +242,11 @@ func (r *ProductRepositoryImpl) FindAllColorVarian(param models.ColorVarianListR
 		q = q.Offset(param.Offset)
 	}
 
-	if err := q.Preload("SizeVarians", "deleted_at IS NULL").Find(&list).Error; err != nil {
+	if err := q.Preload("SizeVarians", func(db *gorm.DB) *gorm.DB {
+		return db.
+			Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at").
+			Where("deleted_at IS NULL")
+	}).Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return list, nil
@@ -259,7 +283,9 @@ func (r *ProductRepositoryImpl) DeleteSizeVarian(param int64, tx *gorm.DB) error
 func (r *ProductRepositoryImpl) FindSizeVarianById(id int64, tx *gorm.DB) (models.SizeVarian, error) {
 	db := getDB(tx)
 	var sv models.SizeVarian
-	err := db.First(&sv, "id = ? AND deleted_at IS NULL", id).Error
+	err := db.
+		Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at").
+		First(&sv, "id = ? AND deleted_at IS NULL", id).Error
 	return sv, err
 }
 
@@ -269,7 +295,8 @@ func (r *ProductRepositoryImpl) FindAllSizeVarian(param models.SizeVarianListReq
 	offset := (param.Page - 1) * param.Limit
 
 	var list []models.SizeVarian
-	q := db.Model(&models.SizeVarian{})
+	q := db.Model(&models.SizeVarian{}).
+		Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at", "deleted_at")
 
 	if param.ColorVarianID != 0 {
 		q = q.Where("color_varian_id = ?", param.ColorVarianID)

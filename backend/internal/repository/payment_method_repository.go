@@ -32,7 +32,9 @@ func (a *PaymentMethodRepositoryImpl) Create(param models.PaymentMethod, tx *gor
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "bank_name", "account_number", "account_name", "is_active", "bank_images", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -43,11 +45,11 @@ func (a *PaymentMethodRepositoryImpl) Delete(param models.PaymentMethod) error {
 
 // FindAll implements PaymentMethodRepository.
 func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequest) ([]models.PaymentMethod, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var PaymentMethods []models.PaymentMethod
-	db := database.DB
+	db := database.DB.
+		Select("id", "bank_name", "account_number", "account_name", "is_active", "bank_images", "created_at", "updated_at")
 
 	if param.SortBy != "" {
 		db = db.Order(param.SortBy)
@@ -71,9 +73,15 @@ func (a *PaymentMethodRepositoryImpl) FindAll(param models.PaymentMethodListRequ
 // FindById implements PaymentMethodRepository.
 func (a *PaymentMethodRepositoryImpl) FindById(paramId uint) (*models.PaymentMethod, error) {
 	PaymentMethod := models.PaymentMethod{}
-	err := database.DB.First(&PaymentMethod, paramId).Error
+	err := database.DB.
+		Select("id", "bank_name", "account_number", "account_name", "is_active", "bank_images", "created_at", "updated_at").
+		First(&PaymentMethod, paramId).Error
 
-	return &PaymentMethod, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &PaymentMethod, nil
 }
 
 // Update implements PaymentMethodRepository.
@@ -90,9 +98,10 @@ func (a *PaymentMethodRepositoryImpl) Update(param models.PaymentMethod, tx *gor
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "bank_name", "account_number", "account_name", "is_active", "bank_images", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
-
 }
 
 func NewPaymentMethodRepository() PaymentMethodRepository {

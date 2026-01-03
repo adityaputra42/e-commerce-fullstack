@@ -4,6 +4,8 @@ import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
 	"math"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
@@ -19,8 +21,9 @@ type UserRepository interface {
 type UserRepositoryImpl struct{}
 
 /*
-	============================
-	  FIND BY EMAIL
+============================
+
+	FIND BY EMAIL
 
 ============================
 */
@@ -28,7 +31,13 @@ func (u *UserRepositoryImpl) FindByEmail(email string) (models.User, error) {
 	user := models.User{}
 
 	err := database.DB.
-		Preload("Role.Permissions").
+		Select("id", "username", "email", "password_hash", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		}).
+		Preload("Role.Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
 		Where("email = ?", email).
 		First(&user).Error
 
@@ -39,7 +48,13 @@ func (u *UserRepositoryImpl) FindByUsernameOrEmail(identifier string) (models.Us
 	user := models.User{}
 
 	err := database.DB.
-		Preload("Role.Permissions").
+		Select("id", "username", "email", "password_hash", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		}).
+		Preload("Role.Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
 		Where("email = ? OR username = ?", identifier, identifier).
 		First(&user).Error
 
@@ -47,8 +62,9 @@ func (u *UserRepositoryImpl) FindByUsernameOrEmail(identifier string) (models.Us
 }
 
 /*
-	============================
-	  CREATE USER
+============================
+
+	CREATE USER
 
 ============================
 */
@@ -62,15 +78,22 @@ func (u *UserRepositoryImpl) Create(param models.User) (models.User, error) {
 	}
 
 	err := db.
-		Preload("Role.Permissions").
+		Select("id", "username", "email", "password_hash", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		}).
+		Preload("Role.Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
 		First(&result, param.ID).Error
 
 	return result, err
 }
 
 /*
-	============================
-	  DELETE USER
+============================
+
+	DELETE USER
 
 ============================
 */
@@ -79,8 +102,9 @@ func (u *UserRepositoryImpl) Delete(param models.User) error {
 }
 
 /*
-	============================
-	  FIND ALL (PAGINATION)
+============================
+
+	FIND ALL (PAGINATION)
 
 ============================
 */
@@ -89,7 +113,10 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.User
 
 	query := database.DB.
 		Model(&models.User{}).
-		Preload("Role")
+		Select("id", "username", "email", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		})
 
 	if param.SortBy == "" {
 		param.SortBy = "created_at desc"
@@ -124,23 +151,30 @@ func (u *UserRepositoryImpl) FindAll(param models.UserListRequest) (*models.User
 }
 
 /*
-	============================
-	  FIND BY ID  ✅ FIXED
+============================
+
+	FIND BY ID
 
 ============================
 */
 func (u *UserRepositoryImpl) FindById(id uint) (models.User, error) {
 	var user models.User
 	err := database.DB.
-		Preload("Role").
-		Preload("Role.Permissions").
+		Select("id", "username", "email", "password_hash", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		}).
+		Preload("Role.Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
 		First(&user, id).Error
 	return user, err
 }
 
 /*
-	============================
-	  UPDATE USER
+============================
+
+	UPDATE USER
 
 ============================
 */
@@ -154,15 +188,22 @@ func (u *UserRepositoryImpl) Update(param *models.User) (models.User, error) {
 	}
 
 	err := db.
-		Preload("Role.Permissions").
+		Select("id", "username", "email", "password_hash", "first_name", "last_name", "role_id", "is_active", "created_at", "updated_at").
+		Preload("Role", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at")
+		}).
+		Preload("Role.Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
 		First(&result, param.ID).Error
 
 	return result, err
 }
 
 /*
-	============================
-	  CONSTRUCTOR
+============================
+
+	CONSTRUCTOR
 
 ============================
 */

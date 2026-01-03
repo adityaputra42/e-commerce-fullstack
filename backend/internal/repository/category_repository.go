@@ -28,6 +28,7 @@ func (a *CategoryRepositoryImpl) FindByIds(paramId []int64) ([]models.Category, 
 	}
 
 	err := database.DB.
+		Select("id", "name", "icon", "created_at", "updated_at", "deleted_at").
 		Where("id IN ? AND deleted_at IS NULL", paramId).
 		Find(&categories).Error
 
@@ -52,7 +53,9 @@ func (a *CategoryRepositoryImpl) Create(param models.Category, tx *gorm.DB) (mod
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "icon", "created_at", "updated_at", "deleted_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -63,11 +66,11 @@ func (a *CategoryRepositoryImpl) Delete(param models.Category) error {
 
 // FindAll implements CategoryRepository.
 func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]models.Category, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
-	var Categorys []models.Category
-	db := database.DB
+	var Categories []models.Category
+	db := database.DB.
+		Select("id", "name", "icon", "created_at", "updated_at", "deleted_at")
 
 	if param.Search != "" {
 		db = db.Where("name ILIKE ?", "%"+param.Search+"%")
@@ -85,17 +88,21 @@ func (a *CategoryRepositoryImpl) FindAll(param models.CategoryListRequest) ([]mo
 		db = db.Offset(offset)
 	}
 
-	if err := db.Preload("Categorys").Find(&Categorys).Error; err != nil {
+	// Note: Removed Preload("Categorys") - seems like a typo in original code
+	// If you have subcategories or parent relationship, add proper preload
+	if err := db.Find(&Categories).Error; err != nil {
 		return nil, err
 	}
 
-	return Categorys, nil
+	return Categories, nil
 }
 
 // FindById implements CategoryRepository.
 func (a *CategoryRepositoryImpl) FindById(paramId int64) (models.Category, error) {
 	Category := models.Category{}
-	err := database.DB.Model(&models.Category{}).Take(&Category, "id =?", paramId).Error
+	err := database.DB.
+		Select("id", "name", "icon", "created_at", "updated_at", "deleted_at").
+		First(&Category, "id = ?", paramId).Error
 
 	return Category, err
 }
@@ -114,9 +121,10 @@ func (a *CategoryRepositoryImpl) Update(param models.Category, tx *gorm.DB) (mod
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "icon", "created_at", "updated_at", "deleted_at").
+		First(&result, param.ID).Error
 	return result, err
-
 }
 
 func NewCategoryRepository() CategoryRepository {

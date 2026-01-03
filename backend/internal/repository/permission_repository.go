@@ -20,7 +20,10 @@ type PermissionRepositoryImpl struct {
 // FindAllById implements PermissionRepository.
 func (a *PermissionRepositoryImpl) FindAllById(listId []uint) (*[]models.Permission, error) {
 	var permissions []models.Permission
-	if err := database.DB.Where("id IN ?", listId).Find(&permissions).Error; err != nil {
+	if err := database.DB.
+		Select("id", "name", "resource", "action", "description", "created_at", "updated_at").
+		Where("id IN ?", listId).
+		Find(&permissions).Error; err != nil {
 		return nil, err
 	}
 	return &permissions, nil
@@ -37,7 +40,9 @@ func (a *PermissionRepositoryImpl) Create(param models.Permission) (models.Permi
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "resource", "action", "description", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -48,11 +53,12 @@ func (a *PermissionRepositoryImpl) Delete(param models.Permission) error {
 
 // FindAll implements PermissionRepository.
 func (a *PermissionRepositoryImpl) FindAll() ([]models.Permission, error) {
-
 	var Permissions []models.Permission
 	db := database.DB
 
-	if err := db.Find(&Permissions).Error; err != nil {
+	if err := db.
+		Select("id", "name", "resource", "action", "description", "created_at", "updated_at").
+		Find(&Permissions).Error; err != nil {
 		return nil, err
 	}
 
@@ -62,7 +68,9 @@ func (a *PermissionRepositoryImpl) FindAll() ([]models.Permission, error) {
 // FindById implements PermissionRepository.
 func (a *PermissionRepositoryImpl) FindById(paramId uint) (models.Permission, error) {
 	Permission := models.Permission{}
-	err := database.DB.Model(&models.User{}).Take(&Permission, "id =?", paramId).Error
+	err := database.DB.
+		Select("id", "name", "resource", "action", "description", "created_at", "updated_at").
+		First(&Permission, "id = ?", paramId).Error
 
 	return Permission, err
 }
@@ -78,9 +86,10 @@ func (a *PermissionRepositoryImpl) Update(param models.Permission) (models.Permi
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "resource", "action", "description", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
-
 }
 
 func NewPermissionRepository() PermissionRepository {

@@ -12,6 +12,7 @@ type ActivityLogRepository interface {
 	FindAll(param *models.ActivityLogListRequest) (*models.ActivityLogListResponse, error)
 	Create(param models.ActivityLog, tx *gorm.DB) (models.ActivityLog, error)
 }
+
 type ActivityLogRepositoryImpl struct {
 }
 
@@ -29,7 +30,9 @@ func (a *ActivityLogRepositoryImpl) Create(param models.ActivityLog, tx *gorm.DB
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "user_id", "action", "resource", "details", "ip_address", "user_agent", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -38,13 +41,24 @@ func (a *ActivityLogRepositoryImpl) FindAll(param *models.ActivityLogListRequest
 	offset := (param.Page - 1) * param.Limit
 
 	var total int64
-	if err := database.DB.Model(&models.ActivityLog{}).Where("user_id = ?", param.UserId).Count(&total).Error; err != nil {
+	if err := database.DB.
+		Model(&models.ActivityLog{}).
+		Where("user_id = ?", param.UserId).
+		Count(&total).Error; err != nil {
 		return nil, err
 	}
 
 	var activityLogs []models.ActivityLog
-	if err := database.DB.Preload("User").Where("user_id = ?", param.UserId).
-		Order("created_at desc").Offset(offset).Limit(param.Limit).Find(&activityLogs).Error; err != nil {
+	if err := database.DB.
+		Select("id", "user_id", "action", "resource", "details", "ip_address", "user_agent", "created_at", "updated_at").
+		Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "username", "email", "first_name", "last_name", "created_at", "updated_at")
+		}).
+		Where("user_id = ?", param.UserId).
+		Order("created_at desc").
+		Offset(offset).
+		Limit(param.Limit).
+		Find(&activityLogs).Error; err != nil {
 		return nil, err
 	}
 

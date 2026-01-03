@@ -4,6 +4,8 @@ import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
 	"errors"
+
+	"gorm.io/gorm"
 )
 
 type RoleRepository interface {
@@ -24,7 +26,9 @@ type RoleRepositoryImpl struct {
 // UpdatePermission implements RoleRepository.
 func (a *RoleRepositoryImpl) UpdatePermission(id uint, permissions *[]models.Permission) (*models.Role, error) {
 	role := models.Role{}
-	err := database.DB.Model(&models.Role{}).Take(&role, "id =?", id).Error
+	err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		First(&role, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -32,22 +36,43 @@ func (a *RoleRepositoryImpl) UpdatePermission(id uint, permissions *[]models.Per
 	if err := database.DB.Model(&role).Association("Permissions").Replace(&permissions); err != nil {
 		return nil, err
 	}
-	return &role, nil
+
+	// Reload dengan permissions
+	err = database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		Preload("Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
+		First(&role, id).Error
+
+	return &role, err
 }
 
 // FindByNameAndId implements RoleRepository.
 func (a *RoleRepositoryImpl) FindByNameAndId(name string, id uint) (*models.Role, error) {
 	var existingRole models.Role
-	if err := database.DB.Where("name = ? AND id != ?", name, id).First(&existingRole).Error; err == nil {
+	err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		Where("name = ? AND id != ?", name, id).
+		First(&existingRole).Error
+
+	if err == nil {
 		return nil, errors.New("role with this name already exists")
 	}
-	return &existingRole, nil
+
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil // Tidak ada role dengan nama yang sama, ini valid
+	}
+
+	return nil, err
 }
 
 // AddPermission implements RoleRepository.
 func (a *RoleRepositoryImpl) AddPermission(id uint, permissions *[]models.Permission) (*models.Role, error) {
 	role := models.Role{}
-	err := database.DB.Model(&models.Role{}).Take(&role, "id =?", id).Error
+	err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		First(&role, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -55,13 +80,24 @@ func (a *RoleRepositoryImpl) AddPermission(id uint, permissions *[]models.Permis
 	if err := database.DB.Model(&role).Association("Permissions").Append(&permissions); err != nil {
 		return nil, err
 	}
-	return &role, nil
+
+	// Reload dengan permissions
+	err = database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		Preload("Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
+		First(&role, id).Error
+
+	return &role, err
 }
 
 // FindByName implements RoleRepository.
 func (a *RoleRepositoryImpl) FindByName(name string) (models.Role, error) {
 	role := models.Role{}
-	err := database.DB.Model(&models.User{}).Take(&role, "name =?", name).Error
+	err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		First(&role, "name = ?", name).Error
 
 	return role, err
 }
@@ -77,7 +113,9 @@ func (a *RoleRepositoryImpl) Create(param models.Role) (models.Role, error) {
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -89,7 +127,12 @@ func (a *RoleRepositoryImpl) Delete(param models.Role) error {
 // FindAll implements RoleRepository.
 func (a *RoleRepositoryImpl) FindAll() ([]models.Role, error) {
 	var roles []models.Role
-	if err := database.DB.Preload("Permissions").Find(&roles).Error; err != nil {
+	if err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		Preload("Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
+		Find(&roles).Error; err != nil {
 		return nil, err
 	}
 	return roles, nil
@@ -98,7 +141,12 @@ func (a *RoleRepositoryImpl) FindAll() ([]models.Role, error) {
 // FindById implements RoleRepository.
 func (a *RoleRepositoryImpl) FindById(paramId uint) (models.Role, error) {
 	role := models.Role{}
-	err := database.DB.Preload("permissions").Model(&models.Role{}).Take(&role, "id =?", paramId).Error
+	err := database.DB.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		Preload("Permissions", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name", "resource", "action", "description", "created_at", "updated_at")
+		}).
+		First(&role, "id = ?", paramId).Error
 
 	return role, err
 }
@@ -114,9 +162,10 @@ func (a *RoleRepositoryImpl) Update(param models.Role) (models.Role, error) {
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "name", "description", "level", "is_system_role", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
-
 }
 
 func NewRoleRepository() RoleRepository {

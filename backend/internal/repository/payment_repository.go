@@ -32,7 +32,9 @@ func (a *PaymentRepositoryImpl) Create(param models.Payment, tx *gorm.DB) (model
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "transaction_id", "total_payment", "status", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -43,11 +45,11 @@ func (a *PaymentRepositoryImpl) Delete(param models.Payment) error {
 
 // FindAll implements PaymentRepository.
 func (a *PaymentRepositoryImpl) FindAll(param models.PaymentListRequest) ([]models.Payment, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var Payments []models.Payment
-	db := database.DB
+	db := database.DB.
+		Select("id", "transaction_id", "total_payment", "status", "created_at", "updated_at")
 
 	if param.SortBy != "" {
 		db = db.Order(param.SortBy)
@@ -71,7 +73,9 @@ func (a *PaymentRepositoryImpl) FindAll(param models.PaymentListRequest) ([]mode
 // FindById implements PaymentRepository.
 func (a *PaymentRepositoryImpl) FindById(paramId uint) (models.Payment, error) {
 	Payment := models.Payment{}
-	err := database.DB.First(&Payment, paramId).Error
+	err := database.DB.
+		Select("id", "transaction_id", "total_payment", "status", "created_at", "updated_at").
+		First(&Payment, paramId).Error
 
 	return Payment, err
 }
@@ -90,9 +94,10 @@ func (a *PaymentRepositoryImpl) Update(param models.Payment, tx *gorm.DB) (model
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "transaction_id", "total_payment", "status", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return result, err
-
 }
 
 func NewPaymentRepository() PaymentRepository {

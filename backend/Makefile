@@ -1,4 +1,7 @@
-.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen swagger
+.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen swagger server
+
+server:
+	go run cmd/main.go
 
 swagger:
 	@echo "Generating swagger docs..."
@@ -16,7 +19,7 @@ test-unit:
 # Run integration tests (repository tests with real database)
 test-integration: test-db-up
 	@echo "Waiting for database to be ready..."
-	@sleep 5
+	@sleep 5 
 	@echo "Running integration tests..."
 	@TEST_DB_HOST=localhost TEST_DB_PORT=3307 TEST_DB_USER=testuser TEST_DB_PASSWORD=testpassword TEST_DB_NAME=ecommerce_test \
 		go test -v -race ./internal/repository/...

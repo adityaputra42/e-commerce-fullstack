@@ -20,10 +20,13 @@ type AddressRepository interface {
 type AddressRepositoryImpl struct {
 }
 
-// CountByUser implements [AddressRepository].
+// CountByUser implements AddressRepository.
 func (a *AddressRepositoryImpl) CountByUser(param int64) (int64, error) {
 	var count int64
-	err := database.DB.Model(&models.Address{}).Where("user_id = ?", param).Count(&count).Error
+	err := database.DB.
+		Model(&models.Address{}).
+		Where("user_id = ?", param).
+		Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -32,11 +35,13 @@ func (a *AddressRepositoryImpl) CountByUser(param int64) (int64, error) {
 
 // FindAllByUserId implements AddressRepository.
 func (a *AddressRepositoryImpl) FindAllByUserId(param int64) ([]*models.Address, error) {
-
 	var addresses []*models.Address
 	db := database.DB
 
-	if err := db.Where("user_id = ?", param).Find(&addresses).Error; err != nil {
+	if err := db.
+		Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at").
+		Where("user_id = ?", param).
+		Find(&addresses).Error; err != nil {
 		return nil, err
 	}
 	return addresses, nil
@@ -56,7 +61,9 @@ func (a *AddressRepositoryImpl) Create(param models.Address, tx *gorm.DB) (*mode
 		return nil, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return &result, err
 }
 
@@ -67,14 +74,14 @@ func (a *AddressRepositoryImpl) Delete(param models.Address) error {
 
 // FindAll implements AddressRepository.
 func (a *AddressRepositoryImpl) FindAll(param models.AddressListRequest) ([]*models.Address, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var addresses []*models.Address
-	db := database.DB
+	db := database.DB.
+		Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at")
 
 	if param.UserId != nil {
-		db = db.Where("user_id = ?", &param.UserId)
+		db = db.Where("user_id = ?", param.UserId)
 	}
 
 	if param.SortBy != "" {
@@ -98,10 +105,16 @@ func (a *AddressRepositoryImpl) FindAll(param models.AddressListRequest) ([]*mod
 
 // FindById implements AddressRepository.
 func (a *AddressRepositoryImpl) FindById(paramId uint) (*models.Address, error) {
-	administrasi := models.Address{}
-	err := database.DB.Model(&models.User{}).Take(&administrasi, "id =?", administrasi.UserID).Error
+	var address models.Address
+	err := database.DB.
+		Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at").
+		First(&address, "id = ?", paramId).Error
 
-	return &administrasi, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &address, nil
 }
 
 // Update implements AddressRepository.
@@ -118,9 +131,10 @@ func (a *AddressRepositoryImpl) Update(param models.Address, tx *gorm.DB) (*mode
 		return nil, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "user_id", "recipient_name", "recipient_phone_number", "province", "city", "district", "village", "postal_code", "full_address", "created_at", "updated_at").
+		First(&result, param.ID).Error
 	return &result, err
-
 }
 
 func NewAddressRepository() AddressRepository {

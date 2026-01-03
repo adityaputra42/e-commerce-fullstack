@@ -29,7 +29,9 @@ func (p *PasswordResetTokenRepositoryImpl) Create(param *models.PasswordResetTok
 	}
 
 	// Reload the record to get the complete data including auto-generated fields
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "user_id", "token", "expires_at", "used_at", "created_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 
@@ -40,14 +42,14 @@ func (p *PasswordResetTokenRepositoryImpl) Delete(param *models.PasswordResetTok
 
 // FindAll implements PasswordResetTokenRepository.
 func (p *PasswordResetTokenRepositoryImpl) FindAll(param *models.PasswordResetTokenListRequest) ([]models.PasswordResetToken, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var tokens []models.PasswordResetToken
-	db := database.DB
+	db := database.DB.
+		Select("id", "user_id", "token", "expires_at", "used_at", "created_at")
 
 	if param.UserId != nil {
-		db = db.Where("user_id = ?", &param.UserId)
+		db = db.Where("user_id = ?", param.UserId)
 	}
 
 	if param.SortBy != "" {
@@ -69,10 +71,13 @@ func (p *PasswordResetTokenRepositoryImpl) FindAll(param *models.PasswordResetTo
 	return tokens, nil
 }
 
-// FindById implements PasswordResetTokenRepository.
+// FindByToken implements PasswordResetTokenRepository.
 func (p *PasswordResetTokenRepositoryImpl) FindByToken(token string) (models.PasswordResetToken, error) {
 	resetPassword := models.PasswordResetToken{}
-	err := database.DB.Where("token = ? AND expires_at > ?", token, time.Now()).First(&resetPassword).Error
+	err := database.DB.
+		Select("id", "user_id", "token", "expires_at", "used_at", "created_at").
+		Where("token = ? AND expires_at > ?", token, time.Now()).
+		First(&resetPassword).Error
 
 	return resetPassword, err
 }
@@ -88,7 +93,9 @@ func (p *PasswordResetTokenRepositoryImpl) Update(param *models.PasswordResetTok
 		return result, err
 	}
 
-	err = db.First(&result, param.ID).Error
+	err = db.
+		Select("id", "user_id", "token", "expires_at", "used_at", "created_at").
+		First(&result, param.ID).Error
 	return result, err
 }
 

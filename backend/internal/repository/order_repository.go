@@ -19,16 +19,24 @@ type OrderRepository interface {
 type OrderRepositoryImpl struct {
 }
 
-// FindAllByTxId implements [OrderRepository].
+// FindAllByTxId implements OrderRepository.
 func (a *OrderRepositoryImpl) FindAllByTxId(txId string) ([]models.Order, error) {
-
 	var Orders []models.Order
 	db := database.DB
 
-	if err := db.Preload("Product").
-		Preload("ColorVarian").
-		Preload("SizeVarian").
-		Where("transaction_id = ?", txId).Find(&Orders).Error; err != nil {
+	if err := db.
+		Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+		Preload("Product", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "category_id", "name", "description", "created_at", "updated_at")
+		}).
+		Preload("ColorVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "product_id", "name", "color", "images", "created_at", "updated_at")
+		}).
+		Preload("SizeVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at")
+		}).
+		Where("transaction_id = ?", txId).
+		Find(&Orders).Error; err != nil {
 		return nil, err
 	}
 
@@ -49,7 +57,9 @@ func (a *OrderRepositoryImpl) Create(param models.Order, tx *gorm.DB) (models.Or
 		return result, err
 	}
 
-	err = db.First(&result, "id = ?", param.ID).Error
+	err = db.
+		Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+		First(&result, "id = ?", param.ID).Error
 
 	return result, err
 }
@@ -61,11 +71,11 @@ func (a *OrderRepositoryImpl) Delete(param models.Order) error {
 
 // FindAll implements OrderRepository.
 func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.Order, error) {
-
 	offset := (param.Page - 1) * param.Limit
 
 	var Orders []models.Order
-	db := database.DB
+	db := database.DB.
+		Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at")
 
 	if param.SortBy != "" {
 		db = db.Order(param.SortBy)
@@ -79,9 +89,17 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 		db = db.Offset(int(offset))
 	}
 
-	if err := db.Preload("Product").
-		Preload("ColorVarian").
-		Preload("SizeVarian").Find(&Orders).Error; err != nil {
+	if err := db.
+		Preload("Product", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "category_id", "name", "description", "created_at", "updated_at")
+		}).
+		Preload("ColorVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "product_id", "name", "color", "images", "created_at", "updated_at")
+		}).
+		Preload("SizeVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at")
+		}).
+		Find(&Orders).Error; err != nil {
 		return nil, err
 	}
 
@@ -91,9 +109,18 @@ func (a *OrderRepositoryImpl) FindAll(param models.OrderListRequest) ([]models.O
 // FindById implements OrderRepository.
 func (a *OrderRepositoryImpl) FindById(paramId string) (models.Order, error) {
 	Order := models.Order{}
-	err := database.DB.Model(&models.Order{}).Preload("Product").
-		Preload("ColorVarian").
-		Preload("SizeVarian").Take(&Order, "id =?", paramId).Error
+	err := database.DB.
+		Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+		Preload("Product", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "category_id", "name", "description", "created_at", "updated_at")
+		}).
+		Preload("ColorVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "product_id", "name", "color", "images", "created_at", "updated_at")
+		}).
+		Preload("SizeVarian", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "color_varian_id", "size", "stock", "created_at", "updated_at")
+		}).
+		First(&Order, "id = ?", paramId).Error
 
 	return Order, err
 }
@@ -112,10 +139,11 @@ func (a *OrderRepositoryImpl) Update(param models.Order, tx *gorm.DB) (models.Or
 		return result, err
 	}
 
-	err = db.First(&result, "id = ?", param.ID).Error
+	err = db.
+		Select("id", "transaction_id", "product_id", "color_varian_id", "size_varian_id", "quantity", "unit_price", "subtotal", "created_at", "updated_at").
+		First(&result, "id = ?", param.ID).Error
 
 	return result, err
-
 }
 
 func NewOrderRepository() OrderRepository {
