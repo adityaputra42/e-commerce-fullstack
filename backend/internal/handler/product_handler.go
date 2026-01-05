@@ -3,6 +3,7 @@ package handler
 import (
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/services"
+	"e-commerce/backend/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -38,37 +39,37 @@ func NewProductHandler(productService services.ProductService) *ProductHandler {
 // @Router /products [post]
 func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		respondError(w, http.StatusBadRequest, "Gagal parse form data", err)
+		utils.WriteError(w, http.StatusBadRequest, "Gagal parse form data", err)
 		return
 	}
 
 	categoryID, err := strconv.ParseInt(r.FormValue("category_id"), 10, 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "Category ID tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "Category ID tidak valid", err)
 		return
 	}
 
 	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "Price tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "Price tidak valid", err)
 		return
 	}
 
 	_, mainImageHeader, err := r.FormFile("image")
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "Gambar produk wajib diisi", err)
+		utils.WriteError(w, http.StatusBadRequest, "Gambar produk wajib diisi", err)
 		return
 	}
 
 	var colorVariants []models.CreateColorVarianRequest
 	colorVariantsJSON := r.FormValue("color_varian")
 	if colorVariantsJSON == "" {
-		respondError(w, http.StatusBadRequest, "Color variants wajib diisi", nil)
+		utils.WriteError(w, http.StatusBadRequest, "Color variants wajib diisi", nil)
 		return
 	}
 
 	if err := json.Unmarshal([]byte(colorVariantsJSON), &colorVariants); err != nil {
-		respondError(w, http.StatusBadRequest, "Format color variants tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "Format color variants tidak valid", err)
 		return
 	}
 
@@ -76,7 +77,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		fieldName := fmt.Sprintf("color_image_%d", i)
 		_, fileHeader, err := r.FormFile(fieldName)
 		if err != nil {
-			respondError(w, http.StatusBadRequest, fmt.Sprintf("Gambar untuk color variant ke-%d wajib diisi", i+1), err)
+			utils.WriteError(w, http.StatusBadRequest, fmt.Sprintf("Gambar untuk color variant ke-%d wajib diisi", i+1), err)
 			return
 		}
 		colorVariants[i].Image = fileHeader
@@ -93,11 +94,11 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.productService.CreateProduct(param)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Gagal membuat produk", err)
+		utils.WriteError(w, http.StatusInternalServerError, "Gagal membuat produk", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusCreated, "Produk berhasil dibuat", result)
+	utils.WriteJSON(w, http.StatusCreated, "Produk berhasil dibuat", result)
 }
 
 // GetProductByID - GET /api/v1/products/{id}
@@ -113,17 +114,17 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "ID produk tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "ID produk tidak valid", err)
 		return
 	}
 
 	result, err := h.productService.FindProductById(id)
 	if err != nil {
-		respondError(w, http.StatusNotFound, "Produk tidak ditemukan", err)
+		utils.WriteError(w, http.StatusNotFound, "Produk tidak ditemukan", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusOK, "Produk ditemukan", result)
+	utils.WriteJSON(w, http.StatusOK, "Produk ditemukan", result)
 }
 
 // GetAllProducts - GET /api/v1/products
@@ -173,22 +174,22 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 
 	result, err := h.productService.FindAllProduct(param)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Gagal mengambil data produk", err)
+		utils.WriteError(w, http.StatusInternalServerError, "Gagal mengambil data produk", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusOK, "Data produk berhasil diambil", result)
+	utils.WriteJSON(w, http.StatusOK, "Data produk berhasil diambil", result)
 }
 
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "ID produk tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "ID produk tidak valid", err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		respondError(w, http.StatusBadRequest, "Gagal parse form data", err)
+		utils.WriteError(w, http.StatusBadRequest, "Gagal parse form data", err)
 		return
 	}
 
@@ -235,7 +236,7 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	if cvStr := r.FormValue("color_varian"); cvStr != "" {
 		var colorVariants []models.UpdateColorVarianRequest
 		if err := json.Unmarshal([]byte(cvStr), &colorVariants); err != nil {
-			respondError(w, http.StatusBadRequest, "Format color variants tidak valid", err)
+			utils.WriteError(w, http.StatusBadRequest, "Format color variants tidak valid", err)
 			return
 		}
 
@@ -260,55 +261,55 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.productService.UpdateProduct(param)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Gagal update produk", err)
+		utils.WriteError(w, http.StatusInternalServerError, "Gagal update produk", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusOK, "Produk berhasil diupdate", result)
+	utils.WriteJSON(w, http.StatusOK, "Produk berhasil diupdate", result)
 }
 
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "ID produk tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "ID produk tidak valid", err)
 		return
 	}
 
 	if err := h.productService.DeleteProduct(id); err != nil {
-		respondError(w, http.StatusInternalServerError, "Gagal menghapus produk", err)
+		utils.WriteError(w, http.StatusInternalServerError, "Gagal menghapus produk", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusOK, "Produk berhasil dihapus", nil)
+	utils.WriteJSON(w, http.StatusOK, "Produk berhasil dihapus", nil)
 }
 
 func (h *ProductHandler) AddColorVariant(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "ID produk tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "ID produk tidak valid", err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		respondError(w, http.StatusBadRequest, "Gagal parse form data", err)
+		utils.WriteError(w, http.StatusBadRequest, "Gagal parse form data", err)
 		return
 	}
 
 	_, imageHeader, err := r.FormFile("image")
 	if err != nil {
-		respondError(w, http.StatusBadRequest, "Gambar color variant wajib diisi", err)
+		utils.WriteError(w, http.StatusBadRequest, "Gambar color variant wajib diisi", err)
 		return
 	}
 
 	var sizes []models.CreateSizeVarianRequest
 	sizesJSON := r.FormValue("sizes")
 	if sizesJSON == "" {
-		respondError(w, http.StatusBadRequest, "Sizes wajib diisi", nil)
+		utils.WriteError(w, http.StatusBadRequest, "Sizes wajib diisi", nil)
 		return
 	}
 
 	if err := json.Unmarshal([]byte(sizesJSON), &sizes); err != nil {
-		respondError(w, http.StatusBadRequest, "Format sizes tidak valid", err)
+		utils.WriteError(w, http.StatusBadRequest, "Format sizes tidak valid", err)
 		return
 	}
 
@@ -321,36 +322,9 @@ func (h *ProductHandler) AddColorVariant(w http.ResponseWriter, r *http.Request)
 
 	result, err := h.productService.AddColorVarianProduct(id, param)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "Gagal menambahkan color variant", err)
+		utils.WriteError(w, http.StatusInternalServerError, "Gagal menambahkan color variant", err)
 		return
 	}
 
-	respondSuccess(w, http.StatusOK, "Color variant berhasil ditambahkan", result)
-}
-
-// Helper functions
-func respondSuccess(w http.ResponseWriter, code int, message string, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"success": true,
-		"message": message,
-		"data":    data,
-	})
-}
-
-func respondError(w http.ResponseWriter, code int, message string, err error) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-
-	response := map[string]interface{}{
-		"success": false,
-		"message": message,
-	}
-
-	if err != nil {
-		response["error"] = err.Error()
-	}
-
-	json.NewEncoder(w).Encode(response)
+	utils.WriteJSON(w, http.StatusOK, "Color variant berhasil ditambahkan", result)
 }

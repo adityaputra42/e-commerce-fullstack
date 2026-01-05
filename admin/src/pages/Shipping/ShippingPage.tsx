@@ -48,7 +48,7 @@ const ShippingPage = () => {
           <p className="text-slate-500 mt-1">Configure your logistics, delivery rates, and courier partners.</p>
         </div>
         <button 
-            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>New Method</span>
@@ -69,7 +69,7 @@ const ShippingPage = () => {
             </div>
             <div className="premium-card p-6">
                 <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Package className="w-4 h-4 text-indigo-600" />
+                    <Package className="w-4 h-4 text-primary" />
                     Delivery Stats
                 </h3>
                 <div className="space-y-4">
@@ -101,7 +101,7 @@ const ShippingPage = () => {
                 ) : error ? (
                   <div className="p-20 text-center">
                      <p className="text-rose-500 font-medium">{error}</p>
-                     <button onClick={fetchShippingMethods} className="mt-4 text-indigo-600 font-semibold hover:underline">Try again</button>
+                     <button onClick={fetchShippingMethods} className="mt-4 text-primary font-semibold hover:underline">Try again</button>
                   </div>
                 ) : shippingMethods.length === 0 ? (
                   <div className="p-20 text-center text-slate-500">No shipping methods configured</div>
@@ -123,7 +123,7 @@ const ShippingPage = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                                <div className="flex items-center gap-3">
                                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
-                                       <Truck className="w-4 h-4 text-slate-400 group-hover:text-indigo-600" />
+                                       <Truck className="w-4 h-4 text-slate-400 group-hover:text-primary" />
                                    </div>
                                    <span className="text-sm font-bold text-slate-900">
                                      {method.name}
@@ -143,7 +143,7 @@ const ShippingPage = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                <div className="flex items-center justify-end gap-1">
-                                  <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                                  <button className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all">
                                     <Edit3 className="w-4 h-4" />
                                   </button>
                                   <button className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">

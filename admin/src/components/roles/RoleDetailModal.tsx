@@ -24,7 +24,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
               <Dialog.Panel className="w-full max-w-2xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <Dialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900 flex items-center">
-                    <Shield className="w-6 h-6 mr-2 text-indigo-600" />
+                    <Shield className="w-6 h-6 mr-2 text-primary" />
                     Role Details: {role.name}
                   </Dialog.Title>
                   <button 
@@ -89,7 +89,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
                             className="bg-white p-3 rounded-md border border-indigo-200 hover:border-indigo-300 transition-colors"
                           >
                             <div className="flex items-start">
-                              <Key className="w-4 h-4 mt-0.5 mr-2 text-indigo-600 flex-shrink-0" />
+                              <Key className="w-4 h-4 mt-0.5 mr-2 text-primary flex-shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <h5 className="text-sm font-medium text-gray-900 truncate">
                                   {permission.name}

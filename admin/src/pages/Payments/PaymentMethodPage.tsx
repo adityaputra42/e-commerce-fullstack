@@ -70,7 +70,7 @@ const PaymentMethodPage = () => {
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payment Methods</h1>
           <p className="text-slate-500 mt-1">Configure how your customers will pay for their orders.</p>
         </div>
-        <button className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto group">
+        <button className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto group">
           <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
           <span>New Method</span>
         </button>
@@ -129,7 +129,7 @@ const PaymentMethodPage = () => {
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         method.is_active 
                         ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' 
-                        : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                        : 'bg-indigo-50 text-primary hover:bg-indigo-100'
                     }`}
                   >
                     {method.is_active ? <XCircle className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
@@ -147,7 +147,7 @@ const PaymentMethodPage = () => {
 
           <button className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group min-h-[320px]">
              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all">
-                <Plus className="w-8 h-8 text-slate-400 group-hover:text-indigo-600" />
+                <Plus className="w-8 h-8 text-slate-400 group-hover:text-primary" />
              </div>
              <div className="text-center">
                 <p className="text-sm font-bold text-slate-900">Add Payment Method</p>

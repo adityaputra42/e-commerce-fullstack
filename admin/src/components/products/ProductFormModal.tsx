@@ -244,19 +244,19 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
                         <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar">
                             <div className="space-y-6">
-                                <div className="flex items-center gap-2 text-indigo-600">
+                                <div className="flex items-center gap-2 text-primary">
                                     <ImageIcon className="w-4 h-4" />
                                     <h3 className="text-sm font-bold uppercase tracking-wider">General Information</h3>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <div className="lg:col-span-2 space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                                    <div className="lg:col-span-2 space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
                                         <input {...register('name')} placeholder="e.g. Premium Cotton T-Shirt" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
                                         {errors.name && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.name.message}</p>}
                                     </div>
                                     
-                                    <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                                    <div className="space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                         <select {...register('category_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium appearance-none">
                                             <option value="">Select Category</option>
@@ -267,7 +267,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                         {errors.category_id && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.category_id.message}</p>}
                                     </div>
 
-                                    <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                                    <div className="space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Price (IDR)</label>
                                         <input type="number" {...register('price', { valueAsNumber: true })} placeholder="0" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-bold" />
                                         {errors.price && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.price.message}</p>}
@@ -285,7 +285,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            <input type="file" accept="image/*" {...register('image')} className="text-xs font-medium text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-all cursor-pointer w-full" />
+                                            <input type="file" accept="image/*" {...register('image')} className="text-xs font-medium text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-primary hover:file:bg-indigo-100 transition-all cursor-pointer w-full" />
                                         </div>
                                     </div>
 
@@ -352,7 +352,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                             </button>
                             <button 
                                 onClick={handleSubmit(onSubmit)} 
-                                className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+                                className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
                             >
                                 {product ? 'Update Product Details' : 'Publish Product to Store'}
                             </button>
@@ -393,7 +393,7 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
              <button 
                 type="button" 
                 onClick={() => append({ size: '', stock: 0 })} 
-                className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-lg text-[10px] font-bold uppercase transition-all hover:bg-indigo-100 active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 text-primary rounded-lg text-[10px] font-bold uppercase transition-all hover:bg-indigo-100 active:scale-95"
              >
                  <Plus className="w-3 h-3" /> Add Size
              </button>

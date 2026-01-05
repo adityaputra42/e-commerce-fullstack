@@ -5,10 +5,10 @@ import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/di"
 	"e-commerce/backend/internal/routes"
+	"e-commerce/backend/internal/utils"
 	"fmt"
 	"net/http"
 	"os"
-	"sort"
 
 	"github.com/sirupsen/logrus"
 )
@@ -39,28 +39,8 @@ func initLogger() *logrus.Logger {
 
 	logger.SetOutput(os.Stdout)
 
-	// logger.SetFormatter(&logrus.JSONFormatter{
-	// 	TimestampFormat: "2006-01-02 15:04:05",
-	// 	PrettyPrint:     false,
-	// })
-
-	// Set level logging
 	logger.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "15:04:05",
-		DisableSorting:  false,
-		SortingFunc: func(keys []string) {
-			priority := map[string]int{
-				"level": 0,
-				"time":  1,
-				"msg":   2,
-			}
-			sort.SliceStable(keys, func(i, j int) bool {
-				return priority[keys[i]] < priority[keys[j]]
-			})
-		},
-	})
+	logrus.SetFormatter(&utils.LogFormatter{})
 
 	return logger
 }

@@ -78,7 +78,7 @@ const RolesPage = () => {
         </div>
         <button 
             onClick={() => handleOpenModal(null)}
-            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Create New Role</span>
@@ -100,7 +100,7 @@ const RolesPage = () => {
             </div>
 
             <div className="premium-card p-6 flex gap-3 border-l-4 border-indigo-500">
-                <Info className="w-5 h-5 text-indigo-600 shrink-0" />
+                <Info className="w-5 h-5 text-primary shrink-0" />
                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                    System roles like <span className="text-slate-900 font-bold">Super Admin</span> cannot be deleted or modified to ensure system stability.
                 </p>
@@ -118,7 +118,7 @@ const RolesPage = () => {
                 {error && (
                   <div className="p-20 text-center">
                      <p className="text-rose-500 font-medium">{error}</p>
-                     <button onClick={() => mutate()} className="mt-4 text-indigo-600 font-semibold hover:underline">Retry</button>
+                     <button onClick={() => mutate()} className="mt-4 text-primary font-semibold hover:underline">Retry</button>
                   </div>
                 )}
                 {!isLoading && !error && (

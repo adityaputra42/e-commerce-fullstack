@@ -31,7 +31,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onToggle
                         <img src={`https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=f1f5f9&color=64748b`} alt="" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                        <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">
                             {user.first_name} {user.last_name}
                         </span>
                         <span className="text-xs text-slate-400 font-medium">@{user.username}</span>
@@ -61,7 +61,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onToggle
                 <div className="flex items-center justify-end gap-1">
                     <button 
                         onClick={() => onEdit(user)} 
-                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
                         title="Edit User"
                     >
                       <Edit3 className="w-4 h-4" />

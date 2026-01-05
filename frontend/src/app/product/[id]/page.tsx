@@ -68,7 +68,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
          <XCircle className="w-20 h-20 text-rose-500" />
          <h2 className="text-2xl font-black text-slate-900">Product not found.</h2>
-         <button onClick={() => router.push('/')} className="text-indigo-600 font-bold uppercase tracking-widest text-sm underline underline-offset-8 transition-all hover:scale-105">Back to Home</button>
+         <button onClick={() => router.push('/')} className="text-primary font-bold uppercase tracking-widest text-sm underline underline-offset-8 transition-all hover:scale-105">Back to Home</button>
       </div>
     );
   }
@@ -77,11 +77,11 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     <div className="container mx-auto px-6 py-12 md:py-24">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-12">
-         <button onClick={() => router.push('/')} className="hover:text-indigo-600">Home</button>
+         <button onClick={() => router.push('/')} className="hover:text-primary">Home</button>
          <ChevronRight className="w-3 h-3" />
          <span className="text-slate-900">{product.category?.name}</span>
          <ChevronRight className="w-3 h-3" />
-         <span className="text-indigo-600">{product.name}</span>
+         <span className="text-primary">{product.name}</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -146,7 +146,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest">(128 Reviews)</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-tight italic tracking-tighter uppercase">{product.name}</h1>
-              <p className="text-3xl font-black text-indigo-600 font-display italic">
+              <p className="text-3xl font-black text-primary font-display italic">
                  {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(product.price)}
               </p>
            </div>
@@ -193,7 +193,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                             onClick={() => setSelectedSize(s.size)}
                             className={`min-w-[50px] h-12 flex items-center justify-center px-4 rounded-xl text-xs font-black uppercase tracking-tighter transition-all ${
                                 selectedSize === s.size 
-                                ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' 
+                                ? 'bg-primary text-white shadow-xl shadow-indigo-600/20' 
                                 : s.stock === 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed border-dashed border-2 border-slate-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                             }`}
                          >
@@ -224,13 +224,13 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
 
               <button 
                 onClick={handleOrder}
-                className="grow h-16 w-full px-10 bg-indigo-600 text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group"
+                className="grow h-16 w-full px-10 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group"
               >
                  <ShoppingBag className="w-5 h-5 group-hover:-rotate-12 transition-transform" />
                  Buy & Deliver Now
               </button>
               
-              <button className="h-16 w-16 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all hover:border-indigo-600 shrink-0">
+              <button className="h-16 w-16 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:border-indigo-600 shrink-0">
                  <Share2 className="w-5 h-5" />
               </button>
            </div>
@@ -238,7 +238,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
            {/* Trust Badges */}
            <div className="grid grid-cols-2 gap-4 mt-8">
               <div className="flex items-center gap-3 p-4 rounded-4xl bg-indigo-50/50 border border-indigo-100/50">
-                 <Truck className="w-6 h-6 text-indigo-600" />
+                 <Truck className="w-6 h-6 text-primary" />
                  <div>
                     <p className="text-[10px] font-black text-slate-900 uppercase">Premium Shipping</p>
                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Across Indonesia</p>

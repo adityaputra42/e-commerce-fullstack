@@ -93,7 +93,7 @@ const OrdersPage = () => {
         ) : error ? (
           <div className="p-20 text-center">
              <p className="text-rose-500 font-medium">{error}</p>
-             <button onClick={fetchOrders} className="mt-4 text-indigo-600 font-semibold hover:underline">Try again</button>
+             <button onClick={fetchOrders} className="mt-4 text-primary font-semibold hover:underline">Try again</button>
           </div>
         ) : orders.length === 0 ? (
           <div className="p-20 text-center">
@@ -117,7 +117,7 @@ const OrdersPage = () => {
                 {orders.map((order) => (
                   <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                       <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">#{order.id}</span>
+                       <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">#{order.id}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                        <div className="flex flex-col">
@@ -140,7 +140,7 @@ const OrdersPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                        <button 
-                         className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                         className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
                          title="View Details"
                        >
                          <Eye className="w-4 h-4" />

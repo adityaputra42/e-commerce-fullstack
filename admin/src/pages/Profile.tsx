@@ -83,7 +83,7 @@ const ProfilePage = () => {
                     <div className="w-24 h-24 rounded-3xl overflow-hidden ring-4 ring-indigo-50 shadow-xl shadow-indigo-100 group-hover:scale-105 transition-transform duration-300">
                          <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=6366f1&color=fff&size=128`} alt="Profile" />
                     </div>
-                    <button className="absolute -bottom-2 -right-2 p-2 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-colors">
+                    <button className="absolute -bottom-2 -right-2 p-2 bg-primary text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-colors">
                         <Smartphone className="w-4 h-4" />
                     </button>
                 </div>
@@ -98,7 +98,7 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex items-center gap-3 text-sm text-slate-600">
                         <Shield className="w-4 h-4 text-slate-400" />
-                        <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold uppercase tracking-wider">Administrator</span>
+                        <span className="px-2 py-0.5 bg-indigo-50 text-primary rounded-lg text-xs font-bold uppercase tracking-wider">Administrator</span>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@ const ProfilePage = () => {
             {/* Profile Form */}
             <div className="premium-card p-8">
                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-indigo-50 text-primary rounded-xl flex items-center justify-center">
                         <User className="w-5 h-5" />
                     </div>
                     <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
@@ -125,7 +125,7 @@ const ProfilePage = () => {
                 
                 <form onSubmit={handleProfileSubmit(onProfileSubmit)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">First Name</label>
                             <input 
                                 {...profileRegister('first_name')} 
@@ -133,7 +133,7 @@ const ProfilePage = () => {
                             />
                             {profileErrors.first_name && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.first_name.message}</p>}
                         </div>
-                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Last Name</label>
                             <input 
                                 {...profileRegister('last_name')} 
@@ -144,7 +144,7 @@ const ProfilePage = () => {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Email Address</label>
                             <input 
                                 type="email" 
@@ -153,7 +153,7 @@ const ProfilePage = () => {
                             />
                             {profileErrors.email && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.email.message}</p>}
                         </div>
-                        <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+                        <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Username</label>
                             <input 
                                 {...profileRegister('username')} 
@@ -166,7 +166,7 @@ const ProfilePage = () => {
                     <button
                         type="submit"
                         disabled={isProfileSubmitting}
-                        className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 disabled:opacity-50"
+                        className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 disabled:opacity-50"
                     >
                         {isProfileSubmitting ? 'Saving changes...' : 'Save Profile Changes'}
                     </button>

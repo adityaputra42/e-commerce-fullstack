@@ -42,14 +42,14 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-full text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-widest animate-pulse">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-full text-primary dark:text-indigo-400 text-xs font-black uppercase tracking-widest animate-pulse">
               <Sparkles className="w-4 h-4" />
               New Collection 2026 available now
             </div>
             
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter italic">
               ELEVATE <br />
-              <span className="text-indigo-600 outline-text">EVERY</span> <br />
+              <span className="text-primary outline-text">EVERY</span> <br />
               MOMENT.
             </h1>
             
@@ -58,7 +58,7 @@ export default function Home() {
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="h-16 px-10 bg-indigo-600 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group flex items-center gap-3">
+              <button className="h-16 px-10 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group flex items-center gap-3">
                 Shop Collection
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </button>
@@ -76,7 +76,7 @@ export default function Home() {
             className="relative"
           >
             <div className="relative aspect-square max-w-[500px] mx-auto">
-               <div className="absolute inset-0 bg-indigo-600 rounded-[4rem] rotate-6 -z-10 opacity-10 animate-pulse" />
+               <div className="absolute inset-0 bg-primary rounded-[4rem] rotate-6 -z-10 opacity-10 animate-pulse" />
                <div className="absolute inset-0 bg-rose-500 rounded-[4rem] -rotate-3 -z-10 opacity-10 animate-pulse delay-1000" />
                <img 
                  src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80" 
@@ -141,13 +141,13 @@ export default function Home() {
       <section className="py-32 container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-16">
             <div className="space-y-4">
-               <div className="flex items-center gap-2 text-indigo-600">
-                  <div className="w-8 h-1 bg-indigo-600" />
+               <div className="flex items-center gap-2 text-primary">
+                  <div className="w-8 h-1 bg-primary" />
                   <span className="text-xs font-black uppercase tracking-[0.3em]">Our Selection</span>
                </div>
                <h2 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase underline decoration-indigo-600/30 underline-offset-8">Featured Items</h2>
             </div>
-            <button className="flex items-center gap-3 text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest hover:text-indigo-600 transition-colors group">
+            <button className="flex items-center gap-3 text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest hover:text-primary transition-colors group">
                View All Products
                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </button>
@@ -175,7 +175,7 @@ export default function Home() {
 
       {/* Newsletter / CTA Section */}
       <section className="pb-32 container mx-auto px-6">
-          <div className="bg-indigo-600 rounded-[4rem] p-12 md:p-24 relative overflow-hidden group">
+          <div className="bg-primary rounded-[4rem] p-12 md:p-24 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-32 -translate-y-32 group-hover:scale-110 transition-transform duration-1000" />
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500 rounded-full -translate-x-16 translate-y-16" />
               
@@ -192,7 +192,7 @@ export default function Home() {
                       placeholder="Enter your email" 
                       className="grow h-16 px-8 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/50 focus:bg-white focus:text-slate-900 outline-none transition-all font-bold"
                      />
-                     <button className="h-16 px-12 bg-white text-indigo-600 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-2xl active:scale-95 whitespace-nowrap">
+                     <button className="h-16 px-12 bg-white text-primary rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-2xl active:scale-95 whitespace-nowrap">
                         Join StoreX
                      </button>
                   </form>

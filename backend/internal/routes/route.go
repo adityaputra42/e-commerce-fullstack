@@ -78,6 +78,7 @@ func SetupRoutes(handler *di.Handler, logger *logrus.Logger, cfg config.CORSConf
 		PaymentMethodRoutes(api, handler.PaymentMethodHandler, deps)
 		PaymentRoutes(api, handler.PaymentHandler, deps)
 		DashboardRoutes(api, handler.DashboardHandler, deps)
+		CategoryRoutes(api, handler.CategoryHandler, deps)
 	})
 
 	r.Get("/swagger/*", httpSwagger.Handler(

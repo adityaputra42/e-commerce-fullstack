@@ -47,6 +47,7 @@ var repositorySet = wire.NewSet(
 
 // Service Providers
 var serviceSet = wire.NewSet(
+	services.NewCategoryService,
 	services.NewProductService,
 	services.NewAddressService,
 	services.NewAuthService,
@@ -68,6 +69,7 @@ var utilsSet = wire.NewSet(
 
 // Handler Providers
 var handlerSet = wire.NewSet(
+	handler.NewCategoryHandler,
 	handler.NewProductHandler,
 	handler.NewAddressHandler,
 	handler.NewUserHandler,
@@ -96,6 +98,7 @@ func InitializeAllHandler(config *config.Config) *Handler {
 
 // Handler struct contains all handler and services
 type Handler struct {
+	CategoryHandler      *handler.CategoryHandler
 	ProductHandler       *handler.ProductHandler
 	AddressHandler       *handler.AddressHandler
 	AuthHandler          *handler.AuthHandler
@@ -117,7 +120,9 @@ type Handler struct {
 
 // NewHandler creates new Handler instance
 func NewHandler(
+	categoryHandler *handler.CategoryHandler,
 	productHandler *handler.ProductHandler,
+
 	addressHandler *handler.AddressHandler,
 	authHandler *handler.AuthHandler,
 	userHandler *handler.UserHandler,
@@ -134,6 +139,7 @@ func NewHandler(
 	jwtService *utils.JWTService,
 ) *Handler {
 	return &Handler{
+		CategoryHandler:      categoryHandler,
 		ProductHandler:       productHandler,
 		AddressHandler:       addressHandler,
 		AuthHandler:          authHandler,

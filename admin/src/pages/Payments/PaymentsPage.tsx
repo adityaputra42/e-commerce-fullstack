@@ -81,7 +81,7 @@ const PaymentsPage = () => {
         
         <div className="flex items-center gap-3">
              <div className="relative group">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                 <input 
                     type="text" 
                     placeholder="Search by ID..." 
@@ -148,7 +148,7 @@ const PaymentsPage = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-5 whitespace-nowrap text-right">
-                                    <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition-all shadow-sm">
+                                    <button className="p-2 text-slate-400 hover:text-primary hover:bg-white rounded-xl transition-all shadow-sm">
                                         <MoreVertical className="w-4 h-4" />
                                     </button>
                                 </td>

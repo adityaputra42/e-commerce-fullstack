@@ -94,7 +94,7 @@ const TransactionsPage = () => {
         ) : error ? (
           <div className="p-20 text-center">
              <p className="text-rose-500 font-medium">{error}</p>
-             <button onClick={fetchTransactions} className="mt-4 text-indigo-600 font-semibold hover:underline">Retry sync</button>
+             <button onClick={fetchTransactions} className="mt-4 text-primary font-semibold hover:underline">Retry sync</button>
           </div>
         ) : transactions.length === 0 ? (
           <div className="p-20 text-center">
@@ -118,7 +118,7 @@ const TransactionsPage = () => {
                 {transactions.map((t) => (
                   <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                       <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">#{t.id}</span>
+                       <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">#{t.id}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                        <div className="px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg inline-block">

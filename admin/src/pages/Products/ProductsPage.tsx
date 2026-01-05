@@ -108,7 +108,7 @@ const ProductsPage = () => {
         </div>
         <button 
             onClick={handleAddProduct}
-            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Add New Product</span>
@@ -149,7 +149,7 @@ const ProductsPage = () => {
                 <Trash2 className="w-8 h-8" />
              </div>
              <p className="text-red-500 font-medium">{error}</p>
-             <button onClick={fetchProducts} className="mt-4 text-indigo-600 font-semibold hover:underline">Try again</button>
+             <button onClick={fetchProducts} className="mt-4 text-primary font-semibold hover:underline">Try again</button>
           </div>
         ) : products.length === 0 ? (
           <div className="p-20 text-center">
@@ -157,7 +157,7 @@ const ProductsPage = () => {
                 <Package className="w-8 h-8" />
              </div>
              <p className="text-slate-500 font-medium">No products found in your catalog</p>
-             <button onClick={handleAddProduct} className="mt-2 text-indigo-600 font-semibold hover:underline">Create your first product</button>
+             <button onClick={handleAddProduct} className="mt-2 text-primary font-semibold hover:underline">Create your first product</button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -180,7 +180,7 @@ const ProductsPage = () => {
                           <img className="h-12 w-12 object-cover" src={product.images || 'https://via.placeholder.com/80'} alt="" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate max-w-[200px]">{product.name}</div>
+                          <div className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors truncate max-w-[200px]">{product.name}</div>
                           <div className="text-xs text-slate-500 font-medium">#{product.id}</div>
                         </div>
                       </div>
@@ -203,7 +203,7 @@ const ProductsPage = () => {
                        <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => handleEditProduct(product)}
-                            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                            className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
                             title="Edit Product"
                           >
                             <Edit3 className="w-4 h-4" />

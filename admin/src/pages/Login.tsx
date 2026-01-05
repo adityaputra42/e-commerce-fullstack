@@ -32,7 +32,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white selection:bg-indigo-100 overflow-hidden">
       {/* Visual Side - Hidden on Mobile, Side on Desktop */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-indigo-600 overflow-hidden items-center justify-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-primary overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
@@ -71,7 +71,7 @@ const LoginPage = () => {
         
         <div className="w-full max-w-md space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="text-center lg:text-left">
-            <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-200 mx-auto lg:mx-0 mb-6 group hover:rotate-6 transition-transform">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-200 mx-auto lg:mx-0 mb-6 group hover:rotate-6 transition-transform">
                <Lock className="text-white w-8 h-8" />
             </div>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight">Welcome back!</h2>
@@ -79,7 +79,7 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+            <div className="space-y-1.5 focus-within:text-primary transition-colors">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Username / ID</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -94,10 +94,10 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="space-y-1.5 focus-within:text-indigo-600 transition-colors">
+            <div className="space-y-1.5 focus-within:text-primary transition-colors">
               <div className="flex items-center justify-between px-1">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                <a href="#" className="text-xs font-bold text-indigo-600 hover:text-indigo-700">Forgot?</a>
+                <a href="#" className="text-xs font-bold text-primary hover:text-indigo-700">Forgot?</a>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -122,7 +122,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+              className="w-full bg-primary text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

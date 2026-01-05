@@ -20,7 +20,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="relative aspect-4/5 overflow-hidden">
         {/* Badge */}
         <div className="absolute top-4 left-4 z-10">
-          <span className="px-3 py-1 bg-indigo-600/90 text-white text-[10px] font-black uppercase tracking-widest rounded-full backdrop-blur-sm shadow-lg shadow-indigo-600/20">
+          <span className="px-3 py-1 bg-primary/90 text-white text-[10px] font-black uppercase tracking-widest rounded-full backdrop-blur-sm shadow-lg shadow-indigo-600/20">
             {product.category?.name || 'NEW ARRIVAL'}
           </span>
         </div>
@@ -30,7 +30,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 shadow-xl transition-colors">
              <Heart className="w-5 h-5" />
            </button>
-           <Link href={`/product/${product.id}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-indigo-600 shadow-xl transition-colors">
+           <Link href={`/product/${product.id}`} className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-primary shadow-xl transition-colors">
              <Eye className="w-5 h-5" />
            </Link>
         </div>
@@ -56,9 +56,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="p-6 flex flex-col gap-2 grow">
         <div className="flex justify-between items-start gap-2">
             <Link href={`/product/${product.id}`} className="grow">
-              <h3 className="text-lg font-black text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-600 transition-colors">{product.name}</h3>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white line-clamp-1 group-hover:text-primary transition-colors">{product.name}</h3>
             </Link>
-            <p className="text-lg font-black text-indigo-600">
+            <p className="text-lg font-black text-primary">
                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(product.price)}
             </p>
         </div>

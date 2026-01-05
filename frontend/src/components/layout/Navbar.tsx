@@ -23,17 +23,17 @@ const Navbar = () => {
     }`}>
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white scale-100 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-600/30">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white scale-100 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-600/30">
             <ShoppingCart className="w-5 h-5 fill-current" />
           </div>
-          <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">STORE<span className="text-indigo-600">X</span></span>
+          <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">STORE<span className="text-primary">X</span></span>
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Home</Link>
-          <Link href="/shop" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Shop</Link>
-          <Link href="/collections" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Collections</Link>
+          <Link href="/" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Home</Link>
+          <Link href="/shop" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Shop</Link>
+          <Link href="/collections" className="text-sm font-bold text-slate-600 hover:text-primary transition-colors">Collections</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -42,7 +42,7 @@ const Navbar = () => {
           </button>
           <Link href="/cart" className="relative p-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
             <ShoppingCart className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-indigo-600 text-[10px] font-bold text-white flex items-center justify-center rounded-full">0</span>
+            <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-[10px] font-bold text-white flex items-center justify-center rounded-full">0</span>
           </Link>
           <Link href="/login" className="hidden md:flex items-center gap-2 py-2 px-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full text-xs font-bold hover:scale-105 active:scale-95 transition-all">
             <User className="w-4 h-4" />
@@ -72,7 +72,7 @@ const Navbar = () => {
               <Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900">Shop</Link>
               <Link href="/collections" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900">Collections</Link>
               <hr className="border-slate-100" />
-              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 font-bold text-indigo-600">
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 font-bold text-primary">
                 <User className="w-5 h-5" />
                 Login / Register
               </Link>

@@ -47,7 +47,7 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mb-8 group">
+        <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-primary transition-colors mb-8 group">
            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
            Back to Store
         </Link>
@@ -59,7 +59,7 @@ export default function LoginPage() {
 
            <div className="space-y-8 relative z-10">
               <div className="space-y-2">
-                 <div className="w-16 h-1 bg-indigo-600" />
+                 <div className="w-16 h-1 bg-primary" />
                  <h1 className="text-4xl font-black text-slate-900 tracking-tighter italic uppercase">Welcome Back.</h1>
                  <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Sign in to your account</p>
               </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                     <div className="relative group">
-                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-primary transition-colors" />
                        <input 
                          type="email" 
                          required
@@ -89,10 +89,10 @@ export default function LoginPage() {
                  <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
-                       <a href="#" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Forgot?</a>
+                       <a href="#" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Forgot?</a>
                     </div>
                     <div className="relative group">
-                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-primary transition-colors" />
                        <input 
                          type="password" 
                          required
@@ -121,7 +121,7 @@ export default function LoginPage() {
 
               <div className="pt-6 border-t border-slate-50 flex flex-col items-center gap-4 text-center">
                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Don't have an account?</p>
-                 <Link href="/register" className="inline-flex items-center gap-2 text-indigo-600 font-black uppercase tracking-widest text-[10px] hover:underline">
+                 <Link href="/register" className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] hover:underline">
                     <Sparkles className="w-4 h-4" />
                     Create New Account
                  </Link>

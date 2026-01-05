@@ -142,7 +142,7 @@ const UsersPage = () => {
         </div>
         <button 
             onClick={() => handleOpenModal(null)}
-            className="premium-button bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Add New User</span>
@@ -182,7 +182,7 @@ const UsersPage = () => {
         ) : error ? (
           <div className="p-20 text-center">
              <p className="text-rose-500 font-medium">{error}</p>
-             <button onClick={() => refetchUsers()} className="mt-4 text-indigo-600 font-semibold hover:underline">Try again</button>
+             <button onClick={() => refetchUsers()} className="mt-4 text-primary font-semibold hover:underline">Try again</button>
           </div>
         ) : (
           <UserTable
