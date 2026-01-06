@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
-import type { Role } from '../types/rbac';
-
-interface RolesResponse {
-  success: boolean;
-  message: string;
-  data: Role[];
-}
+import { rolesApi } from '../services/api-services';
+import type { Role } from '../types/api';
 
 export const useRoles = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -17,12 +11,8 @@ export const useRoles = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get<RolesResponse>('/roles');
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        setRoles(response.data.data);
-      } else {
-        setRoles([]); // Ensure roles is always an array
-      }
+      const data = await rolesApi.getRoles();
+      setRoles(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Failed to fetch roles');
       console.error(err);

@@ -1,16 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
+import { usersApi } from '../services/api-services';
 import { useAuthStore } from '../hooks/useAuth';
-import type { User } from '../types/user';
-
-interface UsersResponse {
-  data: {
-    users: User[];
-    total: number;
-    page: number;
-    limit: number;
-  };
-}
+import type { User } from '../types/api';
 
 export const useUsers = (
   page = 1,
@@ -31,16 +22,10 @@ export const useUsers = (
     setError(null);
 
     try {
-      const response = await api.get<UsersResponse>('/users', {
-        params: { page, limit, search },
-      });
-
-      setUsers(
-        Array.isArray(response.data?.data?.users)
-          ? response.data.data.users
-          : []
-      );
-      setTotal(response.data?.data?.total ?? 0);
+      const response = await usersApi.getUsers(page, limit, search);
+      
+      setUsers(Array.isArray(response.users) ? response.users : []);
+      setTotal(response.total ?? 0);
     } catch (err) {
       console.error('Fetch users error:', err);
       setError('Failed to fetch users');

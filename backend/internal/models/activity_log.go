@@ -8,13 +8,13 @@ import (
 
 type ActivityLog struct {
 	ID        uint           `json:"id" gorm:"primarykey"`
-	UserID    uint           `json:"user_id" gorm:"not null"`
-	Action    string         `json:"action" gorm:"not null" validate:"required,max=100"`
-	Resource  string         `json:"resource" gorm:"not null" validate:"required,max=100"`
+	UserID    uint           `json:"user_id" gorm:"not null;index"`
+	Action    string         `json:"action" gorm:"not null;index" validate:"required,max=100"`
+	Resource  string         `json:"resource" gorm:"not null;index" validate:"required,max=100"`
 	Details   string         `json:"details" gorm:"type:text"`
 	IPAddress string         `json:"ip_address" gorm:"max=45"`
 	UserAgent string         `json:"user_agent" gorm:"type:text"`
-	CreatedAt time.Time      `json:"created_at"`
+	CreatedAt time.Time      `json:"created_at" gorm:"index"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 	User      User           `json:"user" gorm:"foreignKey:UserID"`

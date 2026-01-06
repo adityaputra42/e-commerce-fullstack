@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
-import { ShoppingCart, Search, Filter, Eye, MoreHorizontal } from 'lucide-react';
-
-interface Order {
-  id: number;
-  user_id: number;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  user?: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  }
-}
+import { ordersApi } from '../../services/api-services';
+import type { Order } from '../../types/api';
+import { ShoppingCart, Search, Filter, Eye } from 'lucide-react';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,8 +15,8 @@ const OrdersPage = () => {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/orders');
-      const data = response.data?.data?.orders || response.data?.data || [];
+      const data = await ordersApi.getOrders();
+      console.log(data);
       setOrders(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch orders');

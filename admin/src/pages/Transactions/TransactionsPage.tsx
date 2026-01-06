@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { transactionsApi } from '../../services/api-services';
+import type { Transaction } from '../../types/api';
 import { CreditCard, Search, Filter, Download } from 'lucide-react';
-
-interface Transaction {
-  id: number;
-  order_id: number;
-  amount: number;
-  payment_method: string;
-  status: string;
-  created_at: string;
-}
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,8 +15,7 @@ const TransactionsPage = () => {
   const fetchTransactions = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/transactions');
-      const data = response.data?.data?.transactions || response.data?.data || [];
+      const data = await transactionsApi.getTransactions();
       setTransactions(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch transactions');
@@ -116,22 +107,22 @@ const TransactionsPage = () => {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {transactions.map((t) => (
-                  <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
+                  <tr key={t.tx_id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                       <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">#{t.id}</span>
+                       <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{t.tx_id}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                        <div className="px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg inline-block">
-                          <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">Order #{t.order_id}</span>
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">User #{t.user_id}</span>
                        </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">
-                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(t.amount)}
+                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(t.total_amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                        <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                          <span className="text-sm font-semibold text-slate-600 capitalize">{t.payment_method}</span>
+                          <span className="text-sm font-semibold text-slate-600 capitalize">{t.payment_method?.bank_name || 'N/A'}</span>
                        </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

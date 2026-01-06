@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { shippingApi } from '../../services/api-services';
+import type { ShippingMethod as ApiShippingMethod } from '../../types/api';
 import { Truck, Plus, Package, Edit3, Trash2 } from 'lucide-react';
 
-interface ShippingMethod {
-  id: number;
-  name: string;
-  price: number;
-  state: string;
-  updated_at: string;
+interface ShippingMethod extends ApiShippingMethod {
+  state: string; // For UI backward compatibility
 }
 
 const ShippingPage = () => {
@@ -22,9 +19,12 @@ const ShippingPage = () => {
   const fetchShippingMethods = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/shipping');
-      const data = response.data?.data || [];
-      setShippingMethods(Array.isArray(data) ? data : []);
+      const data = await shippingApi.getShippingMethods();
+      const mappedData = (data || []).map(m => ({
+        ...m,
+        state: m.is_active ? 'active' : 'inactive'
+      }));
+      setShippingMethods(mappedData);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch shipping methods');
     } finally {

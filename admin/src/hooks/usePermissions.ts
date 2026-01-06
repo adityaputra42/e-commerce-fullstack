@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import api from '../services/api';
+import { rolesApi } from '../services/api-services';
 import { useAuthStore } from '../hooks/useAuth';
-import type { Permission } from '../types/rbac';
+import type { Permission } from '../types/api';
 
 export const usePermissions = () => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -18,8 +18,8 @@ export const usePermissions = () => {
       setError(null);
 
       try {
-        const res = await api.get('/roles/permissions');
-        setPermissions(res.data?.data ?? []);
+        const data = await rolesApi.getAllPermissions();
+        setPermissions(data ?? []);
       } catch (err) {
         console.error(err);
         setError('Failed to fetch permissions');

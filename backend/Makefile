@@ -1,7 +1,14 @@
-.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen swagger server
+.PHONY: test test-unit test-integration test-coverage test-db-up test-db-down test-clean mock-gen swagger server drop-db create-db
 
 server:
 	go run cmd/main.go
+
+drop-db:
+	docker exec -it postgres16 dropdb e_commerce_rbac
+
+create-db:
+	docker exec -it postgres16 createdb --username=root --owner=root e_commerce_rbac 
+
 
 swagger:
 	@echo "Generating swagger docs..."

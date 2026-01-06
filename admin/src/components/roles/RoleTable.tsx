@@ -1,4 +1,4 @@
-import type { Role } from '../../types/rbac';
+import type { Role } from '../../types/api';
 import { Edit3, Trash2, Eye, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface RoleTableProps {

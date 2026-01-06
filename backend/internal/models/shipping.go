@@ -11,7 +11,7 @@ type Shipping struct {
 	ID        int64          `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name      string         `json:"name" validate:"required,min=3,max=100" gorm:"type:varchar(100);not null"`
 	Price     float64        `json:"price" validate:"required,gt=0" gorm:"type:decimal(12,2);not null"`
-	State     string         `json:"state" validate:"required,oneof=active inactive" gorm:"type:varchar(20);default:'active'"`
+	State     string         `json:"state" validate:"required,oneof=active inactive" gorm:"type:varchar(20);default:'active';index"`
 	UpdatedAt time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`

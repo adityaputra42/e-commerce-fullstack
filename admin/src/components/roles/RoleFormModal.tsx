@@ -3,7 +3,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Role } from '../../types/rbac';
+import type { Role } from '../../types/api';
 import { usePermissions } from '../../hooks/usePermissions';
 
 const roleSchema = z.object({

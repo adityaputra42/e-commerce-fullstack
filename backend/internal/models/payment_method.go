@@ -10,10 +10,10 @@ import (
 type PaymentMethod struct {
 	ID            int64          `json:"id" gorm:"primaryKey;autoIncrement"`
 	AccountName   string         `json:"account_name" validate:"required,min=3,max=100" gorm:"type:varchar(100);not null"`
-	AccountNumber string         `json:"account_number" validate:"required,numeric,min=5,max=30" gorm:"type:varchar(30);not null"`
+	AccountNumber string         `json:"account_number" validate:"required,numeric,min=5,max=30" gorm:"type:varchar(30);not null;index"`
 	BankName      string         `json:"bank_name" validate:"required,min=3,max=100" gorm:"type:varchar(100);not null"`
 	BankImages    string         `json:"bank_images" validate:"omitempty,url" gorm:"type:text"`
-	IsActive      bool           `json:"is_active" gorm:"default:true"`
+	IsActive      bool           `json:"is_active" gorm:"default:true;index"`
 	UpdatedAt     time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`

@@ -3,14 +3,14 @@ import { useUsers } from '../../hooks/useUsers';
 import UserTable from '../../components/users/UserTable';
 import UserFormModal from '../../components/users/UserFormModal';
 import PasswordUpdateModal from '../../components/users/PasswordUpdateModal';
-import type { User } from '../../types/user';
-import api from '../../services/api';
+import { usersApi } from '../../services/api-services';
+import type { User } from '../../types/api';
 import {
   showSuccessAlert,
   showErrorAlert,
   showConfirmAlert,
 } from '../../utils/alerts';
-import { Users, Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
 
 const UsersPage = () => {
   const [page] = useState(1);
@@ -54,10 +54,10 @@ const UsersPage = () => {
   const handleSave = async (data: any, userId: number | null) => {
     try {
       if (userId) {
-        await api.put(`/users/${userId}`, data);
+        await usersApi.updateUser(userId, data);
         showSuccessAlert('User updated successfully!');
       } else {
-        await api.post('/users', data);
+        await usersApi.createUser(data);
         showSuccessAlert('User created successfully!');
       }
 
@@ -81,7 +81,7 @@ const UsersPage = () => {
     if (!confirmed) return;
 
     try {
-      await api.delete(`/users/${user.id}`);
+      await usersApi.deleteUser(user.id);
       await refetchUsers();
       showSuccessAlert('User deleted successfully!');
     } catch (error: any) {
@@ -104,7 +104,11 @@ const UsersPage = () => {
     if (!confirmed) return;
 
     try {
-      await api.put(`/users/${user.id}/${action}`);
+      if (action === 'activate') {
+        await usersApi.activateUser(user.id);
+      } else {
+        await usersApi.deactivateUser(user.id);
+      }
       await refetchUsers();
       showSuccessAlert(`User ${action}d successfully!`);
     } catch (error: any) {
@@ -121,7 +125,7 @@ const UsersPage = () => {
     passwordData: any
   ) => {
     try {
-      await api.put(`/users/${userId}/password`, passwordData);
+      await usersApi.updatePassword(userId, passwordData);
       showSuccessAlert('Password updated successfully!');
       handleClosePasswordModal();
     } catch (error: any) {

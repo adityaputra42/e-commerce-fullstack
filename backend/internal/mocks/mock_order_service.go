@@ -70,10 +70,10 @@ func (mr *MockOrderServiceMockRecorder) DeleteOrder(id any) *gomock.Call {
 }
 
 // FindAllOrder mocks base method.
-func (m *MockOrderService) FindAllOrder(param models.OrderListRequest) (*[]models.OrderResponse, error) {
+func (m *MockOrderService) FindAllOrder(param models.OrderListRequest) ([]models.OrderResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAllOrder", param)
-	ret0, _ := ret[0].(*[]models.OrderResponse)
+	ret0, _ := ret[0].([]models.OrderResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

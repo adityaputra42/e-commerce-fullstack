@@ -13,7 +13,7 @@ type User struct {
 	PasswordHash    string         `json:"-" gorm:"not null"`
 	FirstName       string         `json:"first_name" gorm:"not null" validate:"required,min=1,max=50"`
 	LastName        string         `json:"last_name" gorm:"not null" validate:"required,min=1,max=50"`
-	RoleID          uint           `json:"role_id" gorm:"not null"`
+	RoleID          uint           `json:"role_id" gorm:"not null;index"`
 	IsActive        bool           `json:"is_active" gorm:"default:true"`
 	EmailVerifiedAt *time.Time     `json:"email_verified_at"`
 	LastLoginAt     *time.Time     `json:"last_login_at"`

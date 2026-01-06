@@ -1,17 +1,8 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { paymentMethodsApi } from '../../services/api-services';
+import type { PaymentMethod } from '../../types/api';
 import { Plus, XCircle, Trash2, ShieldCheck, Landmark } from 'lucide-react';
 import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
-
-interface PaymentMethod {
-  id: number;
-  account_name: string;
-  account_number: string;
-  bank_name: string;
-  bank_images: string;
-  is_active: boolean;
-  created_at: string;
-}
 
 const PaymentMethodPage = () => {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
@@ -24,9 +15,7 @@ const PaymentMethodPage = () => {
   const fetchMethods = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/payment-methods');
-      // Backend returns data in a "data" property
-      const data = response.data?.data || [];
+      const data = await paymentMethodsApi.getPaymentMethods();
       setMethods(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch:', error);
@@ -37,12 +26,7 @@ const PaymentMethodPage = () => {
 
   const toggleStatus = async (method: PaymentMethod) => {
     try {
-      const formData = new FormData();
-      formData.append('is_active', String(!method.is_active));
-      // We must append other required fields if backend still requires them, 
-      // but I updated backend to be partial.
-      
-      await api.put(`/payment-methods/${method.id}`, formData);
+      await paymentMethodsApi.updatePaymentMethod(method.id, { is_active: !method.is_active });
       showSuccessAlert(`Bank ${method.bank_name} is now ${!method.is_active ? 'Active' : 'Inactive'}`);
       fetchMethods();
     } catch (error) {
@@ -54,7 +38,7 @@ const PaymentMethodPage = () => {
     const confirmed = await showConfirmAlert('Delete?', 'This action cannot be undone.');
     if (confirmed) {
       try {
-        await api.delete(`/payment-methods/${id}`);
+        await paymentMethodsApi.deletePaymentMethod(id);
         showSuccessAlert('Payment method removed');
         fetchMethods();
       } catch (error) {

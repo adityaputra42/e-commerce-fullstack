@@ -4,14 +4,12 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import api from '../../services/api';
+import { categoriesApi } from '../../services/api-services';
+import type { Category } from '../../services/api-services/categories';
 import { Plus, Trash, X, Image as ImageIcon } from 'lucide-react';
 
 // === TYPES ===
-interface Category {
-  id: number;
-  name: string;
-}
+// Removed local Category interface
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -74,10 +72,9 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      api.get('/categories?limit=100').then((res) => {
-         const data = res.data?.data?.categories || res.data?.data || [];
-         setCategories(Array.isArray(data) ? data : []);
-      }).catch(console.error);
+      categoriesApi.getCategories(100)
+        .then(setCategories)
+        .catch(console.error);
     }
   }, [isOpen]);
 

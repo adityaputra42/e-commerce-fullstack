@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../hooks/useAuth';
-import api from '../services/api';
+import { authApi } from '../services/api-services';
 import { Lock, Mail, ChevronRight, LayoutDashboard, ShieldCheck, Sparkles } from 'lucide-react';
 
 const LoginPage = () => {
@@ -18,8 +18,8 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await api.post('/auth/login', { email: username, password });
-      const { access_token, refresh_token, user } = response.data.data;
+      const data = await authApi.login({ email: username, password });
+      const { access_token, refresh_token, user } = data;
       login(access_token, refresh_token, user);
       navigate('/dashboard');
     } catch (err: any) {

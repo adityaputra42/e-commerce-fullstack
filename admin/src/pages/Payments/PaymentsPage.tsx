@@ -1,18 +1,7 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { paymentsApi } from '../../services/api-services';
+import type { Payment } from '../../types/api';
 import { Search, Filter, ArrowUpRight, CheckCircle2, Clock, XCircle, MoreVertical } from 'lucide-react';
-
-interface Payment {
-  id: number;
-  transaction_id: string;
-  total_payment: number;
-  status: string;
-  created_at: string;
-  transaction?: {
-    tx_id: string;
-    customer_name?: string;
-  };
-}
 
 const PaymentsPage = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -26,9 +15,7 @@ const PaymentsPage = () => {
   const fetchPayments = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/payments');
-      // Backend returns data in a "data" property
-      const data = response.data?.data || [];
+      const data = await paymentsApi.getPayments();
       setPayments(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch:', error);
@@ -37,24 +24,21 @@ const PaymentsPage = () => {
     }
   };
 
-  const getStatusStyle = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'success':
-      case 'confirmed':
-      case 'completed':
-        return 'bg-emerald-50 text-emerald-600 ring-emerald-100';
-      case 'pending':
-        return 'bg-amber-50 text-amber-600 ring-amber-100';
-      case 'failed':
-      case 'rejected':
-      case 'cancelled':
-        return 'bg-rose-50 text-rose-600 ring-rose-100';
-      default:
-        return 'bg-slate-50 text-slate-600 ring-slate-100';
-    }
+  const statusMap: Record<string, string> = {
+    'success': 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    'confirmed': 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    'completed': 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    'pending': 'bg-amber-50 text-amber-600 ring-amber-100',
+    'failed': 'bg-rose-50 text-rose-600 ring-rose-100',
+    'rejected': 'bg-rose-50 text-rose-600 ring-rose-100',
+    'cancelled': 'bg-rose-50 text-rose-600 ring-rose-100'
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusStyle = (status: string = '') => {
+    return statusMap[status.toLowerCase()] || 'bg-slate-50 text-slate-600 ring-slate-100';
+  };
+
+  const getStatusIcon = (status: string = '') => {
     switch (status.toLowerCase()) {
       case 'success':
       case 'confirmed':
@@ -68,7 +52,7 @@ const PaymentsPage = () => {
   };
 
   const filteredPayments = payments.filter(p => 
-     p.transaction_id.toLowerCase().includes(searchTerm.toLowerCase())
+     p.transaction_id?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

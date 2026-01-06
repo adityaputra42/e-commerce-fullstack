@@ -2,9 +2,9 @@ import { useAuthStore } from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import api from '../services/api';
+import { usersApi } from '../services/api-services';
 import { showSuccessAlert, showErrorAlert } from '../utils/alerts';
-import { User, Key, Mail, Shield, Smartphone } from 'lucide-react';
+import { User as UserIcon, Key, Mail, Shield, Smartphone } from 'lucide-react';
 
 const profileSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -45,8 +45,8 @@ const ProfilePage = () => {
 
   const onProfileSubmit = async (data: ProfileFormInputs) => {
     try {
-      const response = await api.put('/profile', data);
-      setUser(response.data.data);
+      const userData = await usersApi.updateProfile(data);
+      setUser(userData);
       showSuccessAlert('Profile updated successfully!');
     } catch (error: any) {
       showErrorAlert(error.response?.data?.message || 'Failed to update profile.');
@@ -55,7 +55,7 @@ const ProfilePage = () => {
 
   const onPasswordSubmit = async (data: PasswordFormInputs) => {
     try {
-      await api.put('/profile/password', {
+      await usersApi.updateProfilePassword({
         current_password: data.current_password,
         new_password: data.new_password,
       });
@@ -118,7 +118,7 @@ const ProfilePage = () => {
             <div className="premium-card p-8">
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-10 h-10 bg-indigo-50 text-primary rounded-xl flex items-center justify-center">
-                        <User className="w-5 h-5" />
+                        <UserIcon className="w-5 h-5" />
                     </div>
                     <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
                 </div>

@@ -8,13 +8,13 @@ import (
 
 type Transaction struct {
 	TxID            string         `json:"tx_id" gorm:"primaryKey;type:varchar(50)"`
-	AddressID       int64          `json:"address_id" validate:"required" gorm:"not null"`
-	ShippingID      int64          `json:"shipping_id" validate:"required" gorm:"not null"`
-	PaymentMethodID int64          `json:"payment_method_id" validate:"required" gorm:"not null"`
+	AddressID       int64          `json:"address_id" validate:"required" gorm:"not null;index"`
+	ShippingID      int64          `json:"shipping_id" validate:"required" gorm:"not null;index"`
+	PaymentMethodID int64          `json:"payment_method_id" validate:"required" gorm:"not null;index"`
 	ShippingPrice   float64        `json:"shipping_price" gorm:"type:decimal(12,2);not null"`
 	TotalPrice      float64        `json:"total_price"  gorm:"type:decimal(12,2);not null"`
-	Status          string         `json:"status" gorm:"type:varchar(30);not null"`
-	CreatedAt       time.Time      `json:"created_at" gorm:"autoCreateTime"`
+	Status          string         `json:"status" gorm:"type:varchar(30);not null;index"`
+	CreatedAt       time.Time      `json:"created_at" gorm:"autoCreateTime;index"`
 	UpdatedAt       time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	DeletedAt       gorm.DeletedAt `json:"-" gorm:"index"`
 	Address         *Address       `json:"address,omitempty" gorm:"foreignKey:AddressID;references:ID"`

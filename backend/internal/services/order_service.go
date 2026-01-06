@@ -9,7 +9,7 @@ import (
 
 type OrderService interface {
 	UpdateOrder(param models.UpdateOrder) (*models.OrderResponse, error)
-	FindAllOrder(param models.OrderListRequest) (*[]models.OrderResponse, error)
+	FindAllOrder(param models.OrderListRequest) ([]models.OrderResponse, error)
 	FindById(id string, userId int64) (*models.OrderResponse, error)
 	DeleteOrder(id string) error
 	CancelOrder(id string, userId int64) (*models.OrderResponse, error)
@@ -61,7 +61,7 @@ func (o *OrderServiceImpl) DeleteOrder(id string) error {
 }
 
 // FindAllOrder implements [OrderService].
-func (o *OrderServiceImpl) FindAllOrder(param models.OrderListRequest) (*[]models.OrderResponse, error) {
+func (o *OrderServiceImpl) FindAllOrder(param models.OrderListRequest) ([]models.OrderResponse, error) {
 	orders, err := o.orderRepo.FindAll(param)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get order list: %w", err)
@@ -73,7 +73,7 @@ func (o *OrderServiceImpl) FindAllOrder(param models.OrderListRequest) (*[]model
 		orderResponse = append(orderResponse, order.ToOrderResponse())
 	}
 
-	return &orderResponse, nil
+	return orderResponse, nil
 }
 
 // FindById implements [OrderService].

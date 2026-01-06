@@ -107,7 +107,7 @@ func (r *ProductRepositoryImpl) FindProductById(id int64, tx *gorm.DB) (*models.
 
 	// Use preloads with the chosen db (tx or global)
 	err := db.
-		Select("id", "category_id", "name", "description", "created_at", "updated_at", "deleted_at").
+		Select("id", "category_id", "name", "description", "images", "rating", "price", "created_at", "updated_at", "deleted_at").
 		Preload("ColorVarians", func(db *gorm.DB) *gorm.DB {
 			return db.
 				Select("id", "product_id", "name", "color", "images", "created_at", "updated_at", "deleted_at").
@@ -163,7 +163,7 @@ func (r *ProductRepositoryImpl) FindAllProduct(param models.ProductListRequest, 
 		sortBy = param.SortBy
 	}
 	query = query.
-		Select("id", "category_id", "name", "description", "created_at", "updated_at", "deleted_at").
+		Select("id", "category_id", "name", "description", "images", "rating", "price", "created_at", "updated_at", "deleted_at").
 		Order(sortBy)
 
 	// Pagination

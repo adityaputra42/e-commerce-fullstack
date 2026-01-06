@@ -9,8 +9,8 @@ import (
 type Permission struct {
 	ID          uint           `json:"id" gorm:"primarykey"`
 	Name        string         `json:"name" gorm:"type:varchar(255);uniqueIndex;not null" validate:"required,min=3,max=100"`
-	Resource    string         `json:"resource" gorm:"not null" validate:"required,min=2,max=50"`
-	Action      string         `json:"action" gorm:"not null" validate:"required,min=2,max=50"`
+	Resource    string         `json:"resource" gorm:"not null;index" validate:"required,min=2,max=50"`
+	Action      string         `json:"action" gorm:"not null;index" validate:"required,min=2,max=50"`
 	Description string         `json:"description" gorm:"type:text"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

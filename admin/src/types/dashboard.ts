@@ -1,84 +1,42 @@
-// dashboard.types.ts
+// Dashboard types - using API types as source of truth
+import type {
+  DashboardStats,
+  RevenueStats,
+  OrderStats,
+  RecentOrder,
+  TopProduct,
+  LowStockProduct,
+  OrderAnalytic,
+  UserGrowth,
+  ActivityLog,
+} from './api';
 
-export interface DashboardStats {
-  total_users: number;
-  active_users: number;
-  inactive_users: number;
-  new_users_today: number;
-  new_users_this_week: number;
-}
+// Re-export API types for backward compatibility
+export type {
+  DashboardStats,
+  RevenueStats,
+  OrderStats,
+  ActivityLog,
+};
 
-export interface RevenueStats {
-  total_revenue: number;
-  revenue_today: number;
-  revenue_this_month: number;
-  revenue_growth_percent: number;
-}
+// Aliases for consistency
+export type Order = RecentOrder;
+export type ProductSummary = TopProduct;
+export type OrderAnalytics = OrderAnalytic;
+export type UserAnalytics = UserGrowth;
 
-export interface OrderStats {
-  total_orders: number;
-  completed_orders: number;
-  pending_orders: number;
-  cancelled_orders: number;
-}
-
-export interface Order {
-  id: number;
-  order_number: string;
-  user_id: number;
-  total_amount: number;
-  status: 'pending' | 'completed' | 'cancelled';
-  created_at: string;
-}
-
-export interface ProductSummary {
-  id: number;
-  name: string;
-  total_sold: number;
-}
-
-export interface LowStockProduct {
-  id: number;
-  name: string;
-  stock: number;
-}
-
-export interface OrderAnalytics {
-  date: string;
-  total_orders: number;
-  total_revenue: number;
-}
-
-export interface UserAnalytics {
-  date: string;
-  user_count: number;
-}
-
-export interface ActivityLog {
-  id: number;
-  action: string;
-  resource: string;
-  ip_address: string;
-  user_agent: string;
-  created_at: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-  };
-}
-
+// Dashboard state interface
 export interface DashboardState {
   stats: DashboardStats | null;
   revenue: RevenueStats | null;
   orderStats: OrderStats | null;
 
-  recentOrders: Order[];
-  topProducts: ProductSummary[];
+  recentOrders: RecentOrder[];
+  topProducts: TopProduct[];
   lowStockProducts: LowStockProduct[];
 
-  orderAnalytics: OrderAnalytics[];
-  userAnalytics: UserAnalytics[];
+  orderAnalytics: OrderAnalytic[];
+  userAnalytics: UserGrowth[];
 
   recentActivity: ActivityLog[];
 

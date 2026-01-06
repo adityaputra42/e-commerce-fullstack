@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, User as UserIcon, Mail, Shield, Lock } from 'lucide-react';
 
-import type { User } from '../../types/user';
+import type { User } from '../../types/api';
 import { useRoles } from '../../hooks/useRoles';
 
 const userSchema = z.object({
@@ -61,7 +61,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         last_name: user.last_name,
         email: user.email,
         username: user.username,
-        role_id: user.role.id,
+        role_id: user.role?.id,
       });
       unregister('password');
     } else {

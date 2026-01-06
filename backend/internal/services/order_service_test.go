@@ -111,7 +111,7 @@ func TestOrderService_FindAllOrder(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-	if len(*result) != 2 {
-		t.Errorf("Expected 2 orders, got %d", len(*result))
+	if len(result) != 2 {
+		t.Errorf("Expected 2 orders, got %d", len(result))
 	}
 }

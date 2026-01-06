@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import type { Role } from '../../types/rbac';
+import type { Role } from '../../types/api';
 import { X, Shield, Users, Key } from 'lucide-react';
 
 interface RoleDetailModalProps {
@@ -89,7 +89,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
                             className="bg-white p-3 rounded-md border border-indigo-200 hover:border-indigo-300 transition-colors"
                           >
                             <div className="flex items-start">
-                              <Key className="w-4 h-4 mt-0.5 mr-2 text-primary flex-shrink-0" />
+                              <Key className="w-4 h-4 mt-0.5 mr-2 text-primary shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <h5 className="text-sm font-medium text-gray-900 truncate">
                                   {permission.name}

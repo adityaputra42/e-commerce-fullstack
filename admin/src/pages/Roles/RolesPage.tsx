@@ -3,8 +3,8 @@ import { useRoles } from '../../hooks/useRoles';
 import RoleTable from '../../components/roles/RoleTable';
 import RoleFormModal from '../../components/roles/RoleFormModal';
 import RoleDetailModal from '../../components/roles/RoleDetailModal';
-import type { Role } from '../../types/rbac';
-import api from '../../services/api';
+import { rolesApi } from '../../services/api-services';
+import type { Role } from '../../types/api';
 import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
 import { Shield, Plus, Info } from 'lucide-react';
 
@@ -39,13 +39,13 @@ const RolesPage = () => {
   const handleSave = async (data: any, roleId: number | null) => {
     try {
       if (roleId) {
-        await api.put(`/roles/${roleId}`, { name: data.name, description: data.description });
-        await api.put(`/roles/${roleId}/permissions`, { permission_ids: data.permission_ids });
+        await rolesApi.updateRole(roleId, { name: data.name, description: data.description });
+        await rolesApi.assignPermissions(roleId, { permission_ids: data.permission_ids });
         showSuccessAlert('Role updated successfully!');
       } else {
-        const response = await api.post('/roles', { name: data.name, description: data.description });
-        if (response.data.data && data.permission_ids && data.permission_ids.length > 0) {
-          await api.put(`/roles/${response.data.data.id}/permissions`, { permission_ids: data.permission_ids });
+        const createdRole = await rolesApi.createRole({ name: data.name, description: data.description });
+        if (createdRole && data.permission_ids && data.permission_ids.length > 0) {
+          await rolesApi.assignPermissions(createdRole.id, { permission_ids: data.permission_ids });
         }
         showSuccessAlert('Role created successfully!');
       }
@@ -60,7 +60,7 @@ const RolesPage = () => {
     const confirmed = await showConfirmAlert('Delete Role', `Are you sure you want to delete role ${role.name}?`);
     if (confirmed) {
       try {
-        await api.delete(`/roles/${role.id}`);
+        await rolesApi.deleteRole(role.id);
         mutate();
         showSuccessAlert('Role deleted successfully!');
       } catch (error: any) {

@@ -1,24 +1,9 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import { productsApi } from '../../services/api-services';
+import type { Product } from '../../types/api';
 import { Package, Plus, Search, Filter, Edit3, Trash2 } from 'lucide-react';
 import ProductFormModal from '../../components/products/ProductFormModal';
 import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stock?: number; 
-  category: {
-    id: number;
-    name: string;
-    icon: string;
-  };
-  images: string;
-  rating: number;
-  color_varian?: any[]; 
-}
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,8 +21,8 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/products?limit=100');
-      const data = response.data?.data?.products || response.data?.data || [];
+      const data = await productsApi.getProducts(1, 10);
+      console.log("data product => ",data)
       setProducts(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch products');
@@ -53,8 +38,7 @@ const ProductsPage = () => {
 
   const handleEditProduct = async (product: Product) => {
       try {
-          const detailRes = await api.get(`/products/${product.id}`);
-          const detailData = detailRes.data?.data || product;
+          const detailData = await productsApi.getProductById(product.id);
           setEditingProduct(detailData);
           setIsModalOpen(true);
       } catch (e) {
@@ -71,7 +55,7 @@ const ProductsPage = () => {
     );
     if (!confirmed) return;
     try {
-        await api.delete(`/products/${product.id}`);
+        await productsApi.deleteProduct(product.id);
         showSuccessAlert('Product deleted successfully');
         fetchProducts();
     } catch (error: any) {
@@ -82,14 +66,10 @@ const ProductsPage = () => {
   const handleSaveProduct = async (formData: FormData, productId: number | null) => {
       try {
           if (productId) {
-              await api.put(`/products/${productId}`, formData, {
-                  headers: { 'Content-Type': 'multipart/form-data' }
-              });
+              await productsApi.updateProduct(productId, formData);
               showSuccessAlert('Product updated successfully');
           } else {
-              await api.post('/products', formData, {
-                  headers: { 'Content-Type': 'multipart/form-data' }
-              });
+              await productsApi.createProduct(formData);
               showSuccessAlert('Product created successfully');
           }
           setIsModalOpen(false);
@@ -177,10 +157,10 @@ const ProductsPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-4">
                         <div className="shrink-0 h-12 w-12 rounded-xl overflow-hidden ring-2 ring-slate-100 group-hover:ring-indigo-100 transition-all">
-                          <img className="h-12 w-12 object-cover" src={product.images || 'https://via.placeholder.com/80'} alt="" />
+                          <img className="h-12 w-12 object-cover" src={Array.isArray(product.images) ? product.images[0] : (product.images || 'https://via.placeholder.com/80')} alt="" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors truncate max-w-[200px]">{product.name}</div>
+                          <div className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors truncate max-w-50">{product.name}</div>
                           <div className="text-xs text-slate-500 font-medium">#{product.id}</div>
                         </div>
                       </div>

@@ -1,5 +1,5 @@
 import { Edit3, PowerOff, Power, Trash2, Key } from 'lucide-react';
-import type { User } from '../../types/user';
+import type { User } from '../../types/api';
 
 interface UserTableProps {
   users: User[];
@@ -44,7 +44,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onToggle
               <td className="px-6 py-4 whitespace-nowrap">
                  <div className="flex items-center gap-2">
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold uppercase tracking-wider">
-                        {user.role.name}
+                        {user.role?.name || 'No Role'}
                     </span>
                  </div>
               </td>

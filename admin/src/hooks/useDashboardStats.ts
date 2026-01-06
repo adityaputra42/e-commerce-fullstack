@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import api from '../services/api';
+import { dashboardApi } from '../services/api-services/dashboard';
 import type { DashboardState } from '../types/dashboard';
 
 export const useDashboardData = () => {
@@ -30,15 +30,15 @@ export const useDashboardData = () => {
 
     try {
       const results = await Promise.allSettled([
-        api.get('/dashboard/stats'),
-        api.get('/dashboard/revenue'),
-        api.get('/dashboard/orders/stats'),
-        api.get('/dashboard/orders/recent'),
-        api.get('/dashboard/products/top'),
-        api.get('/dashboard/products/low-stock'),
-        api.get('/dashboard/analytics/orders'),
-        api.get('/dashboard/analytics/users'),
-        api.get('/dashboard/activity'),
+        dashboardApi.getDashboardStats(),
+        dashboardApi.getRevenueStats(),
+        dashboardApi.getOrderStats(),
+        dashboardApi.getRecentOrders(),
+        dashboardApi.getTopProducts(),
+        dashboardApi.getLowStockProducts(),
+        dashboardApi.getOrderAnalytics(),
+        dashboardApi.getUserGrowth(),
+        dashboardApi.getRecentActivity(),
       ]);
 
       const [
@@ -56,47 +56,47 @@ export const useDashboardData = () => {
       setData({
         stats:
           statsRes.status === 'fulfilled'
-            ? statsRes.value.data?.data ?? null
+            ? statsRes.value ?? null
             : null,
 
         revenue:
           revenueRes.status === 'fulfilled'
-            ? revenueRes.value.data?.data ?? null
+            ? revenueRes.value ?? null
             : null,
 
         orderStats:
           orderStatsRes.status === 'fulfilled'
-            ? orderStatsRes.value.data?.data ?? null
+            ? orderStatsRes.value ?? null
             : null,
 
         recentOrders:
           recentOrdersRes.status === 'fulfilled'
-            ? recentOrdersRes.value.data?.data ?? []
+            ? recentOrdersRes.value ?? []
             : [],
 
         topProducts:
           topProductsRes.status === 'fulfilled'
-            ? topProductsRes.value.data?.data ?? []
+            ? topProductsRes.value ?? []
             : [],
 
         lowStockProducts:
           lowStockRes.status === 'fulfilled'
-            ? lowStockRes.value.data?.data ?? []
+            ? lowStockRes.value ?? []
             : [],
 
         orderAnalytics:
           orderAnalyticsRes.status === 'fulfilled'
-            ? orderAnalyticsRes.value.data?.data ?? []
+            ? orderAnalyticsRes.value ?? []
             : [],
 
         userAnalytics:
           userAnalyticsRes.status === 'fulfilled'
-            ? userAnalyticsRes.value.data?.data ?? []
+            ? userAnalyticsRes.value ?? []
             : [],
 
         recentActivity:
           activityRes.status === 'fulfilled'
-            ? activityRes.value.data?.data ?? []
+            ? activityRes.value ?? []
             : [],
 
         isLoading: false,
@@ -118,6 +118,6 @@ export const useDashboardData = () => {
 
   return {
     ...data,
-    refetch: fetchDashboard, // 🔥 optional but useful
+    refetch: fetchDashboard,
   };
 };
