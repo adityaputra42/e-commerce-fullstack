@@ -129,13 +129,13 @@ const PaymentMethodPage = () => {
             </div>
           ))}
 
-          <button className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group min-h-[320px]">
+          <button className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group min-h-80">
              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all">
                 <Plus className="w-8 h-8 text-slate-400 group-hover:text-primary" />
              </div>
              <div className="text-center">
                 <p className="text-sm font-bold text-slate-900">Add Payment Method</p>
-                <p className="text-xs text-slate-400 mt-1 max-w-[150px]">Support more banks or digital wallets</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-37.5">Support more banks or digital wallets</p>
              </div>
           </button>
         </div>

@@ -351,7 +351,7 @@ func seedProducts() error {
 			Description: "Gamis syari berbahan wolfis premium, nyaman dipakai seharian. Cocok untuk acara formal maupun santai",
 			Price:       275000,
 			CategoryID:  gamisCategory.ID,
-			Images:      "https://example.com/products/gamis-syari.jpg",
+			Images:      "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//92/MTA-75004802/no_brand_abaya_zahra_limitid_edition_full01_gdime8vw.jpg",
 			Rating:      4.8,
 		}
 		if err := DB.Create(&product1).Error; err != nil {
@@ -359,14 +359,15 @@ func seedProducts() error {
 		}
 
 		colors := []struct {
-			Name  string
-			Color string
+			Name   string
+			Color  string
+			Images string
 		}{
-			{"Navy", "#000080"},
-			{"Maroon", "#800000"},
-			{"Dark Green", "#006400"},
-			{"Black", "#000000"},
-			{"Dusty Pink", "#DCAE96"},
+			{"Navy", "#000080", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/110/MTA-179396237/brd-44261_gamis-syari-set-hijab-khimar-ceruty-premium-by-andini-group-ori-jumbo-standar-seragaman-fashion-muslimah-terbaru-terlaris_full02-e1b33b18.jpg"},
+			{"Maroon", "#800000", "https://img.lazcdn.com/g/p/68ed4884f2da0a5667007c7fb0ccbecc.jpg_720x720q80.jpg"},
+			{"Dark Green", "#006400", "https://static.desty.app/desty-omni/20240325/80626df11feb4261a5b9dc1a756e4ca7.jpg?x-oss-process=image/format,webp"},
+			{"Black", "#000000", "https://cdn1-production-images-kly.akamaized.net/U310EfKS_F_JJ0dd9-PC6MVGt0o=/500x667/smart/filters:quality(75):strip_icc()/kly-media-production/medias/5339829/original/067980900_1757131082-e0f38f98-d5fd-4d5f-bf8d-37f8bd2b2a87.jpg"},
+			{"Dusty Pink", "#DCAE96", "https://img.lazcdn.com/g/ff/kf/S54750a774d5040bdb4956fa2f146ecc7o.jpg_720x720q80.jpg"},
 		}
 
 		sizes := []string{"S", "M", "L", "XL", "XXL"}
@@ -376,7 +377,7 @@ func seedProducts() error {
 				ProductID: product1.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/gamis-syari-%s.jpg", c.Name),
+				Images:    c.Images,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -405,7 +406,7 @@ func seedProducts() error {
 			Description: "Gamis set dengan khimar, busui friendly dengan resleting depan. Bahan katun rayon adem dan tidak mudah kusut",
 			Price:       320000,
 			CategoryID:  gamisCategory.ID,
-			Images:      "https://example.com/products/gamis-busui.jpg",
+			Images:      "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/106/MTA-157206948/br-m036969-01094_gamis-o-ring-o-ring-rempel-busui-friendly-cod-wanita-premium-berkualitas_full01-efdded63.jpg",
 			Rating:      4.9,
 		}
 		if err := DB.Create(&product2).Error; err != nil {
@@ -413,14 +414,15 @@ func seedProducts() error {
 		}
 
 		colors := []struct {
-			Name  string
-			Color string
+			Name   string
+			Color  string
+			Images string
 		}{
-			{"Mint Green", "#98FF98"},
-			{"Baby Blue", "#89CFF0"},
-			{"Lavender", "#E6E6FA"},
-			{"Cream", "#FFFDD0"},
-			{"Soft Grey", "#D3D3D3"},
+			{"Mint Green", "#98FF98", "https://img.lazcdn.com/g/p/1eafd95350a27c04bb378c1d4e2cf178.jpg_720x720q80.jpg"},
+			{"Baby Blue", "#89CFF0", "https://ethica-collection.com/wp-content/uploads/2023/10/AYUMI-409-GREEN-WP-4-1024x1024.webp?w=1024&h=1024&q=90"},
+			{"Lavender", "#E6E6FA", "https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/36fffd0a36c749a499108b82b1b55bea~tplv-o3syd03w52-resize-webp:800:800.webp?dr=15584&t=555f072d&ps=933b5bde&shp=6ce186a1&shcp=e1be8f53&idc=my2&from=1826719393"},
+			{"Cream", "#FFFDD0", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/110/MTA-179338844/no_brand_pussat_ashiya_one_set_gamis_syar-i_-_french_khimar_crinkle_airflow_premium_dress_syari_set_hijab_wanita_muslim_full01_b479cd14.jpg"},
+			{"Soft Grey", "#D3D3D3", "https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/a73998fb39014bdbbfd3047977867d06~tplv-aphluv4xwc-resize-webp:800:800.webp?dr=15584&t=555f072d&ps=933b5bde&shp=6ce186a1&shcp=e1be8f53&idc=my2&from=1826719393"},
 		}
 
 		sizes := []string{"M", "L", "XL", "XXL", "JUMBO"}
@@ -430,7 +432,7 @@ func seedProducts() error {
 				ProductID: product2.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/gamis-busui-%s.jpg", c.Name),
+				Images:    c.Images,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -459,7 +461,7 @@ func seedProducts() error {
 			Description: "Hijab voal import premium, bahan lembut dan adem, tidak licin. Ukuran 115x115cm",
 			Price:       45000,
 			CategoryID:  hijabCategory.ID,
-			Images:      "https://example.com/products/hijab-voal.jpg",
+			Images:      "https://www.umamascarves.co.id/wp-content/uploads/2024/04/Cover-4.jpg",
 			Rating:      4.7,
 		}
 		if err := DB.Create(&product3).Error; err != nil {
@@ -469,15 +471,16 @@ func seedProducts() error {
 		colors := []struct {
 			Name  string
 			Color string
+			Image string
 		}{
-			{"Black", "#000000"},
-			{"White", "#FFFFFF"},
-			{"Navy", "#000080"},
-			{"Maroon", "#800000"},
-			{"Dusty Pink", "#DCAE96"},
-			{"Milo", "#C19A6B"},
-			{"Army Green", "#4B5320"},
-			{"Chocolate", "#D2691E"},
+			{"Black", "#000000", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//103/MTA-87495151/no_brand_jilbab_hijab_kerudung_muslimah_segiempat_voal_paris_premium_110x110cm_full03_4fc403fe.jpg"},
+			{"White", "#FFFFFF", "https://img.lazcdn.com/g/ff/kf/S7df725e9786e4362bd5b61e545435c15b.jpg_720x720q80.jpg"},
+			{"Navy", "#000080", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/102/MTA-174474074/authentism_kerudung-segi-empat-polos-voal-ultrafine-premium-superfine-hijab-authentism-rachita-voal_full02.jpg"},
+			{"Maroon", "#800000", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/112/MTA-179085936/alya-hijab-by-naja_adzana-voal-segiempat-alyahijabbynaja_full07.jpg"},
+			{"Dusty Pink", "#DCAE96", "https://www.hijabwanitacantik.com/cdn/shop/files/GalaxySky_aca3a48a-d4c6-4c94-ac05-ce6ddaec3311_grande.jpg?v=1756709659"},
+			{"Milo", "#C19A6B", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-148317862/lozy_hijab_lozy_hijab_-_kirana_paris_plain_japan_milo_full01_e8k12c2d.jpg"},
+			{"Army Green", "#4B5320", "https://lozy.id/cdn/shop/files/SQUARE21_9eb64f6e-a8fd-40fa-83c3-38f06670727b_800x.jpg?v=1710404451"},
+			{"Chocolate", "#D2691E", "https://img.id.my-best.com/product_images/7654c5bac371cbcc17af8ae3923368c4.png?ixlib=rails-4.3.1&q=70&lossless=0&w=800&h=800&fit=clip&s=36308e5f425dbea19cd5f7b9ba694fe2"},
 		}
 
 		for _, c := range colors {
@@ -485,7 +488,7 @@ func seedProducts() error {
 				ProductID: product3.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/hijab-voal-%s.jpg", c.Name),
+				Images:    c.Image,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -512,7 +515,7 @@ func seedProducts() error {
 			Description: "Pashmina diamond italiano, bahan premium tidak menerawang, tekstur diamond yang elegan. Ukuran 75x200cm",
 			Price:       65000,
 			CategoryID:  hijabCategory.ID,
-			Images:      "https://example.com/products/pashmina-diamond.jpg",
+			Images:      "https://admincerdas.s3.ap-southeast-1.amazonaws.com/20201128/15515-78e6c6bf5b353eb5e89e53ba6bfe104b.jpg",
 			Rating:      4.8,
 		}
 		if err := DB.Create(&product4).Error; err != nil {
@@ -563,7 +566,7 @@ func seedProducts() error {
 			Description: "Kemeja wanita berbahan katun supernova, nyaman dan tidak gerah. Cocok untuk kerja dan hangout",
 			Price:       135000,
 			CategoryID:  kemejaCategory.ID,
-			Images:      "https://example.com/products/kemeja-wanita.jpg",
+			Images:      "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/107/MTA-160765549/mineola_mineola_kemeja_wanita_katun_premium_impor_salur_beige_variasi_kantong_full08_piv8p8l8.jpg",
 			Rating:      4.6,
 		}
 		if err := DB.Create(&product5).Error; err != nil {
@@ -617,7 +620,7 @@ func seedProducts() error {
 			Description: "Dress casual dengan model trendy, bahan katun rayon yang adem dan nyaman. Bisa untuk daily maupun hangout",
 			Price:       165000,
 			CategoryID:  dressCategory.ID,
-			Images:      "https://example.com/products/dress-casual.jpg",
+			Images:      "https://parasayu.net/wp-content/uploads/2020/12/Rok-kaos-dan-outer.jpg",
 			Rating:      4.7,
 		}
 		if err := DB.Create(&product6).Error; err != nil {

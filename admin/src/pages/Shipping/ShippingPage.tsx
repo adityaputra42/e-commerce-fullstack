@@ -3,6 +3,7 @@ import { shippingApi } from '../../services/api-services';
 import type { ShippingMethod as ApiShippingMethod } from '../../types/api';
 import { Truck, Plus, Package, Edit3, Trash2 } from 'lucide-react';
 
+
 interface ShippingMethod extends ApiShippingMethod {
   state: string; // For UI backward compatibility
 }
@@ -20,11 +21,9 @@ const ShippingPage = () => {
     setIsLoading(true);
     try {
       const data = await shippingApi.getShippingMethods();
-      const mappedData = (data || []).map(m => ({
-        ...m,
-        state: m.is_active ? 'active' : 'inactive'
-      }));
-      setShippingMethods(mappedData);
+      console.log("data shipping => ",data)
+  
+      setShippingMethods(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch shipping methods');
     } finally {
@@ -78,7 +77,7 @@ const ShippingPage = () => {
                         <span className="text-slate-900 font-bold">2-3 Days</span>
                     </div>
                     <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-                        <div className="bg-indigo-500 h-full w-[70%]" />
+                        <div className="bg-secondary h-full w-[70%]" />
                     </div>
                     <div className="flex justify-between items-center text-sm">
                         <span className="text-slate-500 font-medium">Express Delivery</span>

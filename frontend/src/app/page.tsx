@@ -177,7 +177,7 @@ export default function Home() {
       <section className="pb-32 container mx-auto px-6">
           <div className="bg-primary rounded-[4rem] p-12 md:p-24 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-32 -translate-y-32 group-hover:scale-110 transition-transform duration-1000" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500 rounded-full -translate-x-16 translate-y-16" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary rounded-full -translate-x-16 translate-y-16" />
               
               <div className="relative z-10 max-w-2xl space-y-8">
                   <h2 className="text-4xl md:text-6xl font-black text-white leading-tight italic tracking-tight uppercase underline decoration-white/30 underline-offset-8">

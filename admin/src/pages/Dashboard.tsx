@@ -97,7 +97,7 @@ const DashboardPage = () => {
           </div>
 
           {userAnalytics.length > 0 ? (
-            <div className="h-[300px] w-full">
+            <div className="h-75 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={userAnalytics} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -128,7 +128,7 @@ const DashboardPage = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-[300px] flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            <div className="h-75 flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
                <p className="text-slate-400 text-sm">No analytics data available</p>
             </div>
           )}
@@ -139,13 +139,13 @@ const DashboardPage = () => {
           <h2 className="text-lg font-bold text-slate-900 mb-6">Recent Activity</h2>
 
           {recentActivity.length > 0 ? (
-            <div className="flex-1 space-y-6 overflow-y-auto max-h-[350px] pr-2 custom-scrollbar">
+            <div className="flex-1 space-y-6 overflow-y-auto max-h-87.5 pr-2 custom-scrollbar">
               {recentActivity.map((activity) => (
                 <div
                   key={activity.id}
                   className="relative pl-6 pb-6 last:pb-0 border-l border-slate-100 last:border-0"
                 >
-                  <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-white"></div>
+                  <div className="absolute -left-1.25 top-1.5 w-2.5 h-2.5 rounded-full bg-secondary ring-4 ring-white"></div>
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold text-slate-900">
                       {activity.user?.username || 'System'}

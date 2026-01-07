@@ -303,7 +303,7 @@ export interface ShippingMethod {
   description: string;
   price: number;
   estimated_days: number;
-  is_active: boolean;
+  state: string;
   created_at: string;
   updated_at: string;
 }

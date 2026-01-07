@@ -1,4 +1,4 @@
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
@@ -8,9 +8,6 @@ import { categoriesApi } from '../../services/api-services';
 import type { Category } from '../../services/api-services/categories';
 import { Plus, Trash, X, Image as ImageIcon } from 'lucide-react';
 
-// === TYPES ===
-// Removed local Category interface
-
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,7 +15,6 @@ interface ProductFormModalProps {
   onSave: (formData: FormData, productId: number | null) => void;
 }
 
-// === ZOD SCHEMA ===
 const sizeSchema = z.object({
   id: z.number().optional(),
   size: z.string().min(1, 'Size required'),
@@ -39,7 +35,7 @@ const productSchema = z.object({
   price: z.number().positive('Price must be positive'),
   category_id: z.number().positive('Category is required'),
   image: z.any().optional().nullable(),
-  color_variants: z.array(colorVariantSchema).optional(),
+  color_varians: z.array(colorVariantSchema).optional(),
 });
 
 interface ProductFormInputs {
@@ -48,7 +44,7 @@ interface ProductFormInputs {
   price: number;
   category_id: number;
   image?: any;
-  color_variants?: {
+  color_varians?: {
     id?: number;
     name: string;
     color: string;
@@ -92,13 +88,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       description: '',
       price: 0,
       category_id: 0,
-      color_variants: [],
+      color_varians: [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'color_variants',
+    name: 'color_varians',
   });
 
   const mainImageFile = watch('image');
@@ -134,7 +130,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         description: product.description || '',
         price: product.price,
         category_id: product.category?.id || product.category_id,
-        color_variants: formVariants,
+        color_varians: formVariants,
         image: null,
       });
       setMainImagePreview(product.images);
@@ -144,7 +140,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         description: '',
         price: 0,
         category_id: 0,
-        color_variants: [],
+        color_varians: [],
         image: null,
       });
       setMainImagePreview(null);
@@ -162,8 +158,8 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       formData.append('image', data.image[0]);
     }
 
-    if (data.color_variants && data.color_variants.length > 0) {
-        const variantsMetadata = data.color_variants.map((cv) => {
+    if (data.color_varians && data.color_varians.length > 0) {
+        const variantsMetadata = data.color_varians.map((cv) => {
             return {
                 id: cv.id || null, 
                 name: cv.name,
@@ -178,7 +174,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         
         formData.append('color_varian', JSON.stringify(variantsMetadata));
 
-        data.color_variants.forEach((cv, index) => {
+        data.color_varians.forEach((cv, index) => {
              if (cv.image && cv.image[0]) {
                  if (product && cv.id) {
                      // For Update: use color_image_ID
@@ -203,7 +199,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -213,11 +209,11 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
-                <Transition.Child
+                <TransitionChild
                     as={Fragment}
                     enter="ease-out duration-300"
                     enterFrom="opacity-0 scale-95"
@@ -226,12 +222,12 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     leaveFrom="opacity-100 scale-100"
                     leaveTo="opacity-95"
                 >
-                    <Dialog.Panel className="w-full max-w-4xl rounded-2xl md:rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+                    <DialogPanel className="w-full max-w-4xl rounded-2xl md:rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
                         <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                             <div>
-                                <Dialog.Title className="text-xl font-bold text-slate-900">
+                                <DialogTitle className="text-xl font-bold text-slate-900">
                                     {product ? 'Edit Product' : 'Create New Product'}
-                                </Dialog.Title>
+                                </DialogTitle>
                                 <p className="text-xs text-slate-500 font-medium">Fill in the details below to save your product.</p>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all">
@@ -314,18 +310,18 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Color Name</label>
-                                                    <input {...register(`color_variants.${index}.name` as const)} placeholder="e.g. Jet Black" className="w-full bg-white border border-slate-100 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none" />
+                                                    <input {...register(`color_varians.${index}.name` as const)} placeholder="e.g. Jet Black" className="w-full bg-white border border-slate-100 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none" />
                                                 </div>
                                                 <div className="space-y-1">
                                                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Hex Code</label>
                                                      <div className="relative">
-                                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-200" style={{ backgroundColor: watch(`color_variants.${index}.color`) || '#fff' }}></div>
-                                                        <input {...register(`color_variants.${index}.color` as const)} placeholder="#000000" className="w-full bg-white border border-slate-100 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none font-mono" />
+                                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-200" style={{ backgroundColor: watch(`color_varians.${index}.color`) || '#fff' }}></div>
+                                                        <input {...register(`color_varians.${index}.color` as const)} placeholder="#000000" className="w-full bg-white border border-slate-100 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none font-mono" />
                                                      </div>
                                                 </div>
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Variant Image</label>
-                                                    <input type="file" accept="image/*" {...register(`color_variants.${index}.image` as const)} className="text-[10px] font-medium text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-600 hover:file:bg-slate-200 w-full" />
+                                                    <input type="file" accept="image/*" {...register(`color_varians.${index}.image` as const)} className="text-[10px] font-medium text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-600 hover:file:bg-slate-200 w-full" />
                                                 </div>
                                             </div>
 
@@ -354,8 +350,8 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                 {product ? 'Update Product Details' : 'Publish Product to Store'}
                             </button>
                         </div>
-                    </Dialog.Panel>
-                </Transition.Child>
+                    </DialogPanel>
+                </TransitionChild>
             </div>
         </div>
       </Dialog>
@@ -366,7 +362,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `color_variants.${nestIndex}.sizes`,
+    name: `color_varians.${nestIndex}.sizes`,
   });
 
   return (
@@ -376,11 +372,11 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
             {fields.map((item, k) => (
                  <div key={item.id} className="flex gap-2 items-center bg-white p-2 border border-slate-100 rounded-lg shadow-sm animate-in zoom-in-95 duration-200">
                     <div className="space-y-0.5">
-                       <input {...register(`color_variants.${nestIndex}.sizes.${k}.size` as const)} placeholder="Size" className="w-16 border-none p-0 text-xs font-bold text-slate-700 placeholder:text-slate-300 focus:ring-0" />
+                       <input {...register(`color_varians.${nestIndex}.sizes.${k}.size` as const)} placeholder="Size" className="w-16 border-none p-0 text-xs font-bold text-slate-700 placeholder:text-slate-300 focus:ring-0" />
                     </div>
                     <div className="w-px h-4 bg-slate-100"></div>
                      <div className="space-y-0.5">
-                       <input type="number" {...register(`color_variants.${nestIndex}.sizes.${k}.stock` as const, { valueAsNumber: true })} placeholder="Qty" className="w-14 border-none p-0 text-xs font-bold text-slate-700 placeholder:text-slate-300 focus:ring-0" />
+                       <input type="number" {...register(`color_varians.${nestIndex}.sizes.${k}.stock` as const, { valueAsNumber: true })} placeholder="Qty" className="w-14 border-none p-0 text-xs font-bold text-slate-700 placeholder:text-slate-300 focus:ring-0" />
                     </div>
                      <button type="button" onClick={() => remove(k)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors">
                         <Trash className="w-3.5 h-3.5" />
@@ -395,7 +391,7 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
                  <Plus className="w-3 h-3" /> Add Size
              </button>
         </div>
-        {errors.color_variants?.[nestIndex]?.sizes?.message && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.color_variants[nestIndex].sizes.message}</p>}
+        {errors.color_varians?.[nestIndex]?.sizes?.message && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.color_varians[nestIndex].sizes.message}</p>}
     </div>
   );
 }
