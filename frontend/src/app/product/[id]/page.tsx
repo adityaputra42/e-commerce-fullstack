@@ -58,7 +58,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-         <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin" />
+         <div className="w-16 h-16 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               <button 
                 onClick={() => setActiveImage(product.images)}
                 className={`w-24 h-24 rounded-2xl overflow-hidden border-2 shrink-0 transition-all ${
-                  activeImage === product.images ? 'border-indigo-600 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                  activeImage === product.images ? 'border-teal-600 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
                  <img src={product.images} className="w-full h-full object-cover" />
@@ -126,7 +126,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                         setSelectedVariant(v);
                     }}
                     className={`w-24 h-24 rounded-2xl overflow-hidden border-2 shrink-0 transition-all ${
-                      activeImage === v.images ? 'border-indigo-600 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                      activeImage === v.images ? 'border-teal-600 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                      <img src={v.images} className="w-full h-full object-cover" />
@@ -172,7 +172,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                                 }
                             }}
                             className={`w-10 h-10 rounded-full border-2 transition-all p-1 ${
-                                selectedVariant?.id === v.id ? 'border-indigo-600 scale-110 shadow-lg' : 'border-slate-100'
+                                selectedVariant?.id === v.id ? 'border-teal-600 scale-110 shadow-lg' : 'border-slate-100'
                             }`}
                          >
                             <div className="w-full h-full rounded-full" style={{ backgroundColor: v.color }} />
@@ -191,9 +191,9 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                             key={s.id}
                             disabled={s.stock === 0}
                             onClick={() => setSelectedSize(s.size)}
-                            className={`min-w-[50px] h-12 flex items-center justify-center px-4 rounded-xl text-xs font-black uppercase tracking-tighter transition-all ${
+                            className={`min-w-12.5 h-12 flex items-center justify-center px-4 rounded-xl text-xs font-black uppercase tracking-tighter transition-all ${
                                 selectedSize === s.size 
-                                ? 'bg-primary text-white shadow-xl shadow-indigo-600/20' 
+                                ? 'bg-primary text-white shadow-xl shadow-teal-600/20' 
                                 : s.stock === 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed border-dashed border-2 border-slate-200' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                             }`}
                          >
@@ -224,20 +224,20 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
 
               <button 
                 onClick={handleOrder}
-                className="grow h-16 w-full px-10 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group"
+                className="grow h-16 w-full px-10 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 text-sm font-black uppercase tracking-widest hover:bg-secondary transition-all shadow-2xl shadow-teal-600/30 active:scale-95 group"
               >
                  <ShoppingBag className="w-5 h-5 group-hover:-rotate-12 transition-transform" />
                  Buy & Deliver Now
               </button>
               
-              <button className="h-16 w-16 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:border-indigo-600 shrink-0">
+              <button className="h-16 w-16 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:text-primary transition-all hover:border-teal-600 shrink-0">
                  <Share2 className="w-5 h-5" />
               </button>
            </div>
 
            {/* Trust Badges */}
            <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="flex items-center gap-3 p-4 rounded-4xl bg-indigo-50/50 border border-indigo-100/50">
+              <div className="flex items-center gap-3 p-4 rounded-4xl bg-teal-50/50 border border-teal-100/50">
                  <Truck className="w-6 h-6 text-primary" />
                  <div>
                     <p className="text-[10px] font-black text-slate-900 uppercase">Premium Shipping</p>

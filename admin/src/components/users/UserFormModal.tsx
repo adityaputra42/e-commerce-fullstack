@@ -124,12 +124,12 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">First Name</label>
-                            <input {...register('first_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
+                            <input {...register('first_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium" />
                             {errors.first_name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.first_name.message}</p>}
                         </div>
                         <div className="space-y-1.5 focus-within:text-primary transition-colors">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-                            <input {...register('last_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
+                            <input {...register('last_name')} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium" />
                             {errors.last_name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.last_name.message}</p>}
                         </div>
                     </div>
@@ -138,7 +138,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                         <div className="relative">
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input type="email" {...register('email')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" />
+                            <input type="email" {...register('email')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" />
                         </div>
                         {errors.email && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.email.message}</p>}
                     </div>
@@ -147,7 +147,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
                         <div className="relative">
                             <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input {...register('username')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-semibold" />
+                            <input {...register('username')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-semibold" />
                         </div>
                         {errors.username && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.username.message}</p>}
                     </div>
@@ -157,7 +157,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Initial Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input type="password" {...register('password')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" />
+                                <input type="password" {...register('password')} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" />
                             </div>
                             {errors.password && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1">{errors.password.message}</p>}
                         </div>
@@ -167,7 +167,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Assign Security Role</label>
                         <div className="relative">
                             <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                            <select {...register('role_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-8 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-bold appearance-none">
+                            <select {...register('role_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 pl-10 pr-8 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-bold appearance-none">
                                 <option value="">Select a role...</option>
                                 {roles?.map(role => (
                                     <option key={role.id} value={role.id}>{role.name}</option>
@@ -181,7 +181,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                         <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" disabled={isSubmitting} className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 disabled:opacity-50">
+                        <button type="submit" disabled={isSubmitting} className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100 disabled:opacity-50">
                             {isSubmitting ? 'Saving...' : user ? 'Save Changes' : 'Create Account'}
                         </button>
                     </div>

@@ -146,7 +146,7 @@ const UsersPage = () => {
         </div>
         <button 
             onClick={() => handleOpenModal(null)}
-            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Add New User</span>
@@ -156,13 +156,13 @@ const UsersPage = () => {
       {/* Filter & Search Bar */}
       <div className="premium-card p-4 flex flex-col md:flex-row gap-4 items-center">
          <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search users by name, email or username..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none"
+              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none"
             />
          </div>
          <div className="flex items-center gap-2">
@@ -180,7 +180,7 @@ const UsersPage = () => {
       <div className="premium-card overflow-hidden">
         {isLoading ? (
           <div className="p-20 flex flex-col items-center justify-center gap-4">
-             <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+             <div className="w-10 h-10 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin"></div>
              <p className="text-slate-500 font-medium italic">Fetching users...</p>
           </div>
         ) : error ? (

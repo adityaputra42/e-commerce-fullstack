@@ -67,7 +67,7 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({
                       id="current_password" 
                       type="password" 
                       {...register('current_password')} 
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" 
                     />
                     {errors.current_password && <p className="text-sm text-red-500">{errors.current_password.message}</p>}
                   </div>
@@ -79,7 +79,7 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({
                       id="new_password" 
                       type="password" 
                       {...register('new_password')} 
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" 
                     />
                     {errors.new_password && <p className="text-sm text-red-500">{errors.new_password.message}</p>}
                   </div>
@@ -91,7 +91,7 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({
                       id="confirm_password" 
                       type="password" 
                       {...register('confirm_password')} 
-                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                      className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" 
                     />
                     {errors.confirm_password && <p className="text-sm text-red-500">{errors.confirm_password.message}</p>}
                   </div>
@@ -105,7 +105,7 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({
                     </button>
                     <button 
                       type="submit" 
-                      className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-teal-500"
                     >
                       Update Password
                     </button>

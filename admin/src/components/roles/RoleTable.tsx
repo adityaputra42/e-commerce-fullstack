@@ -27,7 +27,7 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, onEdit, onDelete, onViewDe
               <tr key={role.id} className="group hover:bg-slate-50/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl ${role.is_system_role ? 'bg-indigo-50 text-primary' : 'bg-emerald-50 text-emerald-600'}`}>
+                    <div className={`p-2 rounded-xl ${role.is_system_role ? 'bg-teal-50 text-primary' : 'bg-emerald-50 text-emerald-600'}`}>
                         {role.is_system_role ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
                     </div>
                     <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{role.name}</span>
@@ -53,14 +53,14 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, onEdit, onDelete, onViewDe
                    <div className="flex items-center justify-end gap-1">
                       <button 
                         onClick={() => onViewDetails(role)} 
-                        className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-primary hover:bg-teal-50 rounded-lg transition-all"
                         title="View Permissions"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button 
                         onClick={() => onEdit(role)} 
-                        className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-primary hover:bg-teal-50 rounded-lg transition-all"
                         title="Edit Role"
                       >
                         <Edit3 className="w-4 h-4" />

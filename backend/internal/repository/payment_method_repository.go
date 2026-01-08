@@ -86,6 +86,7 @@ func (a *PaymentMethodRepositoryImpl) FindById(paramId uint) (*models.PaymentMet
 
 // Update implements PaymentMethodRepository.
 func (a *PaymentMethodRepositoryImpl) Update(param models.PaymentMethod, tx *gorm.DB) (models.PaymentMethod, error) {
+
 	var result models.PaymentMethod
 
 	db := database.DB
@@ -93,7 +94,11 @@ func (a *PaymentMethodRepositoryImpl) Update(param models.PaymentMethod, tx *gor
 		db = tx
 	}
 
-	err := db.Model(&param).Updates(param).Error
+	err := db.
+		Model(&models.PaymentMethod{}).
+		Select("*").
+		Where("id = ?", param.ID).
+		Updates(param).Error
 	if err != nil {
 		return result, err
 	}
@@ -101,6 +106,7 @@ func (a *PaymentMethodRepositoryImpl) Update(param models.PaymentMethod, tx *gor
 	err = db.
 		Select("id", "bank_name", "account_number", "account_name", "is_active", "bank_images", "created_at", "updated_at").
 		First(&result, param.ID).Error
+
 	return result, err
 }
 

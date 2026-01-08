@@ -221,7 +221,7 @@ func (r *dashboardRepository) GetLowStockProducts(
 	var products []models.LowStockProduct
 
 	err := r.db.WithContext(ctx).
-		Table("size_varian sv").
+		Table("size_varians sv").
 		Select(`
 			p.id AS product_id,
 			p.name AS product_name,
@@ -230,7 +230,7 @@ func (r *dashboardRepository) GetLowStockProducts(
 			sv.stock AS stock,
 			p.price AS price
 		`).
-		Joins("JOIN color_varian cv ON cv.id = sv.color_varian_id").
+		Joins("JOIN color_varians cv ON cv.id = sv.color_varian_id").
 		Joins("JOIN products p ON p.id = cv.product_id").
 		Where("sv.stock <= ?", threshold).
 		Where("sv.deleted_at IS NULL").

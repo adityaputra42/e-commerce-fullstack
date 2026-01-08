@@ -78,7 +78,7 @@ const RolesPage = () => {
         </div>
         <button 
             onClick={() => handleOpenModal(null)}
-            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Create New Role</span>
@@ -88,7 +88,7 @@ const RolesPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
          <div className="lg:col-span-1 space-y-6">
             <div className="premium-card p-6 bg-linear-to-br from-slate-800 to-slate-900 text-white">
-                <Shield className="w-10 h-10 text-indigo-400 mb-4" />
+                <Shield className="w-10 h-10 text-teal-400 mb-4" />
                 <h3 className="text-lg font-bold">RBAC Policy</h3>
                 <p className="text-sm text-slate-400 mt-2 leading-relaxed">
                    Roles determine what actions users can perform. Always follow the principle of least privilege.
@@ -99,7 +99,7 @@ const RolesPage = () => {
                 </div>
             </div>
 
-            <div className="premium-card p-6 flex gap-3 border-l-4 border-indigo-500">
+            <div className="premium-card p-6 flex gap-3 border-l-4 border-teal-500">
                 <Info className="w-5 h-5 text-primary shrink-0" />
                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                    System roles like <span className="text-slate-900 font-bold">Super Admin</span> cannot be deleted or modified to ensure system stability.
@@ -111,7 +111,7 @@ const RolesPage = () => {
             <div className="premium-card overflow-hidden">
                 {isLoading && (
                   <div className="p-20 flex flex-col items-center justify-center gap-4">
-                     <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                     <div className="w-10 h-10 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin"></div>
                      <p className="text-slate-500 font-medium italic">Loading permissions...</p>
                   </div>
                 )}

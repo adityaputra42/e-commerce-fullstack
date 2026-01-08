@@ -88,7 +88,7 @@ const ProductsPage = () => {
         </div>
         <button 
             onClick={handleAddProduct}
-            className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto"
+            className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-200 flex items-center gap-2 self-start md:self-auto"
         >
           <Plus className="w-5 h-5" /> 
           <span>Add New Product</span>
@@ -98,11 +98,11 @@ const ProductsPage = () => {
       {/* Filter & Search Bar */}
       <div className="premium-card p-4 flex flex-col md:flex-row gap-4 items-center">
          <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search products..." 
-              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none"
+              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none"
             />
          </div>
          <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ const ProductsPage = () => {
       <div className="premium-card overflow-hidden">
         {isLoading ? (
           <div className="p-20 flex flex-col items-center justify-center gap-4">
-             <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+             <div className="w-10 h-10 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin"></div>
              <p className="text-slate-500 font-medium italic">Loading catalog...</p>
           </div>
         ) : error ? (
@@ -156,7 +156,7 @@ const ProductsPage = () => {
                   <tr key={product.id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-4">
-                        <div className="shrink-0 h-12 w-12 rounded-xl overflow-hidden ring-2 ring-slate-100 group-hover:ring-indigo-100 transition-all">
+                        <div className="shrink-0 h-12 w-12 rounded-xl overflow-hidden ring-2 ring-slate-100 group-hover:ring-teal-100 transition-all">
                           <img className="h-12 w-12 object-cover" src={Array.isArray(product.images) ? product.images[0] : (product.images || 'https://via.placeholder.com/80')} alt="" />
                         </div>
                         <div className="min-w-0">
@@ -183,7 +183,7 @@ const ProductsPage = () => {
                        <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => handleEditProduct(product)}
-                            className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
+                            className="p-2 text-slate-400 hover:text-primary hover:bg-teal-50 rounded-lg transition-all"
                             title="Edit Product"
                           >
                             <Edit3 className="w-4 h-4" />

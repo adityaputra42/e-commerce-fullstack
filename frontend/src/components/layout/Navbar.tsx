@@ -19,11 +19,11 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'glass-nav h-16 shadow-lg shadow-indigo-500/5' : 'bg-transparent h-20'
+      isScrolled ? 'glass-nav h-16 shadow-lg shadow-teal-500/5' : 'bg-transparent h-20'
     }`}>
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white scale-100 group-hover:scale-110 transition-transform shadow-lg shadow-indigo-600/30">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white scale-100 group-hover:scale-110 transition-transform shadow-lg shadow-teal-600/30">
             <ShoppingCart className="w-5 h-5 fill-current" />
           </div>
           <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">STORE<span className="text-primary">X</span></span>

@@ -30,12 +30,12 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-white selection:bg-indigo-100 overflow-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white selection:bg-teal-100 overflow-hidden">
       {/* Visual Side - Hidden on Mobile, Side on Desktop */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-primary overflow-hidden items-center justify-center p-12">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-400 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
         </div>
         
         <div className="relative z-10 max-w-lg text-center animate-in fade-in slide-in-from-left-8 duration-1000">
@@ -44,22 +44,22 @@ const LoginPage = () => {
               <span>Next Gen Admin Panel</span>
            </div>
            <h1 className="text-5xl xl:text-6xl font-black text-white leading-tight tracking-tighter mb-6">
-              Manage your store with <span className="text-indigo-200">Confidence.</span>
+              Manage your store with <span className="text-teal-200">Confidence.</span>
            </h1>
-           <p className="text-lg text-indigo-100 font-medium mb-12 leading-relaxed opacity-80">
+           <p className="text-lg text-teal-100 font-medium mb-12 leading-relaxed opacity-80">
               Experience the fastest way to handle orders, products, and customer insights in one unified dashboard.
            </p>
 
            <div className="grid grid-cols-2 gap-6">
               <div className="p-6 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 text-left">
-                 <ShieldCheck className="w-8 h-8 text-indigo-300 mb-4" />
+                 <ShieldCheck className="w-8 h-8 text-teal-300 mb-4" />
                  <h3 className="text-white font-bold mb-1">Secure</h3>
-                 <p className="text-indigo-200/60 text-xs">Military-grade protection for your data.</p>
+                 <p className="text-teal-200/60 text-xs">Military-grade protection for your data.</p>
               </div>
               <div className="p-6 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 text-left">
-                 <LayoutDashboard className="w-8 h-8 text-indigo-300 mb-4" />
+                 <LayoutDashboard className="w-8 h-8 text-teal-300 mb-4" />
                  <h3 className="text-white font-bold mb-1">Intuitive</h3>
-                 <p className="text-indigo-200/60 text-xs">Built for speed and ease of use.</p>
+                 <p className="text-teal-200/60 text-xs">Built for speed and ease of use.</p>
               </div>
            </div>
         </div>
@@ -67,11 +67,11 @@ const LoginPage = () => {
 
       {/* Form Side */}
       <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-20 bg-slate-50 relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-500 lg:hidden"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-teal-500 via-purple-500 to-teal-500 lg:hidden"></div>
         
         <div className="w-full max-w-md space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="text-center lg:text-left">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-200 mx-auto lg:mx-0 mb-6 group hover:rotate-6 transition-transform">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-teal-200 mx-auto lg:mx-0 mb-6 group hover:rotate-6 transition-transform">
                <Lock className="text-white w-8 h-8" />
             </div>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight">Welcome back!</h2>
@@ -82,11 +82,11 @@ const LoginPage = () => {
             <div className="space-y-1.5 focus-within:text-primary transition-colors">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Username / ID</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                 <input
                   type="text"
                   required
-                  className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-semibold"
+                  className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all font-semibold"
                   placeholder="admin_core"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -97,14 +97,14 @@ const LoginPage = () => {
             <div className="space-y-1.5 focus-within:text-primary transition-colors">
               <div className="flex items-center justify-between px-1">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                <a href="#" className="text-xs font-bold text-primary hover:text-indigo-700">Forgot?</a>
+                <a href="#" className="text-xs font-bold text-primary hover:text-teal-700">Forgot?</a>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                 <input
                   type="password"
                   required
-                  className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-semibold"
+                  className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all font-semibold"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -122,7 +122,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary text-white rounded-2xl py-4 font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+              className="w-full bg-primary text-white rounded-2xl py-4 font-bold shadow-xl shadow-teal-100 hover:bg-secondary hover:shadow-teal-200 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

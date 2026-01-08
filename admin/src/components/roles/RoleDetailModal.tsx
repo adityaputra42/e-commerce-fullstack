@@ -76,7 +76,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
                   </div>
 
                   {/* Permissions */}
-                  <div className="bg-indigo-50 p-4 rounded-lg">
+                  <div className="bg-teal-50 p-4 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                       <Key className="w-4 h-4 mr-2" />
                       Permissions ({role.permissions?.length || 0})
@@ -86,7 +86,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
                         {role.permissions.map((permission) => (
                           <div 
                             key={permission.id} 
-                            className="bg-white p-3 rounded-md border border-indigo-200 hover:border-indigo-300 transition-colors"
+                            className="bg-white p-3 rounded-md border border-teal-200 hover:border-teal-300 transition-colors"
                           >
                             <div className="flex items-start">
                               <Key className="w-4 h-4 mt-0.5 mr-2 text-primary shrink-0" />
@@ -101,7 +101,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ isOpen, onClose, role
                                   <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                     {permission.resource}
                                   </span>
-                                  <span className="ml-2 inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                  <span className="ml-2 inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-teal-100 text-teal-800">
                                     {permission.action}
                                   </span>
                                 </div>

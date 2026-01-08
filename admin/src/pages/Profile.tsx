@@ -80,10 +80,10 @@ const ProfilePage = () => {
         <div className="lg:col-span-1 space-y-6">
             <div className="premium-card p-8 flex flex-col items-center text-center">
                 <div className="relative group">
-                    <div className="w-24 h-24 rounded-3xl overflow-hidden ring-4 ring-indigo-50 shadow-xl shadow-indigo-100 group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-24 h-24 rounded-3xl overflow-hidden ring-4 ring-teal-50 shadow-xl shadow-teal-100 group-hover:scale-105 transition-transform duration-300">
                          <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=6366f1&color=fff&size=128`} alt="Profile" />
                     </div>
-                    <button className="absolute -bottom-2 -right-2 p-2 bg-primary text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-colors">
+                    <button className="absolute -bottom-2 -right-2 p-2 bg-primary text-white rounded-xl shadow-lg hover:bg-secondary transition-colors">
                         <Smartphone className="w-4 h-4" />
                     </button>
                 </div>
@@ -98,7 +98,7 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex items-center gap-3 text-sm text-slate-600">
                         <Shield className="w-4 h-4 text-slate-400" />
-                        <span className="px-2 py-0.5 bg-indigo-50 text-primary rounded-lg text-xs font-bold uppercase tracking-wider">Administrator</span>
+                        <span className="px-2 py-0.5 bg-teal-50 text-primary rounded-lg text-xs font-bold uppercase tracking-wider">Administrator</span>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@ const ProfilePage = () => {
             {/* Profile Form */}
             <div className="premium-card p-8">
                 <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 bg-indigo-50 text-primary rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-teal-50 text-primary rounded-xl flex items-center justify-center">
                         <UserIcon className="w-5 h-5" />
                     </div>
                     <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
@@ -129,7 +129,7 @@ const ProfilePage = () => {
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">First Name</label>
                             <input 
                                 {...profileRegister('first_name')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-slate-900 font-medium" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-900 font-medium" 
                             />
                             {profileErrors.first_name && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.first_name.message}</p>}
                         </div>
@@ -137,7 +137,7 @@ const ProfilePage = () => {
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Last Name</label>
                             <input 
                                 {...profileRegister('last_name')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-slate-900 font-medium" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-900 font-medium" 
                             />
                             {profileErrors.last_name && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.last_name.message}</p>}
                         </div>
@@ -149,7 +149,7 @@ const ProfilePage = () => {
                             <input 
                                 type="email" 
                                 {...profileRegister('email')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-slate-900 font-medium" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-900 font-medium" 
                             />
                             {profileErrors.email && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.email.message}</p>}
                         </div>
@@ -157,7 +157,7 @@ const ProfilePage = () => {
                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block ml-1">Username</label>
                             <input 
                                 {...profileRegister('username')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-slate-900 font-medium" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-900 font-medium" 
                             />
                             {profileErrors.username && <p className="mt-1 text-xs text-rose-500 font-medium">{profileErrors.username.message}</p>}
                         </div>
@@ -166,7 +166,7 @@ const ProfilePage = () => {
                     <button
                         type="submit"
                         disabled={isProfileSubmitting}
-                        className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 disabled:opacity-50"
+                        className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100 disabled:opacity-50"
                     >
                         {isProfileSubmitting ? 'Saving changes...' : 'Save Profile Changes'}
                     </button>
@@ -188,7 +188,7 @@ const ProfilePage = () => {
                         <input 
                             type="password" 
                             {...passwordRegister('current_password')} 
-                            className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" 
+                            className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" 
                         />
                         {passwordErrors.current_password && <p className="mt-1 text-xs text-rose-500 font-medium">{passwordErrors.current_password.message}</p>}
                     </div>
@@ -199,7 +199,7 @@ const ProfilePage = () => {
                             <input 
                                 type="password" 
                                 {...passwordRegister('new_password')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" 
                             />
                             {passwordErrors.new_password && <p className="mt-1 text-xs text-rose-500 font-medium">{passwordErrors.new_password.message}</p>}
                         </div>
@@ -208,7 +208,7 @@ const ProfilePage = () => {
                             <input 
                                 type="password" 
                                 {...passwordRegister('confirm_password')} 
-                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all" 
+                                className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all" 
                             />
                             {passwordErrors.confirm_password && <p className="mt-1 text-xs text-rose-500 font-medium">{passwordErrors.confirm_password.message}</p>}
                         </div>

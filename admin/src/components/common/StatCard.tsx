@@ -4,11 +4,11 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  color: 'indigo' | 'emerald' | 'amber' | 'rose' | 'blue' | 'green' | 'yellow' | 'red';
+  color: 'teal' | 'emerald' | 'amber' | 'rose' | 'blue' | 'green' | 'yellow' | 'red';
 }
 
 const colorMap = {
-  indigo: 'bg-indigo-50 text-primary ring-indigo-100',
+  teal: 'bg-teal-50 text-primary ring-teal-100',
   emerald: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
   amber: 'bg-amber-50 text-amber-600 ring-amber-100',
   rose: 'bg-rose-50 text-rose-600 ring-rose-100',

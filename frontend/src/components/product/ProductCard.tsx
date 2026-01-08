@@ -20,7 +20,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="relative aspect-4/5 overflow-hidden">
         {/* Badge */}
         <div className="absolute top-4 left-4 z-10">
-          <span className="px-3 py-1 bg-primary/90 text-white text-[10px] font-black uppercase tracking-widest rounded-full backdrop-blur-sm shadow-lg shadow-indigo-600/20">
+          <span className="px-3 py-1 bg-primary/90 text-white text-[10px] font-black uppercase tracking-widest rounded-full backdrop-blur-sm shadow-lg shadow-teal-600/20">
             {product.category?.name || 'NEW ARRIVAL'}
           </span>
         </div>

@@ -16,6 +16,7 @@ const PaymentMethodPage = () => {
     setIsLoading(true);
     try {
       const data = await paymentMethodsApi.getPaymentMethods();
+      console.log("payment method data => ",data);
       setMethods(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch:', error);
@@ -54,7 +55,7 @@ const PaymentMethodPage = () => {
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payment Methods</h1>
           <p className="text-slate-500 mt-1">Configure how your customers will pay for their orders.</p>
         </div>
-        <button className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center gap-2 self-start md:self-auto group">
+        <button className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-200 flex items-center gap-2 self-start md:self-auto group">
           <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
           <span>New Method</span>
         </button>
@@ -62,13 +63,13 @@ const PaymentMethodPage = () => {
 
       {isLoading ? (
         <div className="flex items-center justify-center p-20">
-            <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {methods.map((method) => (
             <div key={method.id} className="premium-card p-6 flex flex-col justify-between group overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform duration-700 opacity-50"></div>
+               <div className="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full translate-x-16 -translate-y-16 group-hover:scale-110 transition-transform duration-700 opacity-50"></div>
                
                <div className="relative">
                   <div className="flex items-start justify-between mb-6">
@@ -113,7 +114,7 @@ const PaymentMethodPage = () => {
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         method.is_active 
                         ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' 
-                        : 'bg-indigo-50 text-primary hover:bg-indigo-100'
+                        : 'bg-teal-50 text-primary hover:bg-teal-100'
                     }`}
                   >
                     {method.is_active ? <XCircle className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
@@ -129,7 +130,7 @@ const PaymentMethodPage = () => {
             </div>
           ))}
 
-          <button className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group min-h-80">
+          <button className="border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-teal-300 hover:bg-teal-50/30 transition-all group min-h-80">
              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all">
                 <Plus className="w-8 h-8 text-slate-400 group-hover:text-primary" />
              </div>

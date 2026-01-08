@@ -113,7 +113,6 @@ func (pm *PaymentMethodServiceImpl) UpdatePaymentMethod(param models.UpdatePayme
 	updated, err := pm.paymentMethodRepo.Update(*existing, nil)
 	if err != nil {
 
-		// rollback image replacement
 		if newImageURL != "" {
 			utils.DeleteFromSupabase(newImageURL)
 		}

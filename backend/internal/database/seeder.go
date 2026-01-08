@@ -525,13 +525,14 @@ func seedProducts() error {
 		colors := []struct {
 			Name  string
 			Color string
+			Image string
 		}{
-			{"Black", "#000000"},
-			{"Navy", "#000080"},
-			{"Dark Grey", "#696969"},
-			{"Caramel", "#C68E17"},
-			{"Terracotta", "#E2725B"},
-			{"Emerald", "#50C878"},
+			{"Black", "#000000", "https://s3.belanjapasti.com/media/image/pashmina-diamond-crepe-italiano-part-iii-655524.jpg"},
+			{"Navy", "#000080", "https://www.jagel.id/api/listimage/v/Hijab-Pashmina-Sabyan--Diamond-Italiano-Premium--Hijab-1-878605996c369f80.jpg"},
+			{"Dark Grey", "#696969", "https://s3-ap-southeast-1.amazonaws.com/plugolive/vendor/542/product/photo_2023-04-18_10-46-12_1681790127141.jpg"},
+			{"Caramel", "#C68E17", "https://admincerdas.s3.ap-southeast-1.amazonaws.com/20201128/15515-6ece68c8a34e56f0eb57b00bfa65f8bc.jpg"},
+			{"Terracotta", "#E2725B", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//91/MTA-10981431/elzatta_pashmina_polos_elzatta_selendang_selvia_anindita_full12_gqosovae.jpg"},
+			{"Emerald", "#50C878", "https://admincerdas.s3.ap-southeast-1.amazonaws.com/20201128/15515-7816e646dea786903d96eecf8ca4cddd.jpg"},
 		}
 
 		for _, c := range colors {
@@ -539,7 +540,7 @@ func seedProducts() error {
 				ProductID: product4.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/pashmina-diamond-%s.jpg", c.Name),
+				Images:    c.Image,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -566,7 +567,7 @@ func seedProducts() error {
 			Description: "Kemeja wanita berbahan katun supernova, nyaman dan tidak gerah. Cocok untuk kerja dan hangout",
 			Price:       135000,
 			CategoryID:  kemejaCategory.ID,
-			Images:      "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/107/MTA-160765549/mineola_mineola_kemeja_wanita_katun_premium_impor_salur_beige_variasi_kantong_full08_piv8p8l8.jpg",
+			Images:      "https://www.hijup.com/magazine/wp-content/uploads/2022/12/4b8d043b-oversize-katun-premium.jpeg",
 			Rating:      4.6,
 		}
 		if err := DB.Create(&product5).Error; err != nil {
@@ -576,12 +577,13 @@ func seedProducts() error {
 		colors := []struct {
 			Name  string
 			Color string
+			Image string
 		}{
-			{"White", "#FFFFFF"},
-			{"Black", "#000000"},
-			{"Soft Blue", "#89CFF0"},
-			{"Beige", "#F5F5DC"},
-			{"Pink", "#FFC0CB"},
+			{"White", "#FFFFFF", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/103/MTA-180348393/wulfi_wulfi_atasan_kemeja_putih_kerah_jatuh_white_untuk_kasual_kerja_kantor_lengan_panjang_full01_qp8oo3p2.jpg"},
+			{"Black", "#000000", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//catalog-image/97/MTA-139572024/no_brand_kemeja_laura_-_kemeja_basic_wanita_-_kemeja_polos_-_kemeja_kantor_full03_pl5s15pe.jpg"},
+			{"Soft Blue", "#89CFF0", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//109/MTA-51676579/no_brand_kemeja_wanita_polos_lengan_panjang_toyobo_full14_jpu9s6t8.jpg"},
+			{"Beige", "#F5F5DC", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/101/MTA-182255924/brd-136048_davelline-axelle-atasan-wanita-kemeja-kerah-pita-lengan-panjang-katun-premium_full04-db59df59.jpg"},
+			{"Pink", "#FFC0CB", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/101/MTA-155622485/zahra_signature_lezahrasignature_kemeja_katun_zahra_-_fit_l-xl-_atasan_muslim_wanita_blouse_polos_full01_e3gcd157.jpg"},
 		}
 
 		sizes := []string{"S", "M", "L", "XL"}
@@ -591,7 +593,7 @@ func seedProducts() error {
 				ProductID: product5.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/kemeja-wanita-%s.jpg", c.Name),
+				Images:    c.Image,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -630,12 +632,13 @@ func seedProducts() error {
 		colors := []struct {
 			Name  string
 			Color string
+			Image string
 		}{
-			{"Navy Floral", "#000080"},
-			{"Maroon Polka", "#800000"},
-			{"Sage Green", "#87AE73"},
-			{"Mustard", "#FFDB58"},
-			{"Coral", "#FF7F50"},
+			{"Navy Floral", "#000080", "https://www.deliahijab.com/wp-content/uploads/2021/04/Busana-Muslim-Lebaran-Karmila-Dress-Delia-Hijab-Navy.jpeg"},
+			{"Maroon Polka", "#800000", "https://www.hijup.com/magazine/wp-content/uploads/2024/04/1bfa5b00-dress-aksen-lilit-dan-tali.jpeg"},
+			{"Sage Green", "#87AE73", "https://www.hijup.com/magazine/wp-content/uploads/2023/02/7e707a1c-ruffle-sage-green-dress-hijab.jpeg"},
+			{"Mustard", "#FFDB58", "https://zizara.co.id/wp-content/uploads/2023/01/LINE_ALBUM_AliyaArkadewiAmoreAnika_230119_37.jpg"},
+			{"Coral", "#FF7F50", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//98/MTA-59346233/no_brand_jesla_fashion_kimmy_dress_mosscrape_baju_gamis_terbaru_simple_dress_casual_baju_wanita_terbaru_dres_elegant_gamis_simple_best_seller_full01_sthlifk5.jpg"},
 		}
 
 		sizes := []string{"M", "L", "XL", "XXL"}
@@ -645,7 +648,7 @@ func seedProducts() error {
 				ProductID: product6.ID,
 				Name:      c.Name,
 				Color:     c.Color,
-				Images:    fmt.Sprintf("https://example.com/products/dress-casual-%s.jpg", c.Name),
+				Images:    c.Image,
 			}
 			if err := DB.Create(&colorVariant).Error; err != nil {
 				return err
@@ -675,31 +678,31 @@ func seedPaymentMethods() error {
 			AccountName:   "PT E-Commerce Indonesia",
 			AccountNumber: "1234567890",
 			BankName:      "Bank BCA",
-			BankImages:    "https://example.com/banks/bca.png",
+			BankImages:    "https://www.bca.co.id/-/media/Feature/Card/List-Card/Tentang-BCA/Brand-Assets/Logo-BCA/Logo-BCA_Biru.png",
 		},
 		{
 			AccountName:   "PT E-Commerce Indonesia",
 			AccountNumber: "9876543210",
 			BankName:      "Bank Mandiri",
-			BankImages:    "https://example.com/banks/mandiri.png",
+			BankImages:    "https://e7.pngegg.com/pngimages/24/85/png-clipart-bank-mandiri-logo-credit-card-bank-text-logo.png",
 		},
 		{
 			AccountName:   "PT E-Commerce Indonesia",
 			AccountNumber: "5555666677",
 			BankName:      "Bank BRI",
-			BankImages:    "https://example.com/banks/bri.png",
+			BankImages:    "https://logobase.net/wp-content/uploads/2025/09/Bank-Rakyat-Indonesia-BRI-Logo.webp",
 		},
 		{
 			AccountName:   "PT E-Commerce Indonesia",
 			AccountNumber: "1111222233",
 			BankName:      "Bank BNI",
-			BankImages:    "https://example.com/banks/bni.png",
+			BankImages:    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg/1280px-Bank_Negara_Indonesia_logo_%282004%29.svg.png",
 		},
 		{
 			AccountName:   "PT E-Commerce Indonesia",
 			AccountNumber: "7777888899",
 			BankName:      "Bank CIMB Niaga",
-			BankImages:    "https://example.com/banks/cimb.png",
+			BankImages:    "https://e7.pngegg.com/pngimages/98/783/png-clipart-logo-cimb-brand-font-text-loan-text-logo.png",
 		},
 	}
 

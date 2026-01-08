@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 transition-transform group-hover:rotate-12">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-600/30 transition-transform group-hover:rotate-12">
                 <ShoppingBag className="w-5 h-5 fill-current" />
               </div>
               <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">Store<span className="text-primary">X</span></span>
@@ -51,9 +51,9 @@ const Footer = () => {
               <input 
                 type="email" 
                 placeholder="Your email address" 
-                className="w-full h-12 px-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm focus:border-indigo-500 outline-none transition-all" 
+                className="w-full h-12 px-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl text-sm focus:border-teal-500 outline-none transition-all" 
               />
-              <button className="w-full h-12 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20">Subscribe</button>
+              <button className="w-full h-12 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-secondary transition-colors shadow-lg shadow-teal-600/20">Subscribe</button>
             </form>
           </div>
         </div>

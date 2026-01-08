@@ -161,7 +161,7 @@ export interface ColorVariant {
   product_id: number;
   color_name: string;
   color_hex: string;
-  images: string[];
+  images: string | string[];
 }
 
 export interface ProductInput {

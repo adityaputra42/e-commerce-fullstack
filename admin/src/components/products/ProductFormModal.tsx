@@ -54,6 +54,7 @@ interface ProductFormInputs {
       size: string;
       stock: number;
     }[];
+    preview?: string | null;
   }[];
 }
 
@@ -118,6 +119,8 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         id: cv.id,
         name: cv.name,
         color: cv.color,
+        image: null,
+        preview: Array.isArray(cv.images) ? (cv.images.length > 0 ? cv.images[0] : null) : cv.images,
         sizes: cv.size_varian?.map((sv: any) => ({
              id: sv.id,
              size: sv.size,
@@ -174,15 +177,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         
         formData.append('color_varian', JSON.stringify(variantsMetadata));
 
-        data.color_varians.forEach((cv, index) => {
-             if (cv.image && cv.image[0]) {
+    data.color_varians.forEach((cv, index) => {
+             // Check if it is a FileList (new upload) and has a file
+             if (cv.image && cv.image instanceof FileList && cv.image[0]) {
                  if (product && cv.id) {
                      // For Update: use color_image_ID
                      formData.append(`color_image_${cv.id}`, cv.image[0]);
                  } else {
                      // For Create OR new variant in update:
-                     // Backend Create expects color_image_INDEX
-                     // Backend Update (new variant) expects color_image_new_INDEX
                      if (product) {
                         formData.append(`color_image_new_${index}`, cv.image[0]);
                      } else {
@@ -245,13 +247,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div className="lg:col-span-2 space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
-                                        <input {...register('name')} placeholder="e.g. Premium Cotton T-Shirt" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" />
+                                        <input {...register('name')} placeholder="e.g. Premium Cotton T-Shirt" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium" />
                                         {errors.name && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.name.message}</p>}
                                     </div>
                                     
                                     <div className="space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Category</label>
-                                        <select {...register('category_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium appearance-none">
+                                        <select {...register('category_id', { valueAsNumber: true })} className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium appearance-none">
                                             <option value="">Select Category</option>
                                             {categories.map(c => (
                                                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -262,7 +264,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
                                     <div className="space-y-1.5 focus-within:text-primary transition-colors">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Price (IDR)</label>
-                                        <input type="number" {...register('price', { valueAsNumber: true })} placeholder="0" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-bold" />
+                                        <input type="number" {...register('price', { valueAsNumber: true })} placeholder="0" className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-bold" />
                                         {errors.price && <p className="text-rose-500 text-xs mt-1 font-medium">{errors.price.message}</p>}
                                     </div>
 
@@ -278,13 +280,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            <input type="file" accept="image/*" {...register('image')} className="text-xs font-medium text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-primary hover:file:bg-indigo-100 transition-all cursor-pointer w-full" />
+                                            <input type="file" accept="image/*" {...register('image')} className="text-xs font-medium text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-primary hover:file:bg-teal-100 transition-all cursor-pointer w-full" />
                                         </div>
                                     </div>
 
                                     <div className="col-span-1 md:col-span-2 lg:col-span-3 space-y-1.5">
                                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Description</label>
-                                        <textarea {...register('description')} placeholder="Describe your product in detail..." className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-medium" rows={3} />
+                                        <textarea {...register('description')} placeholder="Describe your product in detail..." className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium" rows={3} />
                                     </div>
                                 </div>
                             </div>
@@ -310,22 +312,27 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Color Name</label>
-                                                    <input {...register(`color_varians.${index}.name` as const)} placeholder="e.g. Jet Black" className="w-full bg-white border border-slate-100 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none" />
+                                                    <input {...register(`color_varians.${index}.name` as const)} placeholder="e.g. Jet Black" className="w-full bg-white border border-slate-100 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none" />
                                                 </div>
                                                 <div className="space-y-1">
                                                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Hex Code</label>
                                                      <div className="relative">
                                                         <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-200" style={{ backgroundColor: watch(`color_varians.${index}.color`) || '#fff' }}></div>
-                                                        <input {...register(`color_varians.${index}.color` as const)} placeholder="#000000" className="w-full bg-white border border-slate-100 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none font-mono" />
+                                                        <input {...register(`color_varians.${index}.color` as const)} placeholder="#000000" className="w-full bg-white border border-slate-100 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-teal-500/20 outline-none font-mono" />
                                                      </div>
                                                 </div>
                                                 <div className="space-y-1">
                                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Variant Image</label>
-                                                    <input type="file" accept="image/*" {...register(`color_varians.${index}.image` as const)} className="text-[10px] font-medium text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-600 hover:file:bg-slate-200 w-full" />
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 overflow-hidden shrink-0">
+                                                             <VariantImagePreview file={watch(`color_varians.${index}.image`)} existingUrl={field.preview} />
+                                                        </div>
+                                                        <input type="file" accept="image/*" {...register(`color_varians.${index}.image` as const)} className="text-[10px] font-medium text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-600 hover:file:bg-slate-200 w-full" />
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <div className="bg-white/60 p-4 rounded-xl border border-slate-50 shadow-sm transition-all focus-within:bg-white focus-within:shadow-indigo-100/20">
+                                            <div className="bg-white/60 p-4 rounded-xl border border-slate-50 shadow-sm transition-all focus-within:bg-white focus-within:shadow-teal-100/20">
                                                <SizesFieldArray nestIndex={index} control={control} register={register} errors={errors} />
                                             </div>
                                         </div>
@@ -345,7 +352,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                             </button>
                             <button 
                                 onClick={handleSubmit(onSubmit)} 
-                                className="premium-button bg-primary text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+                                className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100"
                             >
                                 {product ? 'Update Product Details' : 'Publish Product to Store'}
                             </button>
@@ -367,7 +374,7 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
 
   return (
     <div className="space-y-3">
-        <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-tighter ml-1">Sizes & Availability</label>
+        <label className="text-[10px] font-bold text-teal-400 uppercase tracking-tighter ml-1">Sizes & Availability</label>
         <div className="flex flex-wrap gap-3">
             {fields.map((item, k) => (
                  <div key={item.id} className="flex gap-2 items-center bg-white p-2 border border-slate-100 rounded-lg shadow-sm animate-in zoom-in-95 duration-200">
@@ -386,7 +393,7 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
              <button 
                 type="button" 
                 onClick={() => append({ size: '', stock: 0 })} 
-                className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 text-primary rounded-lg text-[10px] font-bold uppercase transition-all hover:bg-indigo-100 active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 bg-teal-50 border border-teal-100 text-primary rounded-lg text-[10px] font-bold uppercase transition-all hover:bg-teal-100 active:scale-95"
              >
                  <Plus className="w-3 h-3" /> Add Size
              </button>
@@ -394,6 +401,32 @@ const SizesFieldArray = ({ nestIndex, control, register, errors }: any) => {
         {errors.color_varians?.[nestIndex]?.sizes?.message && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.color_varians[nestIndex].sizes.message}</p>}
     </div>
   );
+}
+
+const VariantImagePreview = ({ file, existingUrl }: { file: any, existingUrl?: string | null }) => {
+    const [preview, setPreview] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (file && file instanceof FileList && file.length > 0) {
+            const url = URL.createObjectURL(file[0]);
+            setPreview(url);
+            return () => URL.revokeObjectURL(url);
+        } else if (existingUrl) {
+            setPreview(existingUrl);
+        } else {
+            setPreview(null);
+        }
+    }, [file, existingUrl]);
+
+    if(preview) {
+        return <img src={preview} alt="Variant" className="w-full h-full object-cover" />;
+    }
+
+    return (
+        <div className="w-full h-full flex items-center justify-center text-slate-300">
+             <ImageIcon className="w-4 h-4" />
+        </div>
+    )
 }
 
 export default ProductFormModal;

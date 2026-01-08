@@ -5,7 +5,6 @@ import (
 	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/di"
 	"e-commerce/backend/internal/routes"
-	"e-commerce/backend/internal/utils"
 	"fmt"
 	"net/http"
 	"os"
@@ -40,7 +39,12 @@ func initLogger() *logrus.Logger {
 	logger.SetOutput(os.Stdout)
 
 	logger.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&utils.LogFormatter{})
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
+		ForceColors:     true,
+		PadLevelText:    true,
+	})
 
 	return logger
 }

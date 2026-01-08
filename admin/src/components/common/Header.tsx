@@ -25,11 +25,11 @@ const Header = () => {
       {/* Search Bar - Hidden on mobile, flexible on desktop */}
       <div className="hidden lg:flex items-center flex-1 max-w-md">
          <div className="relative w-full group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Search anything..." 
-              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none"
+              className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500/20 transition-all outline-none"
             />
          </div>
       </div>
@@ -62,7 +62,7 @@ const Header = () => {
                   onClick={handleLogout}
                   title="Logout"
               >
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden ring-2 ring-indigo-50 shadow-sm transform group-active:scale-95 transition-transform">
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl overflow-hidden ring-2 ring-teal-50 shadow-sm transform group-active:scale-95 transition-transform">
                      <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=6366f1&color=fff`} alt="Profile" />
                 </div>
                 <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-500 transition-colors hidden md:block" />

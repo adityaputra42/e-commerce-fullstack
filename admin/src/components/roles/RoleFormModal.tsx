@@ -91,7 +91,7 @@ const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, onClose, role, on
                               id={`perm-${perm.id}`}
                               checked={selectedPermissions.includes(perm.id)}
                               onChange={(e) => handlePermissionChange(perm.id, e.target.checked)}
-                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-indigo-500"
+                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-teal-500"
                             />
                             <label htmlFor={`perm-${perm.id}`} className="ml-2 text-sm text-gray-900">
                               <span className="font-medium">{perm.name}</span> - {perm.description}
@@ -103,7 +103,7 @@ const RoleFormModal: React.FC<RoleFormModalProps> = ({ isOpen, onClose, role, on
                   </div>
                   <div className="mt-6 flex justify-end space-x-2">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200">Cancel</button>
-                    <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-indigo-700">Save</button>
+                    <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-secondary">Save</button>
                   </div>
                 </form>
               </Dialog.Panel>

@@ -52,7 +52,7 @@ export default function LoginPage() {
            Back to Store
         </Link>
 
-        <div className="bg-white rounded-[3rem] p-10 md:p-12 shadow-2xl shadow-indigo-500/5 relative overflow-hidden">
+        <div className="bg-white rounded-[3rem] p-10 md:p-12 shadow-2xl shadow-teal-500/5 relative overflow-hidden">
            <div className="absolute top-0 right-0 p-8 opacity-5">
               <ShoppingBag className="w-32 h-32 rotate-12" />
            </div>
@@ -81,7 +81,7 @@ export default function LoginPage() {
                          value={email}
                          onChange={(e) => setEmail(e.target.value)}
                          placeholder="your@email.com" 
-                         className="w-full h-16 pl-12 pr-4 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 rounded-2xl text-sm font-bold outline-none transition-all"
+                         className="w-full h-16 pl-12 pr-4 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-teal-600 rounded-2xl text-sm font-bold outline-none transition-all"
                        />
                     </div>
                  </div>
@@ -99,7 +99,7 @@ export default function LoginPage() {
                          value={password}
                          onChange={(e) => setPassword(e.target.value)}
                          placeholder="••••••••" 
-                         className="w-full h-16 pl-12 pr-4 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-indigo-600 rounded-2xl text-sm font-bold outline-none transition-all"
+                         className="w-full h-16 pl-12 pr-4 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-teal-600 rounded-2xl text-sm font-bold outline-none transition-all"
                        />
                     </div>
                  </div>

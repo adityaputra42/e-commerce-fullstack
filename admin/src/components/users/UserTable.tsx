@@ -61,7 +61,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete, onToggle
                 <div className="flex items-center justify-end gap-1">
                     <button 
                         onClick={() => onEdit(user)} 
-                        className="p-2 text-slate-400 hover:text-primary hover:bg-indigo-50 rounded-lg transition-all"
+                        className="p-2 text-slate-400 hover:text-primary hover:bg-teal-50 rounded-lg transition-all"
                         title="Edit User"
                     >
                       <Edit3 className="w-4 h-4" />

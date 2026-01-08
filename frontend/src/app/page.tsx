@@ -32,7 +32,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center pt-20 pb-20 overflow-hidden">
         {/* Background Gradients */}
-        <div className="absolute top-0 right-0 w-[50%] h-full bg-linear-to-l from-indigo-50/50 to-transparent -z-10 blur-3xl" />
+        <div className="absolute top-0 right-0 w-[50%] h-full bg-linear-to-l from-teal-50/50 to-transparent -z-10 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-[40%] h-[80%] bg-linear-to-tr from-rose-50/30 to-transparent -z-10 blur-3xl" />
         
         <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -42,7 +42,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-full text-primary dark:text-indigo-400 text-xs font-black uppercase tracking-widest animate-pulse">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 dark:bg-teal-900/30 rounded-full text-primary dark:text-teal-400 text-xs font-black uppercase tracking-widest animate-pulse">
               <Sparkles className="w-4 h-4" />
               New Collection 2026 available now
             </div>
@@ -58,11 +58,11 @@ export default function Home() {
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="h-16 px-10 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-600/30 active:scale-95 group flex items-center gap-3">
+              <button className="h-16 px-10 bg-primary text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-secondary transition-all shadow-2xl shadow-teal-600/30 active:scale-95 group flex items-center gap-3">
                 Shop Collection
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </button>
-              <button className="h-16 px-10 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:border-indigo-600 transition-all active:scale-95">
+              <button className="h-16 px-10 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:border-teal-600 transition-all active:scale-95">
                 Lookbook
               </button>
             </div>
@@ -75,13 +75,13 @@ export default function Home() {
             transition={{ duration: 1 }}
             className="relative"
           >
-            <div className="relative aspect-square max-w-[500px] mx-auto">
+            <div className="relative aspect-square max-w-125 mx-auto">
                <div className="absolute inset-0 bg-primary rounded-[4rem] rotate-6 -z-10 opacity-10 animate-pulse" />
                <div className="absolute inset-0 bg-rose-500 rounded-[4rem] -rotate-3 -z-10 opacity-10 animate-pulse delay-1000" />
                <img 
                  src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80" 
                  alt="Hero Model"
-                 className="w-full h-full object-cover rounded-[3rem] shadow-2xl shadow-indigo-500/20"
+                 className="w-full h-full object-cover rounded-[3rem] shadow-2xl shadow-teal-500/20"
                />
                
                {/* Floating Badges */}
@@ -107,28 +107,28 @@ export default function Home() {
       <section className="bg-slate-900 text-white py-12">
         <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="flex items-center gap-4">
-               <ShieldCheck className="w-8 h-8 text-indigo-400" />
+               <ShieldCheck className="w-8 h-8 text-teal-400" />
                <div>
                   <h4 className="text-sm font-black uppercase tracking-tighter">Premium Quality</h4>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Certified Materials</p>
                </div>
             </div>
             <div className="flex items-center gap-4">
-               <Zap className="w-8 h-8 text-indigo-400" />
+               <Zap className="w-8 h-8 text-teal-400" />
                <div>
                   <h4 className="text-sm font-black uppercase tracking-tighter">Rapid Delivery</h4>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Express Worldwide</p>
                </div>
             </div>
             <div className="flex items-center gap-4">
-               <Sparkles className="w-8 h-8 text-indigo-400" />
+               <Sparkles className="w-8 h-8 text-teal-400" />
                <div>
                   <h4 className="text-sm font-black uppercase tracking-tighter">Exclusive Drops</h4>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Limited Editions</p>
                </div>
             </div>
             <div className="flex items-center gap-4">
-               <ShieldCheck className="w-8 h-8 text-indigo-400" />
+               <ShieldCheck className="w-8 h-8 text-teal-400" />
                <div>
                   <h4 className="text-sm font-black uppercase tracking-tighter">Secure Checkout</h4>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">100% Encrypted</p>
@@ -145,7 +145,7 @@ export default function Home() {
                   <div className="w-8 h-1 bg-primary" />
                   <span className="text-xs font-black uppercase tracking-[0.3em]">Our Selection</span>
                </div>
-               <h2 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase underline decoration-indigo-600/30 underline-offset-8">Featured Items</h2>
+               <h2 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase underline decoration-teal-600/30 underline-offset-8">Featured Items</h2>
             </div>
             <button className="flex items-center gap-3 text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest hover:text-primary transition-colors group">
                View All Products
@@ -183,7 +183,7 @@ export default function Home() {
                   <h2 className="text-4xl md:text-6xl font-black text-white leading-tight italic tracking-tight uppercase underline decoration-white/30 underline-offset-8">
                     GET 15% OFF <br />YOUR FIRST ORDER.
                   </h2>
-                  <p className="text-lg text-indigo-100/80 font-medium">
+                  <p className="text-lg text-teal-100/80 font-medium">
                     Be the first to know about new arrivals, fashion shows, and exclusive sales events.
                   </p>
                   <form className="flex flex-col sm:flex-row gap-4">

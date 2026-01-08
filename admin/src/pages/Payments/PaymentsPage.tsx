@@ -69,7 +69,7 @@ const PaymentsPage = () => {
                 <input 
                     type="text" 
                     placeholder="Search by ID..." 
-                    className="bg-white border-2 border-slate-50 rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:border-indigo-500/20 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all w-64 font-medium"
+                    className="bg-white border-2 border-slate-50 rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:border-teal-500/20 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all w-64 font-medium"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -83,7 +83,7 @@ const PaymentsPage = () => {
       <div className="premium-card overflow-hidden">
         {isLoading ? (
             <div className="p-20 flex flex-col items-center justify-center gap-4">
-                <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin"></div>
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Verifying ledger...</p>
             </div>
         ) : (
@@ -104,7 +104,7 @@ const PaymentsPage = () => {
                                 <td className="px-6 py-5 whitespace-nowrap">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <ArrowUpRight className="w-5 h-5 text-indigo-500" />
+                                            <ArrowUpRight className="w-5 h-5 text-teal-500" />
                                         </div>
                                         <div>
                                             <p className="text-sm font-black text-slate-900 font-mono tracking-tighter">#{payment.transaction_id}</p>
