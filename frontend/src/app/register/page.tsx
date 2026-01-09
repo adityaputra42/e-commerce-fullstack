@@ -21,17 +21,19 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 const formSchema = z.object({
+  name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -40,12 +42,14 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      const response = await authService.login(values.email, values.password);
+      // Assuming register returns user and token, or we auto-login after register
+      // The service interface says register returns RegisterResponse { user, token }
+      const response = await authService.register(values);
       login(response.token, response.user);
-      toast.success("Logged in successfully");
+      toast.success("Account created successfully");
     } catch (error: any) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to login. Please check your credentials.");
+      toast.error(error.response?.data?.message || "Failed to create account.");
     } finally {
       setLoading(false);
     }
@@ -55,14 +59,27 @@ export default function LoginPage() {
     <div className="flex min-h-[80vh] items-center justify-center container mx-auto px-4">
       <Card className="w-full max-w-md premium-card">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
           <CardDescription>
-            Enter your email and password to access your account
+            Enter your details below to create your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
@@ -90,14 +107,14 @@ export default function LoginPage() {
                 )}
               />
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Creating account..." : "Register"}
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-primary hover:underline">
-              Register
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Login
             </Link>
           </div>
         </CardContent>

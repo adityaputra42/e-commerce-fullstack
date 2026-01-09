@@ -5,7 +5,10 @@ import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useCart } from '@/context/CartContext';
+
 const Navbar = () => {
+  const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -42,7 +45,11 @@ const Navbar = () => {
           </button>
           <Link href="/cart" className="relative p-2 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
             <ShoppingCart className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-[10px] font-bold text-white flex items-center justify-center rounded-full">0</span>
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-[10px] font-bold text-white flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <Link href="/login" className="hidden md:flex items-center gap-2 py-2 px-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-full text-xs font-bold hover:scale-105 active:scale-95 transition-all">
             <User className="w-4 h-4" />

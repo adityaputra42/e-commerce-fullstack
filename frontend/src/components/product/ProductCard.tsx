@@ -2,14 +2,18 @@
 
 import { Product } from '@/types/product';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { Eye, ShoppingBag, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const { addToCart } = useCart();
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -46,10 +50,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Add to Cart Overlay */}
         <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-          <button className="w-full h-12 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold shadow-2xl hover:bg-black dark:hover:bg-slate-100 transition-colors">
+          <Button 
+            className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold shadow-2xl transition-colors"
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(product);
+            }}
+          >
             <ShoppingBag className="w-4 h-4" />
             Add to Cart
-          </button>
+          </Button>
         </div>
       </div>
 

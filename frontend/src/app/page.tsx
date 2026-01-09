@@ -176,7 +176,7 @@ export default function Home() {
       {/* Newsletter / CTA Section */}
       <section className="pb-32 container mx-auto px-6">
           <div className="bg-primary rounded-[4rem] p-12 md:p-24 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-32 -translate-y-32 group-hover:scale-110 transition-transform duration-1000" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-teal rounded-full translate-x-32 -translate-y-32 group-hover:scale-110 transition-transform duration-1000" />
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary rounded-full -translate-x-16 translate-y-16" />
               
               <div className="relative z-10 max-w-2xl space-y-8">
@@ -190,9 +190,9 @@ export default function Home() {
                      <input 
                       type="email" 
                       placeholder="Enter your email" 
-                      className="grow h-16 px-8 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/50 focus:bg-white focus:text-slate-900 outline-none transition-all font-bold"
+                      className="grow h-16 px-8 bg-white/20 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/50 focus:bg-white/5 focus:text-white outline-none transition-all font-bold"
                      />
-                     <button className="h-16 px-12 bg-white text-primary rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-2xl active:scale-95 whitespace-nowrap">
+                     <button className="h-16 px-12 bg-white text-slate-900 rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-2xl active:scale-95 whitespace-nowrap">
                         Join StoreX
                      </button>
                   </form>
