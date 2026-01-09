@@ -18,7 +18,7 @@ func PaymentRoutes(r chi.Router, h *handler.PaymentHandler, deps Dependencies) {
 		r.Get("/{id}", h.GetPaymentByID)
 
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.RequireRole(deps.RBACService, "admin"))
+			r.Use(middleware.RequireAdminArea(deps.RBACService))
 			r.Put("/{id}", h.UpdatePayment)
 			r.Delete("/{id}", h.DeletePayment)
 		})

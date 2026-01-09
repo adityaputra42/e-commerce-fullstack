@@ -37,7 +37,7 @@ api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 🚫 JANGAN PASANG TOKEN SAAT LOGIN / REFRESH
     if (
-      config.url?.includes('/auth/login') ||
+      config.url?.includes('/auth/admin/login') ||
       config.url?.includes('/auth/refresh')
     ) {
       delete config.headers.Authorization;
@@ -67,7 +67,7 @@ api.interceptors.response.use(
     if (
       status === 401 &&
       !originalRequest?._retry &&
-      !originalRequest?.url?.includes('/auth/login')
+      !originalRequest?.url?.includes('/auth/admin/login')
     ) {
       originalRequest._retry = true;
 

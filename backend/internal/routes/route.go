@@ -67,7 +67,7 @@ func SetupRoutes(handler *di.Handler, logger *logrus.Logger, cfg config.CORSConf
 	r.Route("/api/v1", func(api chi.Router) {
 		api.Get("/health", handler.HealthHandler.HealthCheck)
 		api.Head("/health", handler.HealthHandler.HealthCheck) // T
-		AuthRoutes(api, handler.AuthHandler)
+		AuthRoutes(api, handler.AuthHandler, deps)
 		UserRoutes(api, handler.UserHandler, deps)
 		ProductRoutes(api, handler.ProductHandler, deps)
 		AddressRoutes(api, handler.AddressHandler, deps)

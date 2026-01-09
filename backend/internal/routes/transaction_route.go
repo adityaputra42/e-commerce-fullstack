@@ -20,7 +20,7 @@ func TransactionRoutes(r chi.Router, h *handler.TransactionHandler, deps Depende
 		r.Get("/{tx_id}", h.GetTransactionByID)
 
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.RequireRole(deps.RBACService, "admin"))
+			r.Use(middleware.RequireAdminArea(deps.RBACService))
 			r.Put("/{tx_id}", h.UpdateTransaction)
 		})
 	})

@@ -26,9 +26,9 @@ func TestAuthHandler_SignIn(t *testing.T) {
 			Email:    "test@example.com",
 			Password: "password",
 		}
-		
+
 		expectedResp := &models.TokenResponse{
-			AccessToken: "access_token",
+			AccessToken:  "access_token",
 			RefreshToken: "refresh_token",
 		}
 
@@ -51,7 +51,7 @@ func TestAuthHandler_SignIn(t *testing.T) {
 			Email:    "test@example.com",
 			Password: "wrong",
 		}
-		
+
 		mockService.EXPECT().SignIn(reqBody, gomock.Any(), gomock.Any()).Return(nil, errors.New("invalid credentials"))
 
 		body, _ := json.Marshal(reqBody)
@@ -75,16 +75,15 @@ func TestAuthHandler_SignUp(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		reqBody := models.RegisterRequest{
-			Email:    "new@example.com",
-			Password: "password",
-			Username: "newuser",
+			Email:     "new@example.com",
+			Password:  "password",
+			Username:  "newuser",
 			FirstName: "New",
-			LastName: "User",
+			LastName:  "User",
 		}
-		
+
 		expectedResp := &models.TokenResponse{
 			AccessToken: "access_token",
-			User: models.UserResponse{Email: "new@example.com"},
 		}
 
 		mockService.EXPECT().SignUp(reqBody).Return(expectedResp, nil)

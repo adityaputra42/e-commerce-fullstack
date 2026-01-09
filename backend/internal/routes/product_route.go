@@ -15,7 +15,7 @@ func ProductRoutes(r chi.Router, h *handler.ProductHandler, deps Dependencies) {
 
 		r.Group(func(r chi.Router) {
 			r.Use(mw.AuthMiddleware(deps.UserService, deps.JWTService))
-			r.Use(mw.RequireRole(deps.RBACService, "admin"))
+			r.Use(mw.RequireAdminArea(deps.RBACService))
 			r.Post("/", h.CreateProduct)
 			r.Post("/{id}/color", h.AddColorVariant)
 			r.Put("/{id}", h.UpdateProduct)

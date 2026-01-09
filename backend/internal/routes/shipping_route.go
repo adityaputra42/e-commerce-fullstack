@@ -21,7 +21,7 @@ func ShippingRoutes(r chi.Router, h *handler.ShippingHandler, deps Dependencies)
 		// Admin only routes
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware)
-			r.Use(mw.RequireRole(deps.RBACService, "admin"))
+			r.Use(mw.RequireAdminArea(deps.RBACService))
 			r.Post("/", h.CreateShipping)
 			r.Put("/{id}", h.UpdateShipping)
 			r.Delete("/{id}", h.DeleteShipping)

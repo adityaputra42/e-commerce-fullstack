@@ -110,3 +110,29 @@ func RequirePermissionOrOwn(
 		})
 	}
 }
+
+func RequireAdminArea(
+	rbac services.RBACService,
+) func(http.Handler) http.Handler {
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			userID := GetUserIDFromContext(r)
+			if userID == 0 {
+				sendError(w, 401, "unauthorized", "Not authenticated")
+				return
+			}
+
+			isAdmin, _ := rbac.HasExactRole(userID, "admin")
+			isSuper, _ := rbac.HasExactRole(userID, "super_admin")
+
+			if !isAdmin && !isSuper {
+				sendError(w, 403, "forbidden", "Admin access only")
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}

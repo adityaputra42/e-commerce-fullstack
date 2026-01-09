@@ -11,7 +11,7 @@ export const authApi = {
    * POST /auth/login
    */
   async login(credentials: any): Promise<any> {
-    const response = await api.post<ApiResponse<any>>('/auth/login', credentials);
+    const response = await api.post<ApiResponse<any>>('/auth/admin/login', credentials);
     return response.data.data;
   },
 

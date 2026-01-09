@@ -16,6 +16,7 @@ import (
 )
 
 type AuthService interface {
+	LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignUp(req models.RegisterRequest) (*models.TokenResponse, error)
 	ForgotPassword(req models.ForgotPasswordRequest) (string, error)
@@ -28,6 +29,74 @@ type AuthServiceImpl struct {
 	acitvityLogRepo    repository.ActivityLogRepository
 	roleRepo           repository.RoleRepository
 	passwordRepository repository.PasswordResetTokenRepository
+}
+
+// loginAdmin implements [AuthService].
+func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, userAgent string) (*models.TokenResponse, error) {
+
+	var userResult models.User
+
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+
+		userResult, err = a.userRepo.FindByUsernameOrEmail(req.Email)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errors.New("invalid credentials")
+			}
+			return err
+		}
+
+		if userResult.ID == 0 {
+			log.Printf("❌ LOGIN ERROR: user.ID is 0 for email: %s", req.Email)
+			return errors.New("invalid credentials")
+		}
+
+		if !userResult.IsActive {
+			return errors.New("account is deactivated")
+		}
+
+		if err := utils.CheckPassword(req.Password, userResult.PasswordHash); err != nil {
+			return errors.New("invalid credentials")
+		}
+
+		// 🔐 ADMIN-ONLY CHECK (WAJIB)
+		role, err := a.roleRepo.FindById(userResult.RoleID)
+		if err != nil {
+			return errors.New("role not found")
+		}
+
+		if role.Level < 3 {
+			return errors.New("unauthorized: admin only")
+		}
+		now := time.Now()
+		userResult.LastLoginAt = &now
+
+		if err := tx.Save(&userResult).Error; err != nil {
+			return err
+		}
+
+		activityLog := models.ActivityLog{
+			UserID:    userResult.ID,
+			Action:    "login",
+			Resource:  "auth",
+			Details:   "User logged in successfully",
+			IPAddress: ipAddress,
+			UserAgent: userAgent,
+		}
+
+		if _, err := a.acitvityLogRepo.Create(activityLog, tx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return a.generateTokenResponse(&userResult)
 }
 
 // generateTokenResponse implements AuthService.

@@ -15,7 +15,7 @@ func UserRoutes(r chi.Router, h *handler.UserHandler, deps Dependencies) {
 			r.Get("/me", h.GetCurrentUser)
 			r.Put("/me/password", h.UpdateCurrentUserPassword)
 			r.Group(func(r chi.Router) {
-				r.Use(mw.RequireRole(deps.RBACService, "admin"))
+				r.Use(mw.RequireAdminArea(deps.RBACService))
 				r.Get("/", h.GetUsers)
 				r.Get("/{id}", h.GetUserById)
 				r.Post("/", h.CreateUser)

@@ -55,6 +55,21 @@ func (mr *MockAuthServiceMockRecorder) ForgotPassword(req any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForgotPassword", reflect.TypeOf((*MockAuthService)(nil).ForgotPassword), req)
 }
 
+// LoginAdmin mocks base method.
+func (m *MockAuthService) LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoginAdmin", req, ipAddress, userAgent)
+	ret0, _ := ret[0].(*models.TokenResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoginAdmin indicates an expected call of LoginAdmin.
+func (mr *MockAuthServiceMockRecorder) LoginAdmin(req, ipAddress, userAgent any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginAdmin", reflect.TypeOf((*MockAuthService)(nil).LoginAdmin), req, ipAddress, userAgent)
+}
+
 // RefreshToken mocks base method.
 func (m *MockAuthService) RefreshToken(req models.RefreshTokenRequest) (*models.TokenResponse, error) {
 	m.ctrl.T.Helper()

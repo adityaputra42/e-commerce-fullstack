@@ -22,7 +22,7 @@ func RoleRoutes(r chi.Router, h *handler.RoleHandler, deps Dependencies) {
 		})
 
 		r.Group(func(r chi.Router) {
-			r.Use(mw.RequireRole(deps.RBACService, "admin"))
+			r.Use(mw.RequireAdminArea(deps.RBACService))
 			r.Post("/", h.CreateRole)
 			r.Put("/{id}", h.UpdateRole)
 			r.Post("/{id}/permissions", h.AssignPermissions)

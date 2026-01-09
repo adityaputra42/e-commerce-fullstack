@@ -20,7 +20,7 @@ func PaymentMethodRoutes(r chi.Router, h *handler.PaymentMethodHandler, deps Dep
 
 		r.Group(func(r chi.Router) {
 			r.Use(authMiddleware)
-			r.Use(mw.RequireRole(deps.RBACService, "admin"))
+			r.Use(mw.RequireAdminArea(deps.RBACService))
 			r.Post("/", h.CreatePaymentMethod)
 			r.Put("/{id}", h.UpdatePaymentMethod)
 			r.Delete("/{id}", h.DeletePaymentMethod)

@@ -77,6 +77,36 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
 }
 
+// SignIn - POST /api/auth/admin/login
+// @Summary SignIn Admin
+// @Description Login with email and password to get access token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body models.LoginRequest true "Login request"
+// @Success 200 {object} utils.Response{data=models.TokenResponse} "Login successful"
+// @Failure 401 {object} utils.Response "Invalid credentials"
+// @Router /auth/login [post]
+func (h *AuthHandler) AdminLogin(w http.ResponseWriter, r *http.Request) {
+	var req models.LoginRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
+		return
+	}
+
+	ipAddress := r.RemoteAddr
+	userAgent := r.UserAgent()
+
+	resp, err := h.authService.LoginAdmin(req, ipAddress, userAgent)
+	if err != nil {
+		utils.WriteError(w, http.StatusUnauthorized, err.Error(), err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
+}
+
 // SignOut - POST /api/v1/auth/logout
 // @Summary SignOut user
 // @Description Logout from the application

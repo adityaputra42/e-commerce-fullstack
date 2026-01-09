@@ -19,7 +19,7 @@ func OrderRoutes(r chi.Router, h *handler.OrderHandler, deps Dependencies) {
 		r.Patch("/{id}/cancel", h.CancelOrder)
 
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.RequireRole(deps.RBACService, "admin"))
+			r.Use(middleware.RequireAdminArea(deps.RBACService))
 			r.Put("/{id}", h.UpdateOrder)
 			r.Delete("/{id}", h.DeleteOrder)
 		})

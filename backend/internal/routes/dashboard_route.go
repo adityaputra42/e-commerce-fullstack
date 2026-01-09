@@ -13,7 +13,7 @@ func DashboardRoutes(r chi.Router, dashboardHandler *handler.DashboardHandler, d
 
 	r.Route("/dashboard", func(r chi.Router) {
 		r.Use(authMiddleware)
-		r.Use(middleware.RequireRole(deps.RBACService, "admin"))
+		r.Use(middleware.RequireAdminArea(deps.RBACService))
 
 		r.Get("/stats", dashboardHandler.GetDashboardStats)
 		r.Get("/revenue", dashboardHandler.GetRevenueStats)
