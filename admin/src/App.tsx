@@ -12,6 +12,7 @@ import PaymentMethodPage from './pages/Payments/PaymentMethodPage';
 import { useAuthStore } from './hooks/useAuth';
 import ProtectedRoute from './guards/ProtectedRoute';
 import ProfilePage from './pages/Profile';
+import CategoryPage from './pages/category/CategoryPage';
 
 const App = () => {
 const { isAuthenticated } = useAuthStore();
@@ -25,6 +26,7 @@ console.log('AUTH:', isAuthenticated);
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/categories" element={<CategoryPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/shipping" element={<ShippingPage />} />

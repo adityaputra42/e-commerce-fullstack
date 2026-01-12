@@ -172,6 +172,20 @@ export interface ProductInput {
   category_id: number;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  icon: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CategoryInput {
+  name: string;
+  icon: File;
+
+}
+
 // ============================================
 // Order Types
 // ============================================

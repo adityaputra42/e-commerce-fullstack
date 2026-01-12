@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Users, Shield, Menu, X, User, Package, ShoppingCart, CreditCard, Truck, LayoutDashboard, Wallet, Banknote } from 'lucide-react';
+import { Users, Shield, Menu, X, User, Package,PackageSearch, ShoppingCart, CreditCard, Truck, LayoutDashboard, Wallet, Banknote } from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Products', href: '/products', icon: Package },
+  { name: 'Categories', href: '/categories', icon:  PackageSearch},
   { name: 'Transactions', href: '/transactions', icon: CreditCard },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
   { name: 'Payments', href: '/payments', icon: Banknote },
