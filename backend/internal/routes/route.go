@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"go.uber.org/zap"
 
 	_ "e-commerce/backend/docs"
 )
@@ -23,15 +23,14 @@ type Dependencies struct {
 	JWTService  *utils.JWTService
 }
 
-func SetupRoutes(handler *di.Handler, logger *logrus.Logger, cfg config.CORSConfig) *chi.Mux {
+func SetupRoutes(handler *di.Handler, logger *zap.Logger, cfg config.CORSConfig) *chi.Mux {
 	r := chi.NewRouter()
-
-	r.Use(chimiddleware.RequestID)
-	r.Use(chimiddleware.RealIP)
-	r.Use(middleware.Recovery(logger))
-	r.Use(middleware.Logger(logger)) // Logger middleware
-	r.Use(chimiddleware.Compress(5))
-
+r.Use(
+	chimiddleware.RequestID,
+	chimiddleware.RealIP,
+	middleware.Logger(logger),
+	middleware.Recovery(logger),
+)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: cfg.AllowedOrigins,
 		AllowedMethods: []string{

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 // responseWriter wrapper untuk menangkap status code dan bytes
@@ -25,13 +25,13 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-// Logger middleware untuk logging HTTP requests
-func Logger(logger *logrus.Logger) func(http.Handler) http.Handler {
+// Logger middleware untuk logging HTTP requests (Zap)
+func Logger(logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 
-			// Skip logging untuk health check dan static files
+			// Skip logging untuk health check
 			if r.URL.Path == "/health" || r.URL.Path == "/ping" {
 				next.ServeHTTP(w, r)
 				return
@@ -43,58 +43,55 @@ func Logger(logger *logrus.Logger) func(http.Handler) http.Handler {
 				statusCode:     http.StatusOK,
 			}
 
-			// Proses request
 			next.ServeHTTP(wrapped, r)
 
-			// Hitung durasi
 			duration := time.Since(start)
 
-			// Log dengan fields
-			fields := logrus.Fields{
-				"method":      r.Method,
-				"path":        r.URL.Path,
-				"status":      wrapped.statusCode,
-				"duration_ms": duration.Milliseconds(),
-				"ip":          r.RemoteAddr,
-				"user_agent":  r.UserAgent(),
+			// Base fields
+			fields := []zap.Field{
+				zap.String("method", r.Method),
+				zap.String("path", r.URL.Path),
+				zap.Int("status", wrapped.statusCode),
+				zap.Int64("duration_ms", duration.Milliseconds()),
+				zap.String("ip", r.RemoteAddr),
+				zap.String("user_agent", r.UserAgent()),
 			}
 
-			// Tambahkan query params jika ada
 			if r.URL.RawQuery != "" {
-				fields["query"] = r.URL.RawQuery
+				fields = append(fields, zap.String("query", r.URL.RawQuery))
 			}
 
-			// Tentukan level log berdasarkan status code
-			entry := logger.WithFields(fields)
+			// Level based on status code
 			switch {
 			case wrapped.statusCode >= 500:
-				entry.Error("Server Error")
+				logger.Error("server error", fields...)
 			case wrapped.statusCode >= 400:
-				entry.Warn("Client Error")
+				logger.Warn("client error", fields...)
 			case wrapped.statusCode >= 300:
-				entry.Info("Redirect")
+				logger.Info("redirect", fields...)
 			default:
-				entry.Info("Request processed")
+				logger.Info("request processed", fields...)
 			}
 		})
 	}
 }
 
-// Recovery middleware untuk menangkap panic
-func Recovery(logger *logrus.Logger) func(http.Handler) http.Handler {
+// Recovery middleware untuk menangkap panic (Zap)
+func Recovery(logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.WithFields(logrus.Fields{
-						"error":  err,
-						"method": r.Method,
-						"path":   r.URL.Path,
-						"ip":     r.RemoteAddr,
-					}).Error("Panic recovered")
+					logger.Error("panic recovered",
+						zap.Any("error", err),
+						zap.String("method", r.Method),
+						zap.String("path", r.URL.Path),
+						zap.String("ip", r.RemoteAddr),
+					)
 
+					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"error":"Internal Server Error"}`))
+					_, _ = w.Write([]byte(`{"error":"Internal Server Error"}`))
 				}
 			}()
 			next.ServeHTTP(w, r)

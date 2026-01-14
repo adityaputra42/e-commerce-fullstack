@@ -9,49 +9,44 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-// @title E-Commerce API
-// @version 1.0
-// @description This is a sample server for an e-commerce application.
-// @termsOfService http://swagger.io/terms/
+// =======================
+// Logger Initialization
+// =======================
 
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
+func initLogger() *zap.Logger {
+	encoderConfig := zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		MessageKey:     "msg",
+		CallerKey:      "caller",
+		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(encoderConfig), // console-friendly (mirip logrus text)
+		zapcore.AddSync(os.Stdout),
+		zapcore.DebugLevel,
+	)
 
-// @host localhost:8080
-// @BasePath /api/v1
-// @query.collection.format multi
-
-// @securityDefinitions.apikey Bearer
-// @in header
-// @name Authorization
-// @description Type "Bearer" followed by a space and then your token.
-
-func initLogger() *logrus.Logger {
-	logger := logrus.New()
-
-	logger.SetOutput(os.Stdout)
-
-	logger.SetLevel(logrus.DebugLevel)
-	logrus.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:04:05",
-		ForceColors:     true,
-		PadLevelText:    true,
-	})
+	logger := zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+	)
 
 	return logger
 }
 
 func main() {
-	// Initialize logger
 	logger := initLogger()
+	defer logger.Sync()
 
 	cfg := config.Load()
 
@@ -61,25 +56,27 @@ func main() {
 
 	logger.Info("📦 Connecting to database...")
 	config.InitSupabase(*cfg)
+
 	if err := database.Connect(cfg); err != nil {
-		logger.WithError(err).Fatal("Failed to connect to database")
+		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}
 	logger.Info("✅ Database connected successfully")
 
 	logger.Info("🔄 Running database migrations...")
 	if err := database.Migrate(); err != nil {
-		logger.WithError(err).Fatal("Failed to migrate database")
+		logger.Fatal("Failed to migrate database", zap.Error(err))
 	}
 	logger.Info("✅ Migrations completed")
 
 	logger.Info("🌱 Running database seeders...")
 	if err := database.SeedDatabase(cfg); err != nil {
-		logger.WithError(err).Fatal("Failed to seed database")
+		logger.Fatal("Failed to seed database", zap.Error(err))
 	}
 	logger.Info("✅ Database seeded successfully")
 
 	handler := di.InitializeAllHandler(cfg)
 
+	// ⚠️ pastikan SetupRoutes sekarang menerima *zap.Logger
 	router := routes.SetupRoutes(handler, logger, cfg.CORS)
 
 	port := cfg.Server.Port
@@ -87,9 +84,9 @@ func main() {
 		port = "8080"
 	}
 
-	logger.WithFields(logrus.Fields{
-		"port": port,
-	}).Info("🚀 Server starting...")
+	logger.Info("🚀 Server starting...",
+		zap.String("port", port),
+	)
 
 	fmt.Printf("\n")
 	fmt.Printf("╔════════════════════════════════════════╗\n")
@@ -98,6 +95,6 @@ func main() {
 	fmt.Printf("\n")
 
 	if err := http.ListenAndServe(":"+port, router); err != nil {
-		logger.WithError(err).Fatal("Failed to start server")
+		logger.Fatal("Failed to start server", zap.Error(err))
 	}
 }
