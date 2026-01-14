@@ -3,8 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 type Response struct {
@@ -39,17 +37,4 @@ func WriteError(w http.ResponseWriter, statusCode int, message string, err error
 		Error:   errorMsg,
 	})
 }
-func ExtractIDFromPath(path string) (uint, error) {
-	pathParts := strings.Split(strings.Trim(path, "/"), "/")
-	if len(pathParts) < 2 {
-		return 0, nil
-	}
 
-	idStr := pathParts[len(pathParts)-1]
-	id, err := strconv.ParseUint(idStr, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	return uint(id), nil
-}

@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type UserHandler struct {
@@ -70,13 +72,14 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 // @Router /users/{id} [get]
 // @Security Bearer
 func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
-	user, err := h.userService.GetUserById(id)
+	user, err := h.userService.GetUserById(uint(id))
 	if err != nil {
 		utils.WriteError(w, http.StatusNotFound, err.Error(), err)
 		return
@@ -131,7 +134,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser - PUT /api/users/:id
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
@@ -143,7 +147,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.UpdateUser(id, &req)
+	user, err := h.userService.UpdateUser(uint(id), &req)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
@@ -154,13 +158,15 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser - DELETE /api/users/:id
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
-	err = h.userService.DeleteUser(id)
+	err = h.userService.DeleteUser(uint(id))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
@@ -171,13 +177,15 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // ActivateUser - PUT /api/users/:id/activate
 func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
-	user, err := h.userService.ActivateUser(id)
+	user, err := h.userService.ActivateUser(uint(id))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
@@ -188,13 +196,15 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeactivateUser - PUT /api/users/:id/deactivate
 func (h *UserHandler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
 	}
 
-	user, err := h.userService.DeactivateUser(id)
+	user, err := h.userService.DeactivateUser(uint(id))
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
@@ -222,7 +232,8 @@ func (h *UserHandler) BulkUserActions(w http.ResponseWriter, r *http.Request) {
 
 // UpdatePassword - PUT /api/users/:id/password
 func (h *UserHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
-	id, err := utils.ExtractIDFromPath(r.URL.Path)
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
@@ -234,7 +245,7 @@ func (h *UserHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userService.UpdatePassword(id, &req)
+	err = h.userService.UpdatePassword(uint(id), &req)
 	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
 		return
