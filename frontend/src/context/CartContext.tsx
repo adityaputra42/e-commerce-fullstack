@@ -1,18 +1,21 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product } from '@/services/api';
+import { Product, ColorVariant, SizeVariant } from '@/types/product';
 import { toast } from 'sonner';
 
-export interface CartItem extends Product {
+export interface CartItem {
+  product: Product;
   quantity: number;
+  selectedColorVariant?: ColorVariant;
+  selectedSizeVariant?: SizeVariant;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  addToCart: (product: Product, colorVariant?: ColorVariant, sizeVariant?: SizeVariant) => void;
+  removeFromCart: (productId: number, colorVariantId?: number, sizeVariantId?: number) => void;
+  updateQuantity: (productId: number, quantity: number, colorVariantId?: number, sizeVariantId?: number) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
@@ -28,9 +31,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
       try {
-        setItems(JSON.parse(storedCart));
+        const parsedCart = JSON.parse(storedCart) as CartItem[];
+        // Filter out invalid items (items without product data)
+        const validItems = parsedCart.filter(item => 
+          item && item.product && typeof item.product.price === 'number'
+        );
+        setItems(validItems);
+        
+        // If we filtered out invalid items, update localStorage
+        if (validItems.length !== parsedCart.length) {
+          console.warn(`Removed ${parsedCart.length - validItems.length} invalid items from cart`);
+        }
       } catch (e) {
         console.error("Failed to parse cart", e);
+        // Clear corrupted cart data
+        localStorage.removeItem('cart');
       }
     }
   }, []);
@@ -40,32 +55,58 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, colorVariant?: ColorVariant, sizeVariant?: SizeVariant) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // Find existing item with same product and variant combination
+      const existing = prev.find((item) => 
+        item.product?.id === product.id &&
+        item.selectedColorVariant?.id === colorVariant?.id &&
+        item.selectedSizeVariant?.id === sizeVariant?.id
+      );
+      
       if (existing) {
         toast.info("Updated quantity in cart");
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.product?.id === product.id &&
+          item.selectedColorVariant?.id === colorVariant?.id &&
+          item.selectedSizeVariant?.id === sizeVariant?.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
+      
       toast.success("Added to cart");
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { 
+        product, 
+        quantity: 1,
+        selectedColorVariant: colorVariant,
+        selectedSizeVariant: sizeVariant
+      }];
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromCart = (productId: number, colorVariantId?: number, sizeVariantId?: number) => {
+    setItems((prev) => prev.filter((item) => 
+      !(item.product?.id === productId &&
+        item.selectedColorVariant?.id === colorVariantId &&
+        item.selectedSizeVariant?.id === sizeVariantId)
+    ));
     toast.success("Removed from cart");
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number, quantity: number, colorVariantId?: number, sizeVariantId?: number) => {
     if (quantity < 1) {
-      removeFromCart(productId);
+      removeFromCart(productId, colorVariantId, sizeVariantId);
       return;
     }
     setItems((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
+      prev.map((item) => 
+        item.product?.id === productId &&
+        item.selectedColorVariant?.id === colorVariantId &&
+        item.selectedSizeVariant?.id === sizeVariantId
+          ? { ...item, quantity }
+          : item
+      )
     );
   };
 
@@ -74,8 +115,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('cart');
   };
 
-  const cartTotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-  const cartCount = items.reduce((count, item) => count + item.quantity, 0);
+  const cartTotal = items.reduce((total, item) => {
+    // Safety check: ensure product and price exist
+    if (item?.product && typeof item.product.price === 'number') {
+      return total + item.product.price * item.quantity;
+    }
+    return total;
+  }, 0);
+  
+  const cartCount = items.reduce((count, item) => {
+    // Safety check: ensure item exists
+    if (item && typeof item.quantity === 'number') {
+      return count + item.quantity;
+    }
+    return count;
+  }, 0);
 
   return (
     <CartContext.Provider

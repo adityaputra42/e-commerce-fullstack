@@ -4,8 +4,16 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 export interface User {
   id: number;
   email: string;
-  name: string;
-  role: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  role_id: number;
+  is_active: boolean;
+  role: {
+    id: number;
+    name: string;
+    permissions: any[];
+  };
 }
 
 export interface LoginResponse {
@@ -29,7 +37,7 @@ export interface Product {
         id: number;
         name: string;
     };
-    color_varian?: any[]; // Simplified for now, can expand later
+    color_varian?: any[];
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
@@ -63,11 +71,21 @@ export const authService = {
      return response.data;
   },
   getCurrentUser: async (): Promise<User> => {
-    // Assuming there's an endpoint to get profile, or we decode token. 
-    // For now we might just rely on stored user data or implement a /me endpoint if backend supports it.
-    // If not, we might skipped this or use what we stored.
-    // Let's assume we store user in localStorage on login.
-    return JSON.parse(localStorage.getItem('user') || 'null');
+    const response = await api.get('/users/me');
+    return response.data.data;
+  },
+  updateProfile: async (userData: Partial<User>): Promise<User> => {
+    // Ideally use /users/me but backend might expect ID. 
+    // Let's safe check user ID availability or use /users/me if supported for updates
+    // Based on handler, UpdateUser needs ID.
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!currentUser.id) throw new Error("User ID not found");
+    
+    const response = await api.put(`/users/${currentUser.id}`, userData);
+    return response.data.data;
+  },
+  changePassword: async (data: any): Promise<void> => {
+    await api.put('/users/me/password', data);
   },
   logout: () => {
     localStorage.removeItem('token');
@@ -79,13 +97,14 @@ export const authService = {
 
 export interface Address {
   id: number;
-  name: string;
-  phone: string;
-  street: string;
+  recipient_name: string;
+  recipient_phone_number: string;
+  full_address: string;
   city: string;
-  state: string;
-  zip_code: string;
-  is_primary: boolean;
+  province: string;
+  district: string;
+  village: string;
+  postal_code: string;
 }
 
 export interface ShippingMethod {
@@ -126,15 +145,19 @@ export interface Transaction {
 
 export const addressService = {
   getAll: async (): Promise<Address[]> => {
-    const response = await api.get('/address');
+    const response = await api.get('/addresses');
     return response.data.data || [];
   },
   create: async (data: any): Promise<Address> => {
-    const response = await api.post('/address', data);
+    const response = await api.post('/addresses', data);
+    return response.data.data;
+  },
+  update: async (id: number, data: any): Promise<Address> => {
+    const response = await api.put(`/addresses/${id}`, data);
     return response.data.data;
   },
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/address/${id}`);
+    await api.delete(`/addresses/${id}`);
   }
 };
 

@@ -2,7 +2,7 @@
 
 import { Product } from '@/types/product';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/common/Button';
 import { Eye, ShoppingBag, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';

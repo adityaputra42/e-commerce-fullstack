@@ -1,88 +1,97 @@
 @import "tailwindcss";
 
-@plugin "tailwindcss-animate";
-
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
-  --font-sans: 'Poppins', sans-serif;
+  --font-sans: 'Inter', 'Poppins', sans-serif;
   --font-display: 'Poppins', sans-serif;
 }
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --radius: 0.5rem;
-}
-
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+  /* Modern Light Mode Color Palette */
+  --background: #ffffff;
+  --foreground: #0f172a;
+  
+  /* Primary - Vibrant Teal */
+  --primary: #14b8a6;
+  --primary-dark: #0d9488;
+  --primary-light: #5eead4;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary - Purple Accent */
+  --secondary: #8b5cf6;
+  --secondary-dark: #7c3aed;
+  --secondary-light: #a78bfa;
+  --secondary-foreground: #ffffff;
+  
+  /* Neutral Colors */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  
+  /* Accent Colors */
+  --accent-teal: #14b8a6;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
+  --accent-orange: #f97316;
+  
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* UI Elements */
+  --border: #e2e8f0;
+  --input-border: #cbd5e1;
+  --input-focus: #14b8a6;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(0, 0, 0, 0.05);
+  
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-slate-200;
   }
+  
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-white text-slate-900;
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold text-slate-900;
   }
 }
 
-/* Custom Premium Styles */
-.premium-blur {
+/* Custom Modern Styles */
+.glass-effect {
   backdrop-filter: blur(12px);
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.5);
 }
 
-.dark .premium-blur {
-  background-color: rgba(2, 6, 23, 0.7);
-}
-
-.premium-card {
+.card-modern {
+  @apply bg-white rounded-2xl border border-slate-200 shadow-sm;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid hsl(var(--border));
 }
 
-.premium-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: hsl(var(--primary));
+.card-modern:hover {
+  @apply shadow-lg border-teal-200;
+  transform: translateY(-2px);
 }
 
 .glass-nav {
@@ -91,14 +100,48 @@
   width: 100%;
   z-index: 50;
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.1);
-  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.3);
+  background-color: rgba(255, 255, 255, 0.85);
 }
 
-.dark .glass-nav {
-  background-color: rgba(2, 6, 23, 0.8);
+.btn-primary {
+  @apply bg-teal-500 text-white font-bold rounded-xl px-6 py-3;
+  @apply hover:bg-teal-600 active:scale-95;
+  @apply transition-all duration-200 shadow-md hover:shadow-lg;
 }
 
+.btn-secondary {
+  @apply bg-purple-500 text-white font-bold rounded-xl px-6 py-3;
+  @apply hover:bg-purple-600 active:scale-95;
+  @apply transition-all duration-200 shadow-md hover:shadow-lg;
+}
+
+.btn-outline {
+  @apply bg-transparent border-2 border-slate-300 text-slate-700 font-bold rounded-xl px-6 py-3;
+  @apply hover:border-teal-500 hover:text-teal-600 active:scale-95;
+  @apply transition-all duration-200;
+}
+
+.input-modern {
+  @apply w-full px-4 py-3 rounded-xl border-2 border-slate-200;
+  @apply focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100;
+  @apply transition-all duration-200;
+}
+
+/* Gradient Backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
+}
+
+/* Animations */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -112,4 +155,61 @@
 
 .animate-fade-up {
   animation: fade-up 0.5s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, #14b8a6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+}
+
+.shadow-glow-purple {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }

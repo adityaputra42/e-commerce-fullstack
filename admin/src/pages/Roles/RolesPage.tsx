@@ -76,11 +76,11 @@ const RolesPage = () => {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Access Control</h1>
           <p className="text-slate-500 mt-1">Define roles and granular permissions for your administrative staff.</p>
         </div>
-        <button 
+        <button
             onClick={() => handleOpenModal(null)}
             className="premium-button bg-primary text-white hover:bg-secondary shadow-lg shadow-teal-100 flex items-center gap-2 self-start md:self-auto"
         >
-          <Plus className="w-5 h-5" /> 
+          <Plus className="w-5 h-5" />
           <span>Create New Role</span>
         </button>
       </div>
@@ -122,7 +122,7 @@ const RolesPage = () => {
                   </div>
                 )}
                 {!isLoading && !error && (
-                  <RoleTable 
+                  <RoleTable
                     roles={roles}
                     onEdit={handleOpenModal}
                     onDelete={handleDelete}
@@ -133,13 +133,13 @@ const RolesPage = () => {
          </div>
       </div>
 
-      <RoleFormModal 
+      <RoleFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         role={editingRole}
         onSave={handleSave}
       />
-      <RoleDetailModal 
+      <RoleDetailModal
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
         role={detailRole}

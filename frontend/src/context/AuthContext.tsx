@@ -20,20 +20,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for existing token/user on mount
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (token && storedUser && storedUser !== "undefined") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse user from local storage", e);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    // Check for existing token on mount
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      // Optimistic load: if we have a token and stored user, set it immediately
+      if (token && storedUser && storedUser !== "undefined") {
+        try {
+           setUser(JSON.parse(storedUser));
+        } catch (e) {
+           console.error("Error parsing stored user", e);
+        }
       }
-    }
-    setLoading(false);
+      
+      if (token) {
+        try {
+          // Verify token and get fresh user data
+          const userData = await authService.getCurrentUser();
+          setUser(userData);
+          // Update stored user data
+          localStorage.setItem('user', JSON.stringify(userData));
+        } catch (e: any) {
+          console.error("Failed to fetch user profile", e);
+          
+          // Only log out on authentication errors (401/403), not network errors
+          if (e.response && (e.response.status === 401 || e.response.status === 403)) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
   const login = (token: string, userData: User) => {

@@ -30,7 +30,7 @@ func initLogger() *zap.Logger {
 	}
 
 	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(encoderConfig), // console-friendly (mirip logrus text)
+		zapcore.NewConsoleEncoder(encoderConfig),
 		zapcore.AddSync(os.Stdout),
 		zapcore.DebugLevel,
 	)
@@ -76,7 +76,6 @@ func main() {
 
 	handler := di.InitializeAllHandler(cfg)
 
-	// ⚠️ pastikan SetupRoutes sekarang menerima *zap.Logger
 	router := routes.SetupRoutes(handler, logger, cfg.CORS)
 
 	port := cfg.Server.Port
@@ -84,12 +83,11 @@ func main() {
 		port = "8080"
 	}
 
-	logger.Info("🚀 Server starting...",
-		zap.String("port", port),
-	)
 
 	fmt.Printf("\n")
 	fmt.Printf("╔════════════════════════════════════════╗\n")
+	fmt.Printf("║  Server is running on port %-4s        ║\n", port)
+	fmt.Printf("║ ══════════════════════════════════════ ║\n")
 	fmt.Printf("║  Server is running on port %-4s        ║\n", port)
 	fmt.Printf("╚════════════════════════════════════════╝\n")
 	fmt.Printf("\n")
