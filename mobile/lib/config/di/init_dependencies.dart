@@ -4,9 +4,8 @@ import 'package:mobile/core/common/cubit/theme_cubit.dart';
 import 'package:mobile/core/main/cubit/main_cubit.dart';
 import 'package:mobile/core/utils/pref_helper.dart';
 import 'package:mobile/features/onboarding/cubit/onboarding_cubit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/splash/cubit/splash_cubit.dart';
+import '../../features/splash/cubit/splash_cubit.dart';
 import '../../core/utils/connection_checker.dart';
 
 part 'init_dependencies.main.dart';

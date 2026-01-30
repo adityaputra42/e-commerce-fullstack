@@ -20,14 +20,7 @@ class SplashScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: Center(
-          child: Text(
-            'Splash Screen',
-            style: AppFont.semibold16.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-        ),
+        body: Center(child: Text('Splash Screen', style: AppFont.semibold16)),
       ),
     );
   }

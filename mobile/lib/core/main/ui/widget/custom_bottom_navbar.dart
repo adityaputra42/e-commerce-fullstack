@@ -18,19 +18,15 @@ class CustomBottomNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-
-      margin: EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColor.secondaryColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
             spreadRadius: 0.25,
             blurRadius: 0.5,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ],
       ),
@@ -95,15 +91,11 @@ class CustomBottomNavbar extends StatelessWidget {
     );
   }
 
-  Widget activeNavbar(
-    BuildContext context, {
-    required String icon,
-    required String title,
-  }) {
+  Widget activeNavbar(BuildContext context, {required String icon, required String title}) {
     return Container(
-      height: 38,
-      width: 84,
-      padding: const EdgeInsets.all(4),
+      height: 42,
+      width: context.w(0.25),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         color: Theme.of(context).colorScheme.primary,
@@ -112,7 +104,9 @@ class CustomBottomNavbar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(5),
+            height: 38,
+            width: 38,
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(width: 1, color: AppColor.primaryColor),
@@ -120,11 +114,11 @@ class CustomBottomNavbar extends StatelessWidget {
             ),
             child: Iconify(icon, size: 18, color: AppColor.lightText1),
           ),
-          width(4),
+          width(6),
           Expanded(
             child: Text(
               title,
-              style: AppFont.medium10.copyWith(color: AppColor.lightText1),
+              style: AppFont.medium12.copyWith(color: AppColor.darkText1),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -136,14 +130,12 @@ class CustomBottomNavbar extends StatelessWidget {
 
   Widget inactiveNavbar(BuildContext context, {required String icon}) {
     return Container(
-      width: 38,
-      height: 38,
-      padding: const EdgeInsets.all(9),
+      width: 42,
+      height: 42,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(
-          context,
-        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
       ),
       child: Iconify(icon, size: 20, color: AppColor.grayColor),
     );

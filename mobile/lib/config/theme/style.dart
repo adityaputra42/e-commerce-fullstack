@@ -28,7 +28,10 @@ class Styles {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
-      fontFamily: "IbmPlexSans",
+      fontFamily: "Poppins",
+      cardColor: isDarkTheme ? AppColor.cardDark : AppColor.cardLight,
+      hintColor: isDarkTheme ? AppColor.darkText2 : AppColor.lightText2,
+      canvasColor: isDarkTheme ? AppColor.strokeDark : AppColor.strokeLight,
 
       /// Button theme (Material 3 → pakai [ElevatedButtonThemeData], [TextButtonThemeData], dll)
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -53,9 +56,7 @@ class Styles {
       datePickerTheme: DatePickerThemeData(
         backgroundColor: colorScheme.surface,
         surfaceTintColor: colorScheme.surfaceContainer,
-        headerBackgroundColor: isDarkTheme
-            ? AppColor.cardDark
-            : AppColor.cardLight,
+        headerBackgroundColor: isDarkTheme ? AppColor.cardDark : AppColor.cardLight,
         headerForegroundColor: colorScheme.onSurface,
         yearStyle: AppFont.medium12.copyWith(color: colorScheme.onSurface),
         dayStyle: AppFont.medium12.copyWith(color: colorScheme.onSurface),

@@ -48,7 +48,7 @@ class InputText extends StatelessWidget {
     this.enable = true,
     this.cursor = true,
     this.autoFocus = false,
-    this.filled = false,
+    this.filled = true,
     this.onChange,
     this.ontaped,
     this.borderSide,
@@ -89,14 +89,7 @@ class InputText extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        title ?? '',
-                        style:
-                            titleStyle ??
-                            AppFont.medium14.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                      ),
+                      Text(title ?? '', style: titleStyle ?? AppFont.medium14),
                       crossTitle ?? const SizedBox(),
                     ],
                   ),
@@ -121,59 +114,41 @@ class InputText extends StatelessWidget {
           maxLines: maxLine,
           maxLength: maxLength,
           onEditingComplete: onComplete,
-          style:
-              textStyle ??
-              AppFont.medium14.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+          style: textStyle ?? AppFont.medium14,
           decoration: InputDecoration(
+            isDense: true,
             enabled: enable,
             contentPadding:
-                contentPadding ??
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             suffixIcon: icon,
             suffix: suffix,
             prefixIcon: prefixIcon,
             prefix: prefix,
             hintText: hintText,
             filled: filled,
-            fillColor: filledColor,
-            hintStyle:
-                hintStyle ??
-                AppFont.reguler12.copyWith(
-                  color: Theme.of(context).highlightColor,
-                ),
+            fillColor: filledColor ?? Theme.of(context).colorScheme.surface,
+            hintStyle: hintStyle ?? AppFont.reguler12.copyWith(color: Theme.of(context).hintColor),
             border: OutlineInputBorder(
               borderRadius: borderRadius ?? BorderRadius.circular(8),
               borderSide:
                   borderSide ??
-                  BorderSide(
-                    color: borderColor ?? Theme.of(context).canvasColor,
-                    width: 0.5,
-                  ),
+                  BorderSide(color: borderColor ?? Theme.of(context).canvasColor, width: 0.5),
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: borderRadius ?? BorderRadius.circular(8),
               borderSide:
                   borderSide ??
-                  BorderSide(
-                    color: borderColor ?? Theme.of(context).canvasColor,
-                    width: 0.5,
-                  ),
+                  BorderSide(color: borderColor ?? Theme.of(context).canvasColor, width: 0.5),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: borderRadius ?? BorderRadius.circular(8),
               borderSide:
                   borderSide ??
-                  BorderSide(
-                    color: borderColor ?? Theme.of(context).canvasColor,
-                    width: 0.5,
-                  ),
+                  BorderSide(color: borderColor ?? Theme.of(context).canvasColor, width: 0.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: borderRadius ?? BorderRadius.circular(8),
-              borderSide:
-                  borderSide ?? const BorderSide(color: AppColor.primaryColor),
+              borderSide: borderSide ?? const BorderSide(color: AppColor.primaryColor),
             ),
           ),
         ),

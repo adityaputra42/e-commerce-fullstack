@@ -3,7 +3,7 @@ import 'package:mobile/core/main/ui/screen/main_screen.dart';
 import 'package:mobile/features/auth/presentation/screen/sign_in_screen.dart';
 
 import '../../core/constants/constant.dart';
-import '../../core/splash/ui/splash_screen.dart';
+import '../../features/splash/ui/splash_screen.dart';
 import '../../features/auth/presentation/screen/sign_up_screen.dart';
 import '../../features/onboarding/ui/screen/onboarding_screen.dart';
 

@@ -3,9 +3,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefHelper {
-  final SharedPreferences _pref;
+  late final SharedPreferences _pref;
 
-  PrefHelper(this._pref);
+  static PrefHelper instance = PrefHelper();
+
+  Future<void> init() async {
+    _pref = await SharedPreferences.getInstance();
+  }
 
   // Token
   Future<bool> saveToken(String token) async {
@@ -24,15 +28,42 @@ class PrefHelper {
   }
 
   bool get isFirstInstall => _pref.getBool("firstInstall") ?? true;
+  // First install
+  Future<bool> setRememberMe(bool value) async {
+    return await _pref.setBool("rememberMe", value);
+  }
 
-  setDarkTheme(bool value) {
-    _pref.setBool("theme", value);
+  bool get isRememberMe => _pref.getBool("rememberMe") ?? false;
+
+  Future<void> setDarkTheme(bool value) async {
+    await _pref.setBool("theme", value);
   }
 
   bool getTheme() {
-    var phoneTheme =
-        SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    var phoneTheme = SchedulerBinding.instance.platformDispatcher.platformBrightness;
     bool isDarkMode = phoneTheme == Brightness.dark;
     return _pref.getBool("theme") ?? isDarkMode;
+  }
+
+  // Token
+  Future<bool> saveEmail(String email) async {
+    return await _pref.setString('email', email);
+  }
+
+  String get email => _pref.getString('email') ?? '';
+
+  Future<bool> removeEmail() async {
+    return await _pref.remove('email');
+  }
+
+  // Token
+  Future<bool> savePassword(String password) async {
+    return await _pref.setString('password', password);
+  }
+
+  String get password => _pref.getString('password') ?? '';
+
+  Future<bool> removePassword() async {
+    return await _pref.remove('password');
   }
 }

@@ -21,7 +21,7 @@ class PrimaryButton extends StatelessWidget {
     this.borderColor,
     this.textStyle,
     this.buttonPadding,
-    this.height = 48,
+    this.height = 42,
   });
 
   final String title;
@@ -51,9 +51,7 @@ class PrimaryButton extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: !disable
-            ? AppColor.primaryColor
-            : (disableColor ?? Theme.of(context).cardColor),
+        color: !disable ? AppColor.primaryColor : (disableColor ?? Theme.of(context).cardColor),
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(

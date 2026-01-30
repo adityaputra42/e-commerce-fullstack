@@ -3,10 +3,7 @@ part of 'init_dependencies.dart';
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  final sharedPrefs = await SharedPreferences.getInstance();
-
-  serviceLocator.registerLazySingleton<SharedPreferences>(() => sharedPrefs);
-
+  PrefHelper.instance.init();
   serviceLocator.registerFactory(() => InternetConnection());
 
   // core
@@ -15,11 +12,11 @@ Future<void> initDependencies() async {
     () => ConnectionCheckerImpl(serviceLocator()),
   );
   serviceLocator.registerFactory<SplashCubit>(
-    () => SplashCubit(pref: PrefHelper(sharedPrefs)),
+    () => SplashCubit(),
   );
-  
+
   serviceLocator.registerFactory<ThemeCubit>(
-    () => ThemeCubit(pref: PrefHelper(sharedPrefs)),
+    () => ThemeCubit(),
   );
   serviceLocator.registerFactory<OnboardingCubit>(() => OnboardingCubit());
 }
