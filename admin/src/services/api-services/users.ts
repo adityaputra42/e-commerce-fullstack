@@ -117,6 +117,6 @@ export const usersApi = {
    * PUT /profile/password
    */
   async updateProfilePassword(data: any): Promise<void> {
-    await api.put('/profile/password', data);
+    await api.put('users/me/password', data);
   },
 };

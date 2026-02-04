@@ -36,10 +36,10 @@ class CardGeneral extends StatelessWidget {
         boxShadow: withElevation
             ? [
                 BoxShadow(
-                  color: Colors.blueGrey.withValues(alpha: 0.1),
-                  spreadRadius: 0.5,
-                  blurRadius: 0.5,
-                  offset: const Offset(0, 1), // changes position of shadow
+                  color: Theme.of(context).canvasColor.withValues(alpha: 0.2),
+                  spreadRadius: 0.7,
+                  blurRadius: 0.7,
+                  offset: const Offset(0, 0.5), // changes position of shadow
                 ),
               ]
             : null,

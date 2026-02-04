@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../config/theme/theme.dart';
+import '../../theme/theme.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -69,7 +69,7 @@ class PrimaryButton extends StatelessWidget {
                   AppFont.medium14.copyWith(
                     color: disable
                         ? Theme.of(context).hintColor
-                        : (textColor ?? AppColor.lightText1),
+                        : (textColor ?? AppColor.darkText1),
                   ),
               textAlign: TextAlign.center,
               maxLines: 1,

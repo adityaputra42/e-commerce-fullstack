@@ -1,8 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
-import '../../../config/theme/app_font.dart';
-import '../../../config/theme/theme.dart';
+import '../../theme/theme.dart';
 import '../../utils/size_extension.dart';
 
 class DropDownCustom extends StatelessWidget {
@@ -96,10 +95,7 @@ class DropDownCustom extends StatelessWidget {
               filled: filled,
               fillColor: filledColor ?? Theme.of(context).colorScheme.surface,
               hintStyle:
-                  hintStyle ??
-                  AppFont.reguler12.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
+                  hintStyle ?? AppFont.reguler12.copyWith(color: Theme.of(context).hintColor),
               border: OutlineInputBorder(
                 borderRadius: borderRadius ?? BorderRadius.circular(10),
                 borderSide: BorderSide(
@@ -160,10 +156,7 @@ class DropDownCustom extends StatelessWidget {
               decoration: BoxDecoration(color: Colors.transparent),
             ),
 
-            iconStyleData: const IconStyleData(
-              icon: Icon(Icons.expand_more),
-              iconSize: 20,
-            ),
+            iconStyleData: const IconStyleData(icon: Icon(Icons.expand_more), iconSize: 20),
             dropdownStyleData: DropdownStyleData(
               decoration: BoxDecoration(
                 color: color ?? Theme.of(context).cardColor,

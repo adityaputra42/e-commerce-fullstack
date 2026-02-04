@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../config/theme/app_color.dart';
-import '../../../config/theme/app_font.dart';
+import '../../theme/app_color.dart';
+import '../../theme/app_font.dart';
 
 class CustomTabBar extends StatelessWidget {
   final int? selectedIndex;
@@ -44,9 +44,7 @@ class CustomTabBar extends StatelessWidget {
                     child: Text(
                       e,
                       style: (titles.indexOf(e) == selectedIndex
-                          ? AppFont.medium14.copyWith(
-                              color: AppColor.lightText1,
-                            )
+                          ? AppFont.medium14.copyWith(color: AppColor.darkText1)
                           : AppFont.reguler14.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                             )),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/core/main/cubit/main_cubit.dart';
-import 'package:mobile/core/main/ui/widget/custom_bottom_navbar.dart';
+import 'package:mobile/features/main/cubit/main_cubit.dart';
+import 'package:mobile/features/main/ui/widget/custom_bottom_navbar.dart';
+import 'package:mobile/features/product/ui/screen/product_screen.dart';
 
-import '../../../../features/home/presentation/screen/home_screen.dart';
+import '../../../home/presentation/screen/home_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -15,7 +16,7 @@ class MainScreen extends StatelessWidget {
         case 0:
           return const HomeScreen();
         case 1:
-          return Center(child: Text("Cart"));
+          return const ProductScreen();
         case 2:
           return Center(child: Text("History"));
 
@@ -25,13 +26,13 @@ class MainScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      body: SafeArea(
-        child: BlocBuilder<MainCubit, int>(
-          builder: (context, state) {
-            return Stack(
-              children: [
-                body(state),
-                Align(
+      body: BlocBuilder<MainCubit, int>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              body(state),
+              SafeArea(
+                child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -43,10 +44,10 @@ class MainScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

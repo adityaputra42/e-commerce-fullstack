@@ -7,8 +7,8 @@ import 'package:iconify_flutter_plus/icons/mdi.dart';
 import 'package:iconify_flutter_plus/icons/uil.dart';
 import 'package:mobile/core/utils/size_extension.dart';
 
-import '../../../../config/theme/app_color.dart';
-import '../../../../config/theme/app_font.dart';
+import '../../../../core/theme/app_color.dart';
+import '../../../../core/theme/app_font.dart';
 
 class CustomBottomNavbar extends StatelessWidget {
   const CustomBottomNavbar({super.key, this.selectedIndex, this.onTap});

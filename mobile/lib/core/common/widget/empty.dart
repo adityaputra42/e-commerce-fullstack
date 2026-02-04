@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/utils/size_extension.dart';
 
-import '../../../config/theme/theme.dart';
+import '../../theme/theme.dart';
 
 class Empty extends StatelessWidget {
   const Empty({super.key, required this.title, this.width = 140});

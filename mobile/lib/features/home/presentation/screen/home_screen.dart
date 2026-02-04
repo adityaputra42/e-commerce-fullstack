@@ -1,10 +1,22 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconify_flutter_plus/iconify_flutter_plus.dart';
-import 'package:iconify_flutter_plus/icons/ic.dart';
 import 'package:iconify_flutter_plus/icons/mdi.dart';
-import 'package:mobile/config/theme/theme.dart';
+import 'package:mobile/core/theme/theme.dart';
+import 'package:mobile/core/common/widget/card_general.dart';
+import 'package:mobile/core/common/widget/rating_star.dart';
+import 'package:mobile/core/common/widget/shimmer_loading.dart';
 
+import '../../../../core/constants/constant.dart';
 import '../../../../core/utils/size_extension.dart';
+
+part '../../../../features/home/presentation/widget/app_bar_home.dart';
+part '../../../../features/home/presentation/widget/banner_home.dart';
+part '../../../../features/home/presentation/widget/new_arrival.dart';
+part '../../../../features/home/presentation/widget/list_populer_product.dart';
+part '../widget/header_populer_product.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,44 +26,12 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            pinned: true,
-            floating: false,
-            snap: false,
-            toolbarHeight: 60,
-            backgroundColor: AppColor.secondaryColor,
-            title: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Hi, Anisa", style: AppFont.reguler12),
-                      height(2),
-                      Text("Discover your style", style: AppFont.semibold20),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColor.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Iconify(Mdi.notifications_none, color: AppColor.primaryColor, size: 20),
-                ),
-                width(8),
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: AppColor.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Iconify(Ic.outline_message, color: AppColor.primaryColor, size: 20),
-                ),
-              ],
-            ),
-          ),
+          AppBarHome(),
+          BannerHome(),
+          NewArrivalWidget(),
+          HeaderPoppulerProduct(),
+          ListPopulerProduct(),
+          SliverPadding(padding: EdgeInsets.only(bottom: 120)),
         ],
       ),
     );

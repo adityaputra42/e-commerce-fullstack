@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/config/theme/theme.dart';
+import 'package:mobile/core/theme/theme.dart';
 import 'package:mobile/core/common/widget/card_general.dart';
 import 'package:mobile/core/common/widget/primary_button.dart';
 
