@@ -41,19 +41,16 @@ class _BannerHomeState extends State<BannerHome> {
                 if (banner.isEmpty) {
                   return const ShimmerLoading(radius: 12);
                 }
-                return InkWell(
-                  onTap: () async {},
-                  child: CachedNetworkImage(
-                    imageUrl: banner[index],
-                    imageBuilder: (context, imageProvider) => Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-                      ),
+                return CachedNetworkImage(
+                  imageUrl: banner[index],
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
                     ),
-                    placeholder: (context, url) => ShimmerLoading(radius: 12),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
+                  placeholder: (context, url) => ShimmerLoading(radius: 12),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 );
               },
             ),

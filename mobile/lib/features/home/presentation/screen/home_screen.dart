@@ -9,7 +9,7 @@ import 'package:mobile/core/common/widget/card_general.dart';
 import 'package:mobile/core/common/widget/rating_star.dart';
 import 'package:mobile/core/common/widget/shimmer_loading.dart';
 
-import '../../../../core/constants/constant.dart';
+import '../../../../core/routes/route_name.dart';
 import '../../../../core/utils/size_extension.dart';
 
 part '../../../../features/home/presentation/widget/app_bar_home.dart';

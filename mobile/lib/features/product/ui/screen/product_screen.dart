@@ -3,17 +3,22 @@ import 'package:go_router/go_router.dart';
 import 'package:iconify_flutter_plus/iconify_flutter_plus.dart';
 import 'package:iconify_flutter_plus/icons/mdi.dart';
 import 'package:mobile/core/common/widget/input_text.dart';
-import 'package:mobile/core/constants/constant.dart';
 
 import '../../../../core/common/widget/custom_tab_bar.dart';
+import '../../../../core/routes/route_name.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/size_extension.dart';
 import '../../../../core/utils/widget_helper.dart';
 import '../../../home/presentation/screen/home_screen.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
 
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +37,7 @@ class ProductScreen extends StatelessWidget {
                   filledColor: Theme.of(context).cardColor,
                 ),
               ),
-              width(8),
+              widget.width(8),
               InkWell(
                 onTap: () {
                   context.pushNamed(RouteNames.cart);
@@ -59,9 +64,9 @@ class ProductScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            height(16),
+            widget.height(16),
             CustomTabBar(titles: ["All", "Electronics", "Fashion", "Home"], selectedIndex: 0),
-            height(8),
+            widget.height(8),
             Expanded(
               child: GridView.builder(
                 padding: EdgeInsets.only(bottom: 120),

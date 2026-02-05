@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/core/theme/app_font.dart';
-import 'package:mobile/core/constants/constant.dart';
 
+import '../../../core/routes/route_name.dart';
 import '../cubit/splash_cubit.dart';
 
 class SplashScreen extends StatelessWidget {

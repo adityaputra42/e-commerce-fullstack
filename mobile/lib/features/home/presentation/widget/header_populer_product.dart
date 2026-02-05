@@ -17,6 +17,7 @@ class HeaderPoppulerProduct extends StatelessWidget {
                 Text("Populer Product", style: AppFont.medium14),
                 InkWell(
                   onTap: () {
+                    // context.read<MainCubit>().setTab(1);
                     context.pushNamed(RouteNames.populerProduct);
                   },
                   child: Text(

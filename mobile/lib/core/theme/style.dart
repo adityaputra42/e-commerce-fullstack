@@ -31,6 +31,7 @@ class Styles {
       fontFamily: "Poppins",
       cardColor: isDarkTheme ? AppColor.cardDark : AppColor.cardLight,
       hintColor: isDarkTheme ? AppColor.darkText2 : AppColor.lightText2,
+      highlightColor: isDarkTheme ? AppColor.darkText3 : AppColor.lightText3,
       canvasColor: isDarkTheme ? AppColor.strokeDark : AppColor.strokeLight,
 
       /// Button theme (Material 3 → pakai [ElevatedButtonThemeData], [TextButtonThemeData], dll)
