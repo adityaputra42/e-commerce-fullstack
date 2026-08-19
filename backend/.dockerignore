@@ -25,7 +25,6 @@ testdata/
 
 # Documentation
 *.md
-docs/
 
 # Temporary files
 tmp/

@@ -1,4 +1,3 @@
-basePath: /api/v1
 definitions:
   handler.HealthResponse:
     properties:
@@ -740,19 +739,8 @@ definitions:
       success:
         type: boolean
     type: object
-host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server for an e-commerce application.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: E-Commerce API
-  version: "1.0"
+  contact: {}
 paths:
   /:
     get:
@@ -944,7 +932,7 @@ paths:
           description: Invalid credentials
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: SignIn user
+      summary: SignIn Admin
       tags:
       - Auth
   /auth/logout:
@@ -1959,10 +1947,4 @@ paths:
       summary: Get user by ID
       tags:
       - User
-securityDefinitions:
-  Bearer:
-    description: Type "Bearer" followed by a space and then your token.
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

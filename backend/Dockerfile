@@ -1,5 +1,5 @@
 # Build Stage
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
@@ -40,9 +40,6 @@ COPY --from=builder /app/main .
 
 # Copy entrypoint script
 COPY entrypoint.sh .
-
-# Copy .env file
-COPY .env .
 
 # Make scripts executable
 RUN chmod +x /app/entrypoint.sh /app/main
