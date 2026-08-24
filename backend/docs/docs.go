@@ -255,7 +255,7 @@ const docTemplate = `{
         },
         "/auth/forgot-password": {
             "post": {
-                "description": "Request password reset token",
+                "description": "Kirim link reset password ke email jika akun terdaftar",
                 "consumes": [
                     "application/json"
                 ],
@@ -279,7 +279,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Password reset token sent successfully",
+                        "description": "Jika email terdaftar, link reset telah dikirim",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }

@@ -5,6 +5,7 @@ import (
 	"e-commerce/backend/internal/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type OrderRepository interface {
@@ -12,11 +13,23 @@ type OrderRepository interface {
 	Update(param models.Order, tx *gorm.DB) (models.Order, error)
 	Delete(param models.Order) error
 	FindById(paramId string) (models.Order, error)
+	FindByIdLocking(tx *gorm.DB, paramId string) (models.Order, error)
 	FindAll(param models.OrderListRequest) ([]models.Order, error)
 	FindAllByTxId(txId string) ([]models.Order, error)
 }
 
 type OrderRepositoryImpl struct {
+}
+
+// FindByIdLocking implements OrderRepository.
+func (a *OrderRepositoryImpl) FindByIdLocking(tx *gorm.DB, paramId string) (models.Order, error) {
+	var order models.Order
+	err := tx.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("id = ?", paramId).
+		First(&order).Error
+
+	return order, err
 }
 
 // FindAllByTxId implements OrderRepository.

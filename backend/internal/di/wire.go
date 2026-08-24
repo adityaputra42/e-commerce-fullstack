@@ -25,6 +25,17 @@ func ProvideJWTService(config *config.Config) *utils.JWTService {
 	return utils.NewJWTService(config)
 }
 
+func ProvideMailer(cfg *config.Config) utils.Mailer {
+	if cfg.SMTP.Host == "" || cfg.SMTP.Port == "" {
+		return utils.NewNoopMailer()
+	}
+	fromEmail := cfg.SMTP.FromEmail
+	if fromEmail == "" {
+		fromEmail = cfg.SMTP.Username
+	}
+	return utils.NewSMTPMailer(cfg.SMTP, fromEmail, cfg.System.FrontendResetPasswordURL)
+}
+
 // Repository Providers
 var repositorySet = wire.NewSet(
 	ProvideDB,
@@ -65,6 +76,7 @@ var serviceSet = wire.NewSet(
 // Utils Providers
 var utilsSet = wire.NewSet(
 	ProvideJWTService,
+	ProvideMailer,
 )
 
 // Handler Providers

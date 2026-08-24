@@ -13,9 +13,7 @@ func InitSupabase(config Config) {
 	key := config.Supabase.Key
 
 	if url == "" || key == "" {
-		log.Println("⚠️  Supabase Storage not configured (SUPABASE_URL/SUPABASE_KEY missing) — " +
-			"image upload endpoints will return an error until these are set. Everything else will run normally.")
-		return
+		log.Fatal("SUPABASE_URL or SUPABASE_KEY not set in environment variables")
 	}
 
 	storageURL := url + "/storage/v1"

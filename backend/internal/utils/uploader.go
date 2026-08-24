@@ -14,10 +14,6 @@ import (
 
 // UploadToSupabase mengupload file ke bucket Supabase Storage
 func UploadToSupabase(file *multipart.FileHeader, folderName string) (string, error) {
-	if config.SupabaseStorage == nil {
-		return "", fmt.Errorf("image upload is unavailable: Supabase Storage is not configured (set SUPABASE_URL and SUPABASE_KEY)")
-	}
-
 	src, err := file.Open()
 	if err != nil {
 		return "", fmt.Errorf("gagal membuka file: %w", err)
@@ -65,9 +61,6 @@ func DeleteFromSupabase(fileURL string) error {
 	if fileURL == "" {
 		return nil
 	}
-	if config.SupabaseStorage == nil {
-		return fmt.Errorf("cannot delete image: Supabase Storage is not configured (set SUPABASE_URL and SUPABASE_KEY)")
-	}
 
 	filePath := extractFilePathFromURL(fileURL)
 	if filePath == "" {
@@ -108,6 +101,7 @@ func DeleteMultipleFromSupabase(fileURLs []string) error {
 
 	return nil
 }
+
 
 func extractFilePathFromURL(fileURL string) string {
 	if fileURL == "" {

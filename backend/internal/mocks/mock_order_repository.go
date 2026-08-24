@@ -115,6 +115,21 @@ func (mr *MockOrderRepositoryMockRecorder) FindById(paramId any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindById", reflect.TypeOf((*MockOrderRepository)(nil).FindById), paramId)
 }
 
+// FindByIdLocking mocks base method.
+func (m *MockOrderRepository) FindByIdLocking(tx *gorm.DB, paramId string) (models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByIdLocking", tx, paramId)
+	ret0, _ := ret[0].(models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByIdLocking indicates an expected call of FindByIdLocking.
+func (mr *MockOrderRepositoryMockRecorder) FindByIdLocking(tx, paramId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByIdLocking", reflect.TypeOf((*MockOrderRepository)(nil).FindByIdLocking), tx, paramId)
+}
+
 // Update mocks base method.
 func (m *MockOrderRepository) Update(param models.Order, tx *gorm.DB) (models.Order, error) {
 	m.ctrl.T.Helper()

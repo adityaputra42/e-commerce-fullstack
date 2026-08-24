@@ -3,6 +3,7 @@ package services
 import (
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/repository"
+	"e-commerce/backend/internal/utils"
 )
 
 type RBACService interface {
@@ -84,9 +85,6 @@ func (s *RBACServiceImpl) GetUserRole(userID uint) (*models.Role, error) {
 	return s.repo.GetUserRole(userID)
 }
 
-// =======================
-// USER MANAGEMENT
-// =======================
 
 func (s *RBACServiceImpl) CanManageUser(
 	managerID uint,
@@ -107,20 +105,6 @@ func (s *RBACServiceImpl) CanManageUser(
 		s.GetRoleHierarchyLevel(targetRole.Name), nil
 }
 
-// =======================
-// ROLE HIERARCHY
-// =======================
-
 func (s *RBACServiceImpl) GetRoleHierarchyLevel(roleName string) int {
-	hierarchy := map[string]int{
-		"Super Admin": 4,
-		"Admin":       3,
-		"Vendor":      2,
-		"Customer":    1,
-	}
-
-	if level, ok := hierarchy[roleName]; ok {
-		return level
-	}
-	return 0
+	return utils.RoleHierarchyLevel(roleName)
 }

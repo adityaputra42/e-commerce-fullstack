@@ -8,7 +8,9 @@ import (
 	"e-commerce/backend/internal/utils"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +21,7 @@ type AuthService interface {
 	LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignUp(req models.RegisterRequest) (*models.TokenResponse, error)
-	ForgotPassword(req models.ForgotPasswordRequest) (string, error)
+	ForgotPassword(req models.ForgotPasswordRequest) error
 	ResetPassword(req models.ResetPasswordRequest) error
 	RefreshToken(req models.RefreshTokenRequest) (*models.TokenResponse, error)
 }
@@ -29,6 +31,7 @@ type AuthServiceImpl struct {
 	acitvityLogRepo    repository.ActivityLogRepository
 	roleRepo           repository.RoleRepository
 	passwordRepository repository.PasswordResetTokenRepository
+	mailer             utils.Mailer
 }
 
 // loginAdmin implements [AuthService].
@@ -99,7 +102,6 @@ func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, 
 	return a.generateTokenResponse(&userResult)
 }
 
-// generateTokenResponse implements AuthService.
 func (a *AuthServiceImpl) generateTokenResponse(user *models.User) (*models.TokenResponse, error) {
 	accessToken, expiresAt, err := a.jwtService.GenerateAccessToken(user)
 	if err != nil {
@@ -119,17 +121,17 @@ func (a *AuthServiceImpl) generateTokenResponse(user *models.User) (*models.Toke
 	}, nil
 }
 
-// ForgotPassword implements AuthService.
-func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) (string, error) {
+func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error {
 
 	user, err := a.userRepo.FindByEmail(req.Email)
 	if err != nil {
-		return "", errors.New("user not found")
+		log.Printf("Forgot-password diminta untuk email yang tidak terdaftar: %s", req.Email)
+		return nil
 	}
 
 	token := make([]byte, 32)
 	if _, err := rand.Read(token); err != nil {
-		return "", err
+		return err
 	}
 	tokenStr := hex.EncodeToString(token)
 
@@ -139,16 +141,21 @@ func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) (stri
 		ExpiresAt: time.Now().Add(1 * time.Hour),
 	}
 
-	_, err = a.passwordRepository.Create(&resetToken)
-	if err != nil {
-		return "", err
+	if _, err := a.passwordRepository.Create(&resetToken); err != nil {
+		return err
 	}
 
-	// Here you would typically send an email with the reset link.
-	// For this example, we'll just return the token.
-	// log.Printf("Password reset token for %s: %s", email, tokenStr)
+	fullName := strings.TrimSpace(user.FirstName + " " + user.LastName)
+	if fullName == "" {
+		fullName = user.Username
+	}
 
-	return tokenStr, nil
+	if err := a.mailer.SendPasswordResetEmail(user.Email, fullName, tokenStr); err != nil {
+		log.Printf("gagal mengirim email reset password ke %s: %v", user.Email, err)
+		return fmt.Errorf("gagal mengirim email reset password")
+	}
+
+	return nil
 }
 
 // RefreshToken implements AuthService.
@@ -276,7 +283,7 @@ func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenRespo
 		return nil, err
 	}
 
-	defaultRole, err := a.roleRepo.FindByName("User")
+	defaultRole, err := a.roleRepo.FindByName(utils.RoleCustomer)
 	if err != nil {
 		return nil, errors.New("default role not found")
 	}
@@ -300,12 +307,13 @@ func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenRespo
 	return a.generateTokenResponse(&userResult)
 }
 
-func NewAuthService(jwtService *utils.JWTService, userRepo repository.UserRepository, acitvityLogRepo repository.ActivityLogRepository, roleRepo repository.RoleRepository, passwordRepository repository.PasswordResetTokenRepository) AuthService {
+func NewAuthService(jwtService *utils.JWTService, userRepo repository.UserRepository, acitvityLogRepo repository.ActivityLogRepository, roleRepo repository.RoleRepository, passwordRepository repository.PasswordResetTokenRepository, mailer utils.Mailer) AuthService {
 	return &AuthServiceImpl{
 		jwtService:         jwtService,
 		userRepo:           userRepo,
 		acitvityLogRepo:    acitvityLogRepo,
 		roleRepo:           roleRepo,
 		passwordRepository: passwordRepository,
+		mailer:             mailer,
 	}
 }

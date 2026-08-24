@@ -142,25 +142,25 @@ func seedPermissions() error {
 func seedRoles() error {
 	roles := []models.Role{
 		{
-			Name:         "super_admin",
+			Name:         utils.RoleSuperAdmin,
 			Description:  "Full system access with all permissions",
 			Level:        4,
 			IsSystemRole: true,
 		},
 		{
-			Name:         "admin",
+			Name:         utils.RoleAdmin,
 			Description:  "Administrative access to manage store",
 			Level:        3,
 			IsSystemRole: true,
 		},
 		{
-			Name:         "vendor",
+			Name:         utils.RoleVendor,
 			Description:  "Vendor access to manage own products",
 			Level:        2,
 			IsSystemRole: true,
 		},
 		{
-			Name:         "customer",
+			Name:         utils.RoleCustomer,
 			Description:  "Customer access to browse and purchase",
 			Level:        1,
 			IsSystemRole: true,

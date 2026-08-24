@@ -50,15 +50,17 @@ type CORSConfig struct {
 }
 
 type SMTPConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
+	Host      string
+	Port      string
+	Username  string
+	Password  string
+	FromEmail string
 }
 
 type SystemConfig struct {
-	DefaultAdminEmail    string
-	DefaultAdminPassword string
+	DefaultAdminEmail        string
+	DefaultAdminPassword     string
+	FrontendResetPasswordURL string
 }
 
 func Load() *Config {
@@ -101,14 +103,16 @@ func Load() *Config {
 			AllowedOrigins: allowedOrigins,
 		},
 		SMTP: SMTPConfig{
-			Host:     viper.GetString("SMTP_HOST"),
-			Port:     viper.GetString("SMTP_PORT"),
-			Username: viper.GetString("SMTP_USERNAME"),
-			Password: viper.GetString("SMTP_PASSWORD"),
+			Host:      viper.GetString("SMTP_HOST"),
+			Port:      viper.GetString("SMTP_PORT"),
+			Username:  viper.GetString("SMTP_USERNAME"),
+			Password:  viper.GetString("SMTP_PASSWORD"),
+			FromEmail: viper.GetString("SMTP_FROM_EMAIL"),
 		},
 		System: SystemConfig{
-			DefaultAdminEmail:    viper.GetString("DEFAULT_ADMIN_EMAIL"),
-			DefaultAdminPassword: viper.GetString("DEFAULT_ADMIN_PASSWORD"),
+			DefaultAdminEmail:        viper.GetString("DEFAULT_ADMIN_EMAIL"),
+			DefaultAdminPassword:     viper.GetString("DEFAULT_ADMIN_PASSWORD"),
+			FrontendResetPasswordURL: viper.GetString("FRONTEND_RESET_PASSWORD_URL"),
 		},
 		Supabase: SupabaseConfig{
 			Url: viper.GetString("SUPABASE_URL"),

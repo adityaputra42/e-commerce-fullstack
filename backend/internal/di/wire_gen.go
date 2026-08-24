@@ -35,7 +35,8 @@ func InitializeAllHandler(config2 *config.Config) *Handler {
 	activityLogRepository := repository.NewActivityLogRepository()
 	roleRepository := repository.NewRoleRepository()
 	passwordResetTokenRepository := repository.NewPasswordResetTokenRepository()
-	authService := services.NewAuthService(jwtService, userRepository, activityLogRepository, roleRepository, passwordResetTokenRepository)
+	mailer := ProvideMailer(config2)
+	authService := services.NewAuthService(jwtService, userRepository, activityLogRepository, roleRepository, passwordResetTokenRepository, mailer)
 	authHandler := handler.NewAuthHandler(authService)
 	userService := services.NewUserService(userRepository, activityLogRepository, roleRepository)
 	userHandler := handler.NewUserHandler(userService)
@@ -43,7 +44,7 @@ func InitializeAllHandler(config2 *config.Config) *Handler {
 	roleService := services.NewRoleService(roleRepository, permissionRepository)
 	roleHandler := handler.NewRoleHandler(roleService)
 	orderRepository := repository.NewOrderRepository()
-	orderService := services.NewOrderService(orderRepository)
+	orderService := services.NewOrderService(orderRepository, productRepository)
 	orderHandler := handler.NewOrderHandler(orderService)
 	paymentRepository := repository.NewPaymentRepository()
 	transactionRepository := repository.NewTransactionRepository()
@@ -80,6 +81,21 @@ func ProvideJWTService(config2 *config.Config) *utils.JWTService {
 	return utils.NewJWTService(config2)
 }
 
+// ProvideMailer provides the Mailer used to actually deliver password-reset
+// emails. Falls back to a no-op mailer (logs only, never sends) when SMTP
+// isn't configured, so local/dev environments keep working without SMTP
+// credentials — but production MUST set SMTP_HOST/SMTP_PORT.
+func ProvideMailer(cfg *config.Config) utils.Mailer {
+	if cfg.SMTP.Host == "" || cfg.SMTP.Port == "" {
+		return utils.NewNoopMailer()
+	}
+	fromEmail := cfg.SMTP.FromEmail
+	if fromEmail == "" {
+		fromEmail = cfg.SMTP.Username
+	}
+	return utils.NewSMTPMailer(cfg.SMTP, fromEmail, cfg.System.FrontendResetPasswordURL)
+}
+
 // Repository Providers
 var repositorySet = wire.NewSet(
 	ProvideDB, repository.NewCategoryRepository, repository.NewProductRepository, repository.NewAddressRepository, repository.NewOrderRepository, repository.NewPasswordResetTokenRepository, repository.NewPaymentMethodRepository, repository.NewPaymentRepository, repository.NewPermissionRepository, repository.NewRBACRepository, repository.NewShippingRepository, repository.NewTransactionRepository, repository.NewUserReposiory, repository.NewActivityLogRepository, repository.NewRoleRepository, repository.NewDashboardRepository,
@@ -91,6 +107,7 @@ var serviceSet = wire.NewSet(services.NewCategoryService, services.NewProductSer
 // Utils Providers
 var utilsSet = wire.NewSet(
 	ProvideJWTService,
+	ProvideMailer,
 )
 
 // Handler Providers

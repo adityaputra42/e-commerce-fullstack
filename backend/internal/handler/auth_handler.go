@@ -7,6 +7,7 @@ import (
 	"e-commerce/backend/internal/utils"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -155,12 +156,12 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 // ForgotPassword - POST /api/v1/auth/forgot-password
 // @Summary Forgot password
-// @Description Request password reset token
+// @Description Kirim link reset password ke email jika akun terdaftar
 // @Tags Auth
 // @Accept json
 // @Produce json
 // @Param request body models.ForgotPasswordRequest true "Forgot password request"
-// @Success 200 {object} utils.Response "Password reset token sent successfully"
+// @Success 200 {object} utils.Response "Jika email terdaftar, link reset telah dikirim"
 // @Router /auth/forgot-password [post]
 func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var req models.ForgotPasswordRequest
@@ -169,13 +170,11 @@ func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authService.ForgotPassword(req)
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err.Error(), err)
-		return
+	if err := h.authService.ForgotPassword(req); err != nil {
+		log.Printf("ForgotPassword request failed: %v", err)
 	}
 
-	utils.WriteJSON(w, http.StatusOK, "Password reset token sent successfully", token)
+	utils.WriteJSON(w, http.StatusOK, "Jika email terdaftar, kami telah mengirim link reset password", nil)
 }
 
 // ResetPassword - POST /api/auth/reset-password
@@ -202,14 +201,6 @@ func (h *AuthHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, "Verification token is required", fmt.Errorf("Verification token is required"))
 		return
 	}
-
-	// Call service to verify email
-	// err := h.authService.VerifyEmail(token)
-	// if err != nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, err.Error())
-	// 	return
-	// }
-
 	utils.WriteJSON(w, http.StatusOK, "Email verified successfully", nil)
 }
 

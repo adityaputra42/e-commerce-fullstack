@@ -42,10 +42,13 @@ func ValidateStatusOrder(item string) bool {
 }
 
 var validTransition = map[string][]string{
-	"WAITING_PAYMENT": {"PAID", "CANCELLED"},
-	"PAID":            {"PACKED", "REFUND_REQUEST"},
-	"PACKED":          {"SHIPPED"},
-	"SHIPPED":         {"COMPLETED"},
+	"waiting_payment": {"paid", "cancelled"},
+	"paid":            {"processing", "refunded"},
+	"processing":      {"shipped", "cancelled"},
+	"shipped":         {"completed"},
+	"completed":       {"refunded"},
+	"cancelled":       {},
+	"refunded":        {},
 }
 
 func IsValidStatusTransition(from, to string) bool {

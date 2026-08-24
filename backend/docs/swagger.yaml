@@ -886,7 +886,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Request password reset token
+      description: Kirim link reset password ke email jika akun terdaftar
       parameters:
       - description: Forgot password request
         in: body
@@ -898,7 +898,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Password reset token sent successfully
+          description: Jika email terdaftar, link reset telah dikirim
           schema:
             $ref: '#/definitions/utils.Response'
       summary: Forgot password

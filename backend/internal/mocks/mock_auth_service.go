@@ -41,12 +41,11 @@ func (m *MockAuthService) EXPECT() *MockAuthServiceMockRecorder {
 }
 
 // ForgotPassword mocks base method.
-func (m *MockAuthService) ForgotPassword(req models.ForgotPasswordRequest) (string, error) {
+func (m *MockAuthService) ForgotPassword(req models.ForgotPasswordRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ForgotPassword", req)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // ForgotPassword indicates an expected call of ForgotPassword.

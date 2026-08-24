@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"e-commerce/backend/internal/services"
+	"e-commerce/backend/internal/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -124,8 +125,8 @@ func RequireAdminArea(
 				return
 			}
 
-			isAdmin, _ := rbac.HasExactRole(userID, "admin")
-			isSuper, _ := rbac.HasExactRole(userID, "super_admin")
+			isAdmin, _ := rbac.HasExactRole(userID, utils.RoleAdmin)
+			isSuper, _ := rbac.HasExactRole(userID, utils.RoleSuperAdmin)
 
 			if !isAdmin && !isSuper {
 				sendError(w, 403, "forbidden", "Admin access only")

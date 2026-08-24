@@ -24,7 +24,7 @@ func TestAuthService_SignUp(t *testing.T) {
 	cfg := &config.Config{JWT: config.JWTConfig{Secret: "test", AccessTokenExpiry: time.Hour, RefreshSecret: "refresh", RefreshTokenExpiry: time.Hour}}
 	jwtService := utils.NewJWTService(cfg)
 
-	service := services.NewAuthService(jwtService, mockUserRepo, nil, mockRoleRepo, nil)
+	service := services.NewAuthService(jwtService, mockUserRepo, nil, mockRoleRepo, nil, utils.NewNoopMailer())
 
 	t.Run("Success", func(t *testing.T) {
 		req := models.RegisterRequest{
@@ -35,10 +35,14 @@ func TestAuthService_SignUp(t *testing.T) {
 			LastName:  "User",
 		}
 
-		role := models.Role{ID: 1, Name: "User"}
+		// PENTING: role default untuk pelanggan baru adalah "customer" (lihat
+		// database/seeder.go), bukan "User". Sebelumnya test ini justru
+		// menegaskan (assert) nama role yang salah — itu sebabnya bug SignUp
+		// yang mencari role "User" tidak pernah ketahuan lewat unit test.
+		role := models.Role{ID: 1, Name: utils.RoleCustomer}
 
 		mockUserRepo.EXPECT().FindByEmail(req.Email).Return(models.User{}, gorm.ErrRecordNotFound)
-		mockRoleRepo.EXPECT().FindByName("User").Return(role, nil)
+		mockRoleRepo.EXPECT().FindByName(utils.RoleCustomer).Return(role, nil)
 
 		mockUserRepo.EXPECT().
 			Create(gomock.Any()).
@@ -85,11 +89,11 @@ func TestAuthService_SignIn(t *testing.T) {
 	cfg := &config.Config{JWT: config.JWTConfig{Secret: "test", AccessTokenExpiry: time.Hour, RefreshSecret: "refresh", RefreshTokenExpiry: time.Hour}}
 	jwtService := utils.NewJWTService(cfg)
 
-	service := services.NewAuthService(jwtService, mockUserRepo, mockActivityRepo, nil, nil)
+	service := services.NewAuthService(jwtService, mockUserRepo, mockActivityRepo, nil, nil, utils.NewNoopMailer())
 
 	t.Run("Success", func(t *testing.T) {
 		// Insert dependent Role data into the DB to satisfy FK constraints during Save
-		role := models.Role{Name: "User"}
+		role := models.Role{Name: utils.RoleCustomer}
 		if err := testDB.Create(&role).Error; err != nil {
 			t.Fatalf("Failed to create test role: %v", err)
 		}
