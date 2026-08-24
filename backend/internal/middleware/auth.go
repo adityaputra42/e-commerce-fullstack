@@ -30,6 +30,13 @@ const (
 	RoleIDContextKey contextKey = "role_id"
 )
 
+// AuthMiddleware memvalidasi Bearer token dan menempelkan user ke context.
+//
+// SEBELUMNYA middleware ini menulis ±8 baris log (termasuk potongan token)
+// untuk SETIAP request yang lewat, termasuk request yang sukses. Itu
+// membanjiri log production dengan noise, membocorkan sebagian token ke log,
+// dan bikin log yang benar-benar relevan saat incident tenggelam. Sekarang
+// hanya kegagalan yang di-log, dan tanpa potongan token.
 func AuthMiddleware(userService services.UserService, jwtService *utils.JWTService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

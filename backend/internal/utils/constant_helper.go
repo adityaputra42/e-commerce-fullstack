@@ -41,7 +41,7 @@ func ValidateStatusOrder(item string) bool {
 	return false
 }
 
-var validTransition = map[string][]string{
+var transactionStatusTransition = NewStatusTransition(map[string][]string{
 	"waiting_payment": {"paid", "cancelled"},
 	"paid":            {"processing", "refunded"},
 	"processing":      {"shipped", "cancelled"},
@@ -49,19 +49,8 @@ var validTransition = map[string][]string{
 	"completed":       {"refunded"},
 	"cancelled":       {},
 	"refunded":        {},
-}
+})
 
 func IsValidStatusTransition(from, to string) bool {
-	allowed, ok := validTransition[from]
-	if !ok {
-		return false
-	}
-
-	for _, a := range allowed {
-		if a == to {
-			return true
-		}
-	}
-
-	return false
+	return transactionStatusTransition.IsValid(from, to)
 }

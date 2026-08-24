@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import api from '@/lib/api';
+import api from '@/services/api';
 import type { Product } from '@/types/product';
 import ProductCard from '@/components/product/ProductCard';
 import { ArrowRight, Sparkles, TrendingUp, ShieldCheck, Zap } from 'lucide-react';

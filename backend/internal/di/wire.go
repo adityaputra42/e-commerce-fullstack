@@ -25,6 +25,10 @@ func ProvideJWTService(config *config.Config) *utils.JWTService {
 	return utils.NewJWTService(config)
 }
 
+// ProvideMailer provides the Mailer used to actually deliver password-reset
+// emails. Falls back to a no-op mailer (logs only, never sends) when SMTP
+// isn't configured, so local/dev environments keep working without SMTP
+// credentials — but production MUST set SMTP_HOST/SMTP_PORT.
 func ProvideMailer(cfg *config.Config) utils.Mailer {
 	if cfg.SMTP.Host == "" || cfg.SMTP.Port == "" {
 		return utils.NewNoopMailer()

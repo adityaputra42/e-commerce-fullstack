@@ -19,14 +19,14 @@ import (
 
 func initLogger() *zap.Logger {
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		MessageKey:     "msg",
-		CallerKey:      "caller",
-		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
-		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		TimeKey:      "time",
+		LevelKey:     "level",
+		NameKey:      "logger",
+		MessageKey:   "msg",
+		CallerKey:    "caller",
+		EncodeLevel:  zapcore.CapitalColorLevelEncoder,
+		EncodeTime:   zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
+		EncodeCaller: zapcore.ShortCallerEncoder,
 	}
 
 	core := zapcore.NewCore(
@@ -62,17 +62,21 @@ func main() {
 	}
 	logger.Info("✅ Database connected successfully")
 
-	logger.Info("🔄 Running database migrations...")
-	if err := database.Migrate(); err != nil {
-		logger.Fatal("Failed to migrate database", zap.Error(err))
-	}
-	logger.Info("✅ Migrations completed")
+	if cfg.RunMigrationsOnBoot {
+		logger.Info("🔄 Running database migrations...")
+		if err := database.Migrate(); err != nil {
+			logger.Fatal("Failed to migrate database", zap.Error(err))
+		}
+		logger.Info("✅ Migrations completed")
 
-	logger.Info("🌱 Running database seeders...")
-	if err := database.SeedDatabase(cfg); err != nil {
-		logger.Fatal("Failed to seed database", zap.Error(err))
+		logger.Info("🌱 Running database seeders...")
+		if err := database.SeedDatabase(cfg); err != nil {
+			logger.Fatal("Failed to seed database", zap.Error(err))
+		}
+		logger.Info("✅ Database seeded successfully")
+	} else {
+		logger.Info("⏭️  Melewati migrate/seed otomatis (RUN_MIGRATIONS_ON_BOOT=false) — jalankan `go run cmd/migrate/main.go` secara eksplisit sebagai deployment step")
 	}
-	logger.Info("✅ Database seeded successfully")
 
 	handler := di.InitializeAllHandler(cfg)
 
@@ -83,11 +87,8 @@ func main() {
 		port = "8080"
 	}
 
-
 	fmt.Printf("\n")
 	fmt.Printf("╔════════════════════════════════════════╗\n")
-	fmt.Printf("║  Server is running on port %-4s        ║\n", port)
-	fmt.Printf("║ ══════════════════════════════════════ ║\n")
 	fmt.Printf("║  Server is running on port %-4s        ║\n", port)
 	fmt.Printf("╚════════════════════════════════════════╝\n")
 	fmt.Printf("\n")

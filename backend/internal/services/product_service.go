@@ -27,6 +27,53 @@ type ProductServiceImpl struct {
 	productRepo  repository.ProductRepository
 }
 
+// imageChange melacak satu file gambar yang diupload selama sebuah operasi.
+// OldURL diisi kalau operasi ini MENGGANTI gambar yang sudah ada (kosong
+// kalau ini gambar baru). Dipakai untuk membersihkan file di Supabase Storage
+// SETELAH tahu hasil akhir DB transaction:
+//   - Transaction SUKSES  -> hapus OldURL (gambar lama yang sudah tergantikan)
+//   - Transaction GAGAL   -> hapus NewURL (gambar baru jadi orphan karena
+//     tidak jadi dipakai; OldURL TIDAK disentuh karena DB masih menunjuk ke
+//     situ)
+//
+// SEBELUMNYA utils.ReplaceFile() menghapus file lama secara async begitu
+// upload baru sukses — TANPA peduli transaction DB-nya nanti gagal atau
+// tidak. Kalau transaction gagal setelah itu, file lama sudah hilang
+// permanen padahal DB (ter-rollback) masih menunjuk ke URL yang sudah tidak
+// ada. Pola imageChange ini membuat penghapusan file selalu menunggu hasil
+// transaction dulu.
+type imageChange struct {
+	OldURL string
+	NewURL string
+}
+
+// cleanupImageChanges menghapus file di Supabase berdasarkan hasil transaction.
+func cleanupImageChanges(changes []imageChange, txSucceeded bool) {
+	if len(changes) == 0 {
+		return
+	}
+	var urls []string
+	for _, c := range changes {
+		if txSucceeded {
+			if c.OldURL != "" {
+				urls = append(urls, c.OldURL)
+			}
+		} else {
+			if c.NewURL != "" {
+				urls = append(urls, c.NewURL)
+			}
+		}
+	}
+	if len(urls) == 0 {
+		return
+	}
+	go func() {
+		if err := utils.DeleteMultipleFromSupabase(urls); err != nil {
+			fmt.Printf("Warning: gagal membersihkan file gambar: %v\n", err)
+		}
+	}()
+}
+
 // updateSizeVariants implements ProductService.
 func (p *ProductServiceImpl) UpdateSizeVariants(colorVarianID int64, sizesParam []models.UpdateSizeVarianRequest, tx *gorm.DB) error {
 
@@ -101,57 +148,56 @@ func sanitizeFileName(name string) string {
 	reg := regexp.MustCompile("[^a-zA-Z0-9_-]+")
 	return reg.ReplaceAllString(name, "")
 }
+// AddColorVarianProduct implements ProductService.
+//
+// Sama seperti CreateProduct: upload gambar dipindah keluar dari transaction,
+// dan dibersihkan lewat cleanupImageChanges kalau transaction gagal.
 func (p *ProductServiceImpl) AddColorVarianProduct(productId int64, param models.CreateColorVarianRequest) (*models.ProductDetailResponse, error) {
-	var product models.Product
-	var category models.Category
-
-	err := database.DB.Transaction(func(tx *gorm.DB) error {
-
-		productResult, err := p.productRepo.FindProductById(productId, tx)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return fmt.Errorf("product dengan ID %d tidak ditemukan", productId)
-			}
-			return fmt.Errorf("error mencari product: %w", err)
+	product, err := p.productRepo.FindProductById(productId, nil)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("product dengan ID %d tidak ditemukan", productId)
 		}
-		product = *productResult
+		return nil, fmt.Errorf("error mencari product: %w", err)
+	}
 
-		categoryResult, err := p.categoryRepo.FindById((product.CategoryID))
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return fmt.Errorf("category dengan ID %d tidak ditemukan", product.CategoryID)
-			}
-			return fmt.Errorf("error mengambil category: %w", err)
+	category, err := p.categoryRepo.FindById(product.CategoryID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("category dengan ID %d tidak ditemukan", product.CategoryID)
 		}
-		category = categoryResult
+		return nil, fmt.Errorf("error mengambil category: %w", err)
+	}
 
-		for _, cv := range product.ColorVarians {
-			if strings.EqualFold(cv.Name, param.Name) {
-				return fmt.Errorf("color varian '%s' sudah ada di product ini", param.Name)
-			}
+	for _, cv := range product.ColorVarians {
+		if strings.EqualFold(cv.Name, param.Name) {
+			return nil, fmt.Errorf("color varian '%s' sudah ada di product ini", param.Name)
 		}
-		if param.Image == nil {
-			return fmt.Errorf("gambar wajib diisi untuk color varian")
-		}
+	}
+	if param.Image == nil {
+		return nil, fmt.Errorf("gambar wajib diisi untuk color varian")
+	}
 
-		if len(param.Sizes) == 0 {
-			return fmt.Errorf("minimal harus ada 1 ukuran untuk color varian")
-		}
+	if len(param.Sizes) == 0 {
+		return nil, fmt.Errorf("minimal harus ada 1 ukuran untuk color varian")
+	}
 
-		sizeMap := make(map[string]bool)
-		for _, sv := range param.Sizes {
-			if sizeMap[strings.ToUpper(sv.Size)] {
-				return fmt.Errorf("ukuran '%s' duplikat dalam color varian '%s'", sv.Size, param.Name)
-			}
-			sizeMap[strings.ToUpper(sv.Size)] = true
+	sizeMap := make(map[string]bool)
+	for _, sv := range param.Sizes {
+		if sizeMap[strings.ToUpper(sv.Size)] {
+			return nil, fmt.Errorf("ukuran '%s' duplikat dalam color varian '%s'", sv.Size, param.Name)
 		}
+		sizeMap[strings.ToUpper(sv.Size)] = true
+	}
 
-		folderName := fmt.Sprintf("product/%s/colors", sanitizeFileName(product.Name))
-		colorImageURL, err := utils.UploadToSupabase(param.Image, folderName)
-		if err != nil {
-			return fmt.Errorf("gagal upload gambar color varian: %w", err)
-		}
+	folderName := fmt.Sprintf("product/%s/colors", sanitizeFileName(product.Name))
+	colorImageURL, err := utils.UploadToSupabase(param.Image, folderName)
+	if err != nil {
+		return nil, fmt.Errorf("gagal upload gambar color varian: %w", err)
+	}
+	imageChanges := []imageChange{{NewURL: colorImageURL}}
 
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
 		colorVariant := models.ColorVarian{
 			ProductID: product.ID,
 			Name:      param.Name,
@@ -180,8 +226,10 @@ func (p *ProductServiceImpl) AddColorVarianProduct(productId int64, param models
 		return nil
 	})
 
-	if err != nil {
-		return nil, err
+	cleanupImageChanges(imageChanges, txErr == nil)
+
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	productWithRelations, err := p.productRepo.FindProductById(productId, nil)
@@ -194,33 +242,62 @@ func (p *ProductServiceImpl) AddColorVarianProduct(productId int64, param models
 }
 
 // CreateProduct implements ProductService.
+//
+// SEBELUMNYA seluruh upload gambar (produk utama + tiap color variant)
+// dijalankan DI DALAM database.DB.Transaction(...). Dampaknya: (1) koneksi
+// DB dipegang selama proses upload ke Supabase berlangsung, memboroskan
+// connection pool untuk I/O jaringan yang tidak ada hubungannya dengan DB;
+// (2) kalau upload warna ke-3 gagal setelah warna 1-2 sukses, transaction
+// di-rollback tapi file 1-2 sudah terlanjur ada di storage dan tidak pernah
+// dibersihkan (orphan file permanen). Sekarang: semua upload dilakukan
+// SEBELUM transaction dibuka (transaction jadi murni operasi DB, cepat),
+// dan kalau transaction tetap gagal, semua file yang sudah terlanjur
+// diupload dibersihkan lewat cleanupImageChanges.
 func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*models.ProductDetailResponse, error) {
 	var product models.Product
-	var category models.Category
 	var colorVariants []models.ColorVarian
 
-	err := database.DB.Transaction(func(tx *gorm.DB) error {
+	// Validasi category dulu (read-only, tidak butuh tx) sebelum melakukan
+	// upload apa pun — supaya request yang pasti gagal validasi tidak sampai
+	// membuang waktu/kuota upload.
+	category, err := p.categoryRepo.FindById(param.CategoryID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("category dengan ID %d tidak ditemukan", param.CategoryID)
+		}
+		return nil, fmt.Errorf("error validasi category: %w", err)
+	}
 
-		// VALIDASI CATEGORY (pakai tx)
-		categoryResult, err := p.categoryRepo.FindById(param.CategoryID)
+	var imageChanges []imageChange
+
+	var imageURL string
+	if param.Image != nil {
+		folder := fmt.Sprintf("product/%s", sanitizeFileName(param.Name))
+		imageURL, err = utils.UploadToSupabase(param.Image, folder)
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return fmt.Errorf("category dengan ID %d tidak ditemukan", param.CategoryID)
-			}
-			return fmt.Errorf("error validasi category: %w", err)
+			return nil, fmt.Errorf("gagal upload gambar produk: %w", err)
 		}
-		category = categoryResult
+		imageChanges = append(imageChanges, imageChange{NewURL: imageURL})
+	}
 
-		var imageURL string
-		if param.Image != nil {
-			folder := fmt.Sprintf("product/%s", sanitizeFileName(param.Name))
-			imageURL, err = utils.UploadToSupabase(param.Image, folder)
-			if err != nil {
-				return fmt.Errorf("gagal upload gambar produk: %w", err)
-			}
+	type colorUpload struct {
+		Name, Color, URL string
+		Sizes            []models.CreateSizeVarianRequest
+	}
+	colorUploads := make([]colorUpload, 0, len(param.ColorVarian))
+	for i, c := range param.ColorVarian {
+		folder := fmt.Sprintf("product/%s/colors", sanitizeFileName(param.Name))
+		colorURL, err := utils.UploadToSupabase(c.Image, folder)
+		if err != nil {
+			// Bersihkan semua file yang sudah terlanjur diupload sebelum ini.
+			cleanupImageChanges(imageChanges, false)
+			return nil, fmt.Errorf("gagal upload gambar varian warna ke-%d: %w", i+1, err)
 		}
+		imageChanges = append(imageChanges, imageChange{NewURL: colorURL})
+		colorUploads = append(colorUploads, colorUpload{Name: c.Name, Color: c.Color, URL: colorURL, Sizes: c.Sizes})
+	}
 
-		// CREATE PRODUCT DALAM TX
+	txErr := database.DB.Transaction(func(tx *gorm.DB) error {
 		pData := models.Product{
 			CategoryID:  param.CategoryID,
 			Name:        param.Name,
@@ -229,25 +306,18 @@ func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*mo
 			Images:      imageURL,
 		}
 
+		var err error
 		product, err = p.productRepo.CreateProduct(pData, tx)
 		if err != nil {
 			return fmt.Errorf("gagal membuat product: %w", err)
 		}
 
-		// CREATE COLOR VARIANTS
-		for i, c := range param.ColorVarian {
-
-			folder := fmt.Sprintf("product/%s/colors", sanitizeFileName(param.Name))
-			colorURL, err := utils.UploadToSupabase(c.Image, folder)
-			if err != nil {
-				return fmt.Errorf("gagal upload gambar varian warna ke-%d: %w", i+1, err)
-			}
-
+		for i, cu := range colorUploads {
 			colorData := models.ColorVarian{
 				ProductID: product.ID,
-				Name:      c.Name,
-				Color:     c.Color,
-				Images:    colorURL,
+				Name:      cu.Name,
+				Color:     cu.Color,
+				Images:    cu.URL,
 			}
 
 			colorVariant, err := p.productRepo.CreateColorVarian(colorData, tx)
@@ -255,8 +325,7 @@ func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*mo
 				return fmt.Errorf("gagal membuat varian warna ke-%d: %w", i+1, err)
 			}
 
-			// SIZES
-			for j, s := range c.Sizes {
+			for j, s := range cu.Sizes {
 				sizeData := models.SizeVarian{
 					ColorVarianID: colorVariant.ID,
 					Size:          s.Size,
@@ -265,7 +334,7 @@ func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*mo
 
 				_, err := p.productRepo.CreateSizeVarian(sizeData, tx)
 				if err != nil {
-					return fmt.Errorf("gagal membuat size %d for warna %s: %w", j+1, c.Name, err)
+					return fmt.Errorf("gagal membuat size %d for warna %s: %w", j+1, cu.Name, err)
 				}
 			}
 
@@ -275,8 +344,12 @@ func (p *ProductServiceImpl) CreateProduct(param models.CreateProductParam) (*mo
 		return nil
 	})
 
-	if err != nil {
-		return nil, err
+	// Transaction gagal: semua file yang sudah diupload jadi orphan, hapus.
+	// Transaction sukses: tidak ada file lama yang perlu dihapus (semua baru).
+	cleanupImageChanges(imageChanges, txErr == nil)
+
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	product.ColorVarians = colorVariants
@@ -380,6 +453,7 @@ func (p *ProductServiceImpl) FindProductById(id int64) (*models.ProductDetailRes
 func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*models.ProductDetailResponse, error) {
 	var product models.Product
 	var category models.Category
+	var imageChanges []imageChange
 
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -435,11 +509,19 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 		}
 
 		if param.Image != nil {
-			url, err := utils.ReplaceFile(product.Images, param.Image, fmt.Sprintf("product/%s", sanitizeFileName(product.Name)))
+			// SEBELUMNYA pakai utils.ReplaceFile(...) yang langsung menghapus
+			// file lama secara async begitu upload baru sukses — TIDAK peduli
+			// transaction ini nanti berhasil atau di-rollback. Sekarang cuma
+			// upload gambar baru; penghapusan file lama ditunda sampai
+			// transaction benar-benar sukses (lihat cleanupImageChanges di
+			// bawah, dipanggil setelah blok Transaction()).
+			folder := fmt.Sprintf("product/%s", sanitizeFileName(product.Name))
+			newURL, err := utils.UploadToSupabase(param.Image, folder)
 			if err != nil {
 				return err
 			}
-			product.Images = url
+			imageChanges = append(imageChanges, imageChange{OldURL: product.Images, NewURL: newURL})
+			product.Images = newURL
 		}
 
 		product, err = p.productRepo.UpdateProduct(product, tx)
@@ -478,11 +560,13 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 					}
 
 					if cv.Image != nil {
-						url, err := utils.ReplaceFile(exColor.Images, cv.Image, fmt.Sprintf("product/%s/colors", sanitizeFileName(product.Name)))
+						folder := fmt.Sprintf("product/%s/colors", sanitizeFileName(product.Name))
+						newURL, err := utils.UploadToSupabase(cv.Image, folder)
 						if err != nil {
 							return err
 						}
-						exColor.Images = url
+						imageChanges = append(imageChanges, imageChange{OldURL: exColor.Images, NewURL: newURL})
+						exColor.Images = newURL
 					}
 
 					_, err := p.productRepo.UpdateColorVarian(*exColor, tx)
@@ -509,6 +593,7 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 					if err != nil {
 						return err
 					}
+					imageChanges = append(imageChanges, imageChange{NewURL: url})
 
 					newColor := models.ColorVarian{
 						ProductID: product.ID,
@@ -549,6 +634,11 @@ func (p *ProductServiceImpl) UpdateProduct(param models.UpdateProductParam) (*mo
 
 		return nil
 	})
+
+	// err == nil (sukses)   -> hapus file LAMA yang sudah tergantikan.
+	// err != nil (rollback) -> hapus file BARU yang jadi orphan (DB masih
+	// menunjuk ke file lama yang tidak pernah tersentuh).
+	cleanupImageChanges(imageChanges, err == nil)
 
 	if err != nil {
 		return nil, err

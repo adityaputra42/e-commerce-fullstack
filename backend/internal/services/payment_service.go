@@ -3,6 +3,7 @@ package services
 import (
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/repository"
+	"e-commerce/backend/internal/utils"
 	"errors"
 	"fmt"
 )
@@ -143,31 +144,22 @@ func (p *PaymentServiceImpl) DeletePayment(id int64) error {
 	return nil
 }
 
-// Helper function untuk validasi status transition
+// Payment punya vocabulary status sendiri (beda dari Transaction), tapi
+// logic validasinya sekarang dibangun dari StatusTransition yang sama
+// dipakai transaction (lihat utils/status_transition.go) — bukan
+// diimplementasikan manual terpisah lagi.
+var paymentStatusTransition = utils.NewStatusTransition(map[string][]string{
+	"pending":   {"confirmed", "rejected", "cancelled"},
+	"confirmed": {"completed", "refunded"},
+	"rejected":  {"pending"}, // Allow resubmit
+	"cancelled": {},          // Cannot change from cancelled
+	"completed": {"refunded"},
+	"refunded":  {}, // Final state
+})
+
+// validateStatusTransition adalah helper validasi status transition.
 func (p *PaymentServiceImpl) validateStatusTransition(currentStatus, newStatus string) error {
-	// Define valid status transitions
-	validTransitions := map[string][]string{
-		"pending":   {"confirmed", "rejected", "cancelled"},
-		"confirmed": {"completed", "refunded"},
-		"rejected":  {"pending"}, // Allow resubmit
-		"cancelled": {},          // Cannot change from cancelled
-		"completed": {"refunded"},
-		"refunded":  {}, // Final state
-	}
-
-	allowedStatuses, exists := validTransitions[currentStatus]
-	if !exists {
-		return fmt.Errorf("invalid current status: %s", currentStatus)
-	}
-
-	// Check if new status is allowed
-	for _, allowed := range allowedStatuses {
-		if newStatus == allowed {
-			return nil
-		}
-	}
-
-	return fmt.Errorf("invalid status transition from %s to %s", currentStatus, newStatus)
+	return paymentStatusTransition.Validate(currentStatus, newStatus)
 }
 
 func NewPaymentService(paymentRepo repository.PaymentRepository, transactionRepo repository.TransactionRepository) PaymentService {

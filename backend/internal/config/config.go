@@ -16,6 +16,7 @@ type Config struct {
 	SMTP     SMTPConfig
 	System   SystemConfig
 	Supabase SupabaseConfig
+	RunMigrationsOnBoot bool
 }
 
 type SupabaseConfig struct {
@@ -30,6 +31,9 @@ type DatabaseConfig struct {
 	Password string
 	Name     string
 	SSLMode  string
+	// TimeZone dipakai untuk koneksi DB (mis. "Asia/Jakarta"). Kosong berarti
+	// pakai default Asia/Jakarta (lihat database.Connect).
+	TimeZone string
 }
 
 type ServerConfig struct {
@@ -58,8 +62,11 @@ type SMTPConfig struct {
 }
 
 type SystemConfig struct {
-	DefaultAdminEmail        string
-	DefaultAdminPassword     string
+	DefaultAdminEmail    string
+	DefaultAdminPassword string
+	// FrontendResetPasswordURL adalah halaman di frontend yang menerima
+	// ?token=... dan menampilkan form set-password-baru. Dipakai untuk
+	// menyusun link di email forgot-password.
 	FrontendResetPasswordURL string
 }
 
@@ -79,7 +86,13 @@ func Load() *Config {
 		allowedOrigins[i] = strings.TrimSpace(allowedOrigins[i])
 	}
 
+	runMigrationsOnBoot := true
+	if viper.IsSet("RUN_MIGRATIONS_ON_BOOT") {
+		runMigrationsOnBoot = viper.GetBool("RUN_MIGRATIONS_ON_BOOT")
+	}
+
 	return &Config{
+		RunMigrationsOnBoot: runMigrationsOnBoot,
 		Database: DatabaseConfig{
 			Host:     viper.GetString("DB_HOST"),
 			Port:     viper.GetString("DB_PORT"),
@@ -87,6 +100,7 @@ func Load() *Config {
 			Password: viper.GetString("DB_PASSWORD"),
 			Name:     viper.GetString("DB_NAME"),
 			SSLMode:  viper.GetString("DB_SSL_MODE"),
+			TimeZone: viper.GetString("DB_TIMEZONE"),
 		},
 		Server: ServerConfig{
 			Port: viper.GetString("PORT"),

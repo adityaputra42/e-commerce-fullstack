@@ -107,7 +107,6 @@ var serviceSet = wire.NewSet(services.NewCategoryService, services.NewProductSer
 // Utils Providers
 var utilsSet = wire.NewSet(
 	ProvideJWTService,
-	ProvideMailer,
 )
 
 // Handler Providers

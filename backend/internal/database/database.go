@@ -14,12 +14,18 @@ import (
 var DB *gorm.DB
 
 func Connect(cfg *config.Config) error {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
+	timeZone := cfg.Database.TimeZone
+	if timeZone == "" {
+		timeZone = "Asia/Jakarta"
+	}
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=%s",
 		cfg.Database.Host,
 		cfg.Database.User,
 		cfg.Database.Password,
 		cfg.Database.Name,
 		cfg.Database.Port,
+		timeZone,
 	)
 
 	var err error

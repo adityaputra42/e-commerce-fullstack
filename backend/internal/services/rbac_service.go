@@ -85,7 +85,6 @@ func (s *RBACServiceImpl) GetUserRole(userID uint) (*models.Role, error) {
 	return s.repo.GetUserRole(userID)
 }
 
-
 func (s *RBACServiceImpl) CanManageUser(
 	managerID uint,
 	targetUserID uint,

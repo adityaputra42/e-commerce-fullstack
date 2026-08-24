@@ -11,7 +11,6 @@ type Mailer interface {
 	SendPasswordResetEmail(toEmail, toName, resetToken string) error
 }
 
-// SMTPMailer implementasi Mailer yang benar-benar kirim email lewat SMTP.
 type SMTPMailer struct {
 	cfg       config.SMTPConfig
 	fromEmail string
