@@ -19,14 +19,14 @@ import (
 
 func initLogger() *zap.Logger {
 	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:      "time",
-		LevelKey:     "level",
-		NameKey:      "logger",
-		MessageKey:   "msg",
-		CallerKey:    "caller",
-		EncodeLevel:  zapcore.CapitalColorLevelEncoder,
-		EncodeTime:   zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
-		EncodeCaller: zapcore.ShortCallerEncoder,
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		MessageKey:     "msg",
+		CallerKey:      "caller",
+		EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+		EncodeTime:     zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05"),
+		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
 	core := zapcore.NewCore(
@@ -86,6 +86,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
 
 	fmt.Printf("\n")
 	fmt.Printf("╔════════════════════════════════════════╗\n")

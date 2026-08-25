@@ -100,6 +100,21 @@ func (mr *MockPaymentRepositoryMockRecorder) FindById(paramId any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindById", reflect.TypeOf((*MockPaymentRepository)(nil).FindById), paramId)
 }
 
+// FindByIdLocking mocks base method.
+func (m *MockPaymentRepository) FindByIdLocking(tx *gorm.DB, paramId uint) (models.Payment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByIdLocking", tx, paramId)
+	ret0, _ := ret[0].(models.Payment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByIdLocking indicates an expected call of FindByIdLocking.
+func (mr *MockPaymentRepositoryMockRecorder) FindByIdLocking(tx, paramId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByIdLocking", reflect.TypeOf((*MockPaymentRepository)(nil).FindByIdLocking), tx, paramId)
+}
+
 // Update mocks base method.
 func (m *MockPaymentRepository) Update(param models.Payment, tx *gorm.DB) (models.Payment, error) {
 	m.ctrl.T.Helper()

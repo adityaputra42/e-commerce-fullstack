@@ -1,11 +1,15 @@
 package services
 
 import (
+	"e-commerce/backend/internal/database"
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/repository"
 	"e-commerce/backend/internal/utils"
 	"errors"
 	"fmt"
+	"log"
+
+	"gorm.io/gorm"
 )
 
 type PaymentService interface {
@@ -17,8 +21,9 @@ type PaymentService interface {
 }
 
 type PaymentServiceImpl struct {
-	paymentRepo     repository.PaymentRepository
-	transactionRepo repository.TransactionRepository
+	paymentRepo        repository.PaymentRepository
+	transactionRepo    repository.TransactionRepository
+	fulfillmentService OrderFulfillmentService
 }
 
 // CreatePayment implements PaymentService.
@@ -50,32 +55,102 @@ func (p *PaymentServiceImpl) CreatePayment(param models.CreatePayment) (*models.
 	return result, nil
 }
 
+// paymentStatusToTransactionStatus memetakan status Payment ke status
+// Transaction yang seharusnya ikut berubah. Status yang tidak ada di map ini
+// (mis. "rejected" — rejected mengizinkan resubmit ke "pending", jadi
+// Transaction tidak perlu diapa-apakan) sengaja tidak memicu cascade.
+//
+// CATATAN (asumsi bisnis, sama seperti di order_fulfillment_service.go):
+// Payment "completed" TIDAK dipetakan ke Transaction status apa pun di sini
+// — "completed" pada Payment diartikan sebagai "dana sudah settle/
+// terkonfirmasi penuh", bukan otomatis berarti "barang sudah sampai".
+// Transaction tetap maju lewat progres shippingnya sendiri (paid -> shipped
+// -> completed), independen dari kapan uangnya settle. Kalau asumsi ini
+// keliru secara bisnis, ini satu-satunya tempat yang perlu diubah.
+var paymentStatusToTransactionStatus = map[string]string{
+	"confirmed": "paid",
+	"cancelled": "cancelled",
+	"refunded":  "refunded",
+}
+
 // UpdatePayment implements PaymentService.
+//
+// SEBELUMNYA fungsi ini HANYA mengubah Payment.Status — Transaction dan
+// Order terkait tidak pernah ikut disentuh sama sekali, bahkan tidak
+// dibungkus dalam DB transaction (`p.paymentRepo.Update(existingPayment,
+// nil)`, tx-nya nil). Payment yang dikonfirmasi tidak pernah mendorong
+// Transaction jadi "paid", dan Payment yang dibatalkan/refund tidak pernah
+// mengembalikan stock Order-order di dalamnya. Sekarang semuanya jadi SATU
+// operasi atomic lewat OrderFulfillmentService.
 func (p *PaymentServiceImpl) UpdatePayment(param models.UpdatePayment) (*models.PaymentResponse, error) {
 	if param.ID <= 0 {
 		return nil, errors.New("invalid payment id")
 	}
 
-	existingPayment, err := p.paymentRepo.FindById(uint(param.ID))
+	var result models.Payment
+
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		existingPayment, err := p.paymentRepo.FindByIdLocking(tx, uint(param.ID))
+		if err != nil {
+			return errors.New("payment not found")
+		}
+
+		if existingPayment.Status == param.Status {
+			return errors.New("payment status is already the same, no changes needed")
+		}
+
+		if err := p.validateStatusTransition(existingPayment.Status, param.Status); err != nil {
+			return err
+		}
+		existingPayment.Status = param.Status
+
+		updatedPayment, err := p.paymentRepo.Update(existingPayment, tx)
+		if err != nil {
+			return fmt.Errorf("failed to update payment: %w", err)
+		}
+		result = updatedPayment
+
+		// Cascade ke Transaction + Order kalau status Payment ini memang
+		// seharusnya mendorong Transaction maju/mundur (lihat
+		// paymentStatusToTransactionStatus di atas untuk penjelasan mapping).
+		newTransactionStatus, shouldCascade := paymentStatusToTransactionStatus[param.Status]
+		if !shouldCascade {
+			return nil
+		}
+
+		transaction, err := p.transactionRepo.FindByIdLocking(tx, existingPayment.TransactionID)
+		if err != nil {
+			return fmt.Errorf("gagal mengambil transaction terkait payment: %w", err)
+		}
+
+		if !utils.IsValidStatusTransition(transaction.Status, newTransactionStatus) {
+			// Transaction sudah di status yang tidak kompatibel dengan
+			// cascade ini (mis. sudah "completed" atau "cancelled" duluan
+			// lewat jalur lain). Payment tetap berhasil diupdate — ini
+			// cuma soal sinkronisasi sekunder yang sudah tidak relevan lagi
+			// — tapi dicatat di log supaya kelihatan kalau ini sering
+			// terjadi (bisa jadi tanda ada race/urutan operasi yang aneh).
+			log.Printf("PaymentService: skip cascade transaction %s dari %s ke %s (transisi tidak valid)", transaction.TxID, transaction.Status, newTransactionStatus)
+			return nil
+		}
+
+		transaction.Status = newTransactionStatus
+		if _, err := p.transactionRepo.Update(*transaction, tx); err != nil {
+			return fmt.Errorf("gagal update transaction terkait payment: %w", err)
+		}
+
+		if err := p.fulfillmentService.SyncOrdersToTransactionStatus(tx, transaction.TxID, newTransactionStatus); err != nil {
+			return fmt.Errorf("gagal menyinkronkan order terkait payment: %w", err)
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		return nil, errors.New("payment not found")
-	}
-
-	if existingPayment.Status == param.Status {
-		return nil, errors.New("payment status is already the same, no changes needed")
-	}
-
-	if err := p.validateStatusTransition(existingPayment.Status, param.Status); err != nil {
 		return nil, err
 	}
-	existingPayment.Status = param.Status
 
-	updatedPayment, err := p.paymentRepo.Update(existingPayment, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update payment: %w", err)
-	}
-	result := updatedPayment.ToResponsePayment()
-	return result, nil
+	return result.ToResponsePayment(), nil
 }
 
 // FindAllPayment implements PaymentService.
@@ -162,9 +237,10 @@ func (p *PaymentServiceImpl) validateStatusTransition(currentStatus, newStatus s
 	return paymentStatusTransition.Validate(currentStatus, newStatus)
 }
 
-func NewPaymentService(paymentRepo repository.PaymentRepository, transactionRepo repository.TransactionRepository) PaymentService {
+func NewPaymentService(paymentRepo repository.PaymentRepository, transactionRepo repository.TransactionRepository, orderRepo repository.OrderRepository, productRepo repository.ProductRepository) PaymentService {
 	return &PaymentServiceImpl{
-		paymentRepo:     paymentRepo,
-		transactionRepo: transactionRepo,
+		paymentRepo:        paymentRepo,
+		transactionRepo:    transactionRepo,
+		fulfillmentService: NewOrderFulfillmentService(orderRepo, productRepo),
 	}
 }

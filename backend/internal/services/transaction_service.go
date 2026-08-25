@@ -27,6 +27,9 @@ type TransactionServiceImpl struct {
 	orderRepo       repository.OrderRepository
 	paymentRepo     repository.PaymentMethodRepository
 	productRepo     repository.ProductRepository
+	// fulfillmentService dibuat lazily dari orderRepo+productRepo yang sudah
+	// ada (lihat NewTransactionService) — tidak perlu constructor baru.
+	fulfillmentService OrderFulfillmentService
 }
 
 func (t *TransactionServiceImpl) CreateTransaction(ctx context.Context, param models.CreateTransaction) (*models.TransactionResponse, error) {
@@ -261,19 +264,39 @@ func (t *TransactionServiceImpl) UpdateTransaction(param models.UpdateTransactio
 
 	transaction.Status = param.Status
 
-	updatedTransaction, err := t.transactionRepo.Update(*transaction, tx)
-	if err != nil {
+	if _, err := t.transactionRepo.Update(*transaction, tx); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	var orderResponse []models.OrderResponse
-	for _, v := range updatedTransaction.Orders {
-		orderResponse = append(orderResponse, v.ToOrderResponse())
+	// SEBELUMNYA fungsi ini berhenti di sini — Transaction.Status berubah
+	// tapi Order-order di dalamnya tidak pernah ikut disentuh (tidak ada
+	// restock saat cancel, tidak ada progres status saat paid/shipped/
+	// completed). Sekarang disinkronkan lewat OrderFulfillmentService, di
+	// DALAM transaction DB yang sama supaya atomic.
+	if err := t.fulfillmentService.SyncOrdersToTransactionStatus(tx, transaction.TxID, param.Status); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("gagal menyinkronkan status order: %w", err)
 	}
 
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
+	}
+
+	// Ambil ulang orders SETELAH commit (bukan sebelum) — repository
+	// FindAllByTxId membaca lewat database.DB (koneksi terpisah dari tx di
+	// atas), jadi kalau dipanggil SEBELUM commit, ada risiko membaca lewat
+	// koneksi yang tidak melihat perubahan yang baru saja ditulis di
+	// transaction ini. Setelah commit, database.DB dijamin melihat data
+	// yang sudah final.
+	syncedOrders, err := t.orderRepo.FindAllByTxId(transaction.TxID)
+	if err != nil {
+		return nil, fmt.Errorf("gagal memuat ulang orders: %w", err)
+	}
+
+	var orderResponse []models.OrderResponse
+	for _, v := range syncedOrders {
+		orderResponse = append(orderResponse, v.ToOrderResponse())
 	}
 
 	response := &models.TransactionResponse{
@@ -299,11 +322,12 @@ func NewTransactionService(TransactionRepo repository.TransactionRepository,
 	OrderRepo repository.OrderRepository,
 	ProductRepo repository.ProductRepository) TransactionService {
 	return &TransactionServiceImpl{
-		transactionRepo: TransactionRepo,
-		shippingRepo:    ShippingRepo,
-		addressRepo:     AddressRepo,
-		orderRepo:       OrderRepo,
-		paymentRepo:     PaymentRepo,
-		productRepo:     ProductRepo,
+		transactionRepo:    TransactionRepo,
+		shippingRepo:       ShippingRepo,
+		addressRepo:        AddressRepo,
+		orderRepo:          OrderRepo,
+		paymentRepo:        PaymentRepo,
+		productRepo:        ProductRepo,
+		fulfillmentService: NewOrderFulfillmentService(OrderRepo, ProductRepo),
 	}
 }

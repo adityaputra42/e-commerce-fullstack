@@ -21,6 +21,9 @@ type AuthService interface {
 	LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignUp(req models.RegisterRequest) (*models.TokenResponse, error)
+	// ForgotPassword TIDAK mengembalikan token. Email (jika akun ditemukan)
+	// dikirim langsung ke pemilik akun lewat Mailer. Caller HTTP hanya perlu
+	// tahu bahwa permintaan sudah diproses, bukan isi tokennya.
 	ForgotPassword(req models.ForgotPasswordRequest) error
 	ResetPassword(req models.ResetPasswordRequest) error
 	RefreshToken(req models.RefreshTokenRequest) (*models.TokenResponse, error)
@@ -102,6 +105,7 @@ func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, 
 	return a.generateTokenResponse(&userResult)
 }
 
+// generateTokenResponse implements AuthService.
 func (a *AuthServiceImpl) generateTokenResponse(user *models.User) (*models.TokenResponse, error) {
 	accessToken, expiresAt, err := a.jwtService.GenerateAccessToken(user)
 	if err != nil {
@@ -121,10 +125,18 @@ func (a *AuthServiceImpl) generateTokenResponse(user *models.User) (*models.Toke
 	}, nil
 }
 
+// ForgotPassword implements AuthService.
+//
+// PENTING: fungsi ini SENGAJA tidak pernah mengembalikan error yang membocorkan
+// apakah sebuah email terdaftar atau tidak (mencegah user enumeration), dan
+// TIDAK PERNAH mengembalikan token reset ke caller (mencegah account takeover
+// tanpa autentikasi). Token hanya dikirim ke alamat email pemilik akun.
 func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error {
 
 	user, err := a.userRepo.FindByEmail(req.Email)
 	if err != nil {
+		// Email tidak ditemukan: diam-diam anggap sukses. Caller (handler)
+		// akan selalu menampilkan pesan generik yang sama ke client.
 		log.Printf("Forgot-password diminta untuk email yang tidak terdaftar: %s", req.Email)
 		return nil
 	}
@@ -151,6 +163,9 @@ func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error
 	}
 
 	if err := a.mailer.SendPasswordResetEmail(user.Email, fullName, tokenStr); err != nil {
+		// Token sudah tersimpan di DB, tapi email gagal terkirim. Ini harus
+		// tetap dianggap error oleh caller supaya bisa dimonitor/di-retry —
+		// tapi tetap TIDAK boleh membocorkan token ke response.
 		log.Printf("gagal mengirim email reset password ke %s: %v", user.Email, err)
 		return fmt.Errorf("gagal mengirim email reset password")
 	}
@@ -283,6 +298,10 @@ func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenRespo
 		return nil, err
 	}
 
+	// PENTING: nama role di sini HARUS sama persis dengan yang dibuat di
+	// database/seeder.go (seedRoles). Role bernama "User" tidak pernah ada;
+	// role default untuk pelanggan baru adalah "customer". Ketidakcocokan ini
+	// sebelumnya membuat SETIAP percobaan registrasi selalu gagal.
 	defaultRole, err := a.roleRepo.FindByName(utils.RoleCustomer)
 	if err != nil {
 		return nil, errors.New("default role not found")

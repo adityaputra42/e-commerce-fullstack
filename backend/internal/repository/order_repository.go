@@ -13,9 +13,22 @@ type OrderRepository interface {
 	Update(param models.Order, tx *gorm.DB) (models.Order, error)
 	Delete(param models.Order) error
 	FindById(paramId string) (models.Order, error)
+	// FindByIdLocking mengambil order dengan row lock (SELECT ... FOR UPDATE)
+	// di dalam transaction tx. Dipakai saat mengubah status order (cancel,
+	// update) bersamaan dengan restock stock, supaya tidak race dengan
+	// checkout lain yang menahan lock size variant yang sama.
 	FindByIdLocking(tx *gorm.DB, paramId string) (models.Order, error)
 	FindAll(param models.OrderListRequest) ([]models.Order, error)
 	FindAllByTxId(txId string) ([]models.Order, error)
+	// FindAllByTxIdLocking sama seperti FindAllByTxId, tapi membaca lewat tx
+	// yang diberikan (bukan database.DB global) dengan row lock. WAJIB
+	// dipakai di alur orkestrasi lintas-entity (lihat
+	// OrderFulfillmentService) supaya pembacaan order tetap berada di
+	// koneksi/transaction yang sama dengan penulisannya — membaca lewat
+	// database.DB terpisah di tengah transaction yang belum commit berisiko
+	// baca data basi (koneksi berbeda) dan tidak melindungi dari race saat
+	// restock.
+	FindAllByTxIdLocking(tx *gorm.DB, txId string) ([]models.Order, error)
 }
 
 type OrderRepositoryImpl struct {
@@ -54,6 +67,22 @@ func (a *OrderRepositoryImpl) FindAllByTxId(txId string) ([]models.Order, error)
 	}
 
 	return Orders, nil
+}
+
+// FindAllByTxIdLocking implements OrderRepository. Sama seperti
+// FindAllByTxId, tapi membaca lewat tx yang diberikan (bukan database.DB
+// global) dan mengunci baris (SELECT ... FOR UPDATE) — lihat komentar di
+// interface untuk alasannya. Tidak perlu preload relasi (Product/
+// ColorVarian/SizeVarian) di sini karena dipakai untuk orkestrasi status,
+// bukan untuk ditampilkan ke user.
+func (a *OrderRepositoryImpl) FindAllByTxIdLocking(tx *gorm.DB, txId string) ([]models.Order, error) {
+	var orders []models.Order
+	err := tx.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("transaction_id = ?", txId).
+		Find(&orders).Error
+
+	return orders, err
 }
 
 // Create implements OrderRepository.

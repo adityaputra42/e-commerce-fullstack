@@ -108,7 +108,7 @@ func TestOrderHandler_GetAllOrders(t *testing.T) {
 	orderHandler := handler.NewOrderHandler(mockService)
 
 	t.Run("Success", func(t *testing.T) {
-		mockService.EXPECT().FindAllOrder(gomock.Any()).Return(&[]models.OrderResponse{}, nil)
+		mockService.EXPECT().FindAllOrder(gomock.Any()).Return([]models.OrderResponse{}, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/orders", nil)
 		w := httptest.NewRecorder()

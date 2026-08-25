@@ -23,6 +23,16 @@ type OrderServiceImpl struct {
 	productRepo repository.ProductRepository
 }
 
+// CancelOrder implements [OrderService].
+//
+// SEBELUMNYA fungsi ini cuma mengubah status order jadi "cancelled" tanpa
+// pernah mengembalikan stock yang sudah dikurangi saat checkout
+// (lihat TransactionService.CreateTransaction). Efeknya: setiap order yang
+// dibatalkan membuat stock hilang permanen dari sistem — drift antara stock
+// database dan stock riil di gudang. Sekarang restock dilakukan di dalam satu
+// DB transaction yang sama dengan lock row (SELECT ... FOR UPDATE) yang sama
+// dengan yang dipakai saat checkout, supaya tidak race dengan transaksi lain
+// yang sedang menahan lock size variant yang sama.
 func (o *OrderServiceImpl) CancelOrder(id string, userId int64) (*models.OrderResponse, error) {
 	var result models.OrderResponse
 
@@ -115,6 +125,13 @@ func (o *OrderServiceImpl) FindById(id string, userId int64) (*models.OrderRespo
 	return &orderResponse, nil
 }
 
+// UpdateOrder implements [OrderService].
+//
+// SEBELUMNYA fungsi ini (dipakai admin lewat PUT /orders/{id}) bisa
+// mengubah status order ke apa saja tanpa restock — jadi jalur ini
+// membypass total logic restock yang ada di CancelOrder. Sekarang: kalau
+// status baru adalah "cancelled" dan status lama belum final, restock
+// dijalankan dengan pola locking yang sama seperti CancelOrder.
 func (o *OrderServiceImpl) UpdateOrder(param models.UpdateOrder) (*models.OrderResponse, error) {
 	var result models.OrderResponse
 
@@ -157,6 +174,7 @@ func (o *OrderServiceImpl) UpdateOrder(param models.UpdateOrder) (*models.OrderR
 	return &result, nil
 }
 
+// Helper function untuk validasi status yang bisa di-cancel
 func isValidStatusForCancel(status string) bool {
 	validStatuses := []string{"pending", "confirmed", "processing"}
 	for _, validStatus := range validStatuses {

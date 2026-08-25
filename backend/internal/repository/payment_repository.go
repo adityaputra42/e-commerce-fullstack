@@ -5,6 +5,7 @@ import (
 	"e-commerce/backend/internal/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PaymentRepository interface {
@@ -12,10 +13,27 @@ type PaymentRepository interface {
 	Update(param models.Payment, tx *gorm.DB) (models.Payment, error)
 	Delete(param models.Payment) error
 	FindById(paramId uint) (models.Payment, error)
+	// FindByIdLocking mengambil payment dengan row lock (SELECT ... FOR
+	// UPDATE) di dalam transaction tx — pola yang sama dengan
+	// OrderRepository/TransactionRepository, dipakai saat mengubah status
+	// payment bersamaan dengan cascade ke Transaction/Order supaya atomic
+	// dan tidak race dengan update lain di baris yang sama.
+	FindByIdLocking(tx *gorm.DB, paramId uint) (models.Payment, error)
 	FindAll(param models.PaymentListRequest) ([]models.Payment, error)
 }
 
 type PaymentRepositoryImpl struct {
+}
+
+// FindByIdLocking implements PaymentRepository.
+func (a *PaymentRepositoryImpl) FindByIdLocking(tx *gorm.DB, paramId uint) (models.Payment, error) {
+	var payment models.Payment
+	err := tx.
+		Select("id", "transaction_id", "total_payment", "status", "created_at", "updated_at").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		First(&payment, paramId).Error
+
+	return payment, err
 }
 
 // Create implements PaymentRepository.

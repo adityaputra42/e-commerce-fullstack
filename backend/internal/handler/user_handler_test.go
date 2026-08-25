@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"e-commerce/backend/internal/handler"
 	"e-commerce/backend/internal/mocks"
 	"e-commerce/backend/internal/models"
@@ -11,9 +12,22 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/mock/gomock"
 	"gorm.io/gorm"
 )
+
+// withURLParam menyuntikkan chi.RouteContext berisi param URL ke request,
+// meniru apa yang dilakukan chi router sungguhan saat request benar-benar
+// di-routing. WAJIB dipakai di test manapun yang memanggil handler yang
+// membaca chi.URLParam(r, ...) secara langsung (tanpa lewat router chi
+// beneran) — kalau tidak, chi.URLParam selalu balik string kosong dan
+// handler akan salah mengira ID tidak valid.
+func withURLParam(req *http.Request, key, value string) *http.Request {
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add(key, value)
+	return req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+}
 
 func TestUserHandler_GetUserById(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -70,6 +84,7 @@ func TestUserHandler_GetUserById(t *testing.T) {
 			tt.mockFn()
 
 			req := httptest.NewRequest(http.MethodGet, "/api/users/"+tt.userID, nil)
+			req = withURLParam(req, "id", tt.userID)
 			w := httptest.NewRecorder()
 
 			userHandler.GetUserById(w, req)
@@ -241,6 +256,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			body, _ := json.Marshal(tt.input)
 			req := httptest.NewRequest(http.MethodPut, "/api/users/"+tt.userID, bytes.NewBuffer(body))
 			req.Header.Set("Content-Type", "application/json")
+			req = withURLParam(req, "id", tt.userID)
 			w := httptest.NewRecorder()
 
 			userHandler.UpdateUser(w, req)
@@ -300,6 +316,7 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 			tt.mockFn()
 
 			req := httptest.NewRequest(http.MethodDelete, "/api/users/"+tt.userID, nil)
+			req = withURLParam(req, "id", tt.userID)
 			w := httptest.NewRecorder()
 
 			userHandler.DeleteUser(w, req)
@@ -357,6 +374,7 @@ func TestUserHandler_ActivateUser(t *testing.T) {
 			tt.mockFn()
 
 			req := httptest.NewRequest(http.MethodPut, "/api/users/activate/"+tt.userID, nil)
+			req = withURLParam(req, "id", tt.userID)
 			w := httptest.NewRecorder()
 
 			userHandler.ActivateUser(w, req)
@@ -403,6 +421,7 @@ func TestUserHandler_DeactivateUser(t *testing.T) {
 			tt.mockFn()
 
 			req := httptest.NewRequest(http.MethodPut, "/api/users/deactivate/"+tt.userID, nil)
+			req = withURLParam(req, "id", tt.userID)
 			w := httptest.NewRecorder()
 
 			userHandler.DeactivateUser(w, req)

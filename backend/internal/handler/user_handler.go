@@ -160,7 +160,6 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
-	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
@@ -179,7 +178,6 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
-	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return
@@ -198,7 +196,6 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) DeactivateUser(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idParam, 10, 64)
-	fmt.Printf("user id  => %d",id)
 	if err != nil || id == 0 {
 		utils.WriteError(w, http.StatusBadRequest, "Invalid user ID", err)
 		return

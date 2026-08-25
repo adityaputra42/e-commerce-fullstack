@@ -16,6 +16,10 @@ type Config struct {
 	SMTP     SMTPConfig
 	System   SystemConfig
 	Supabase SupabaseConfig
+	// RunMigrationsOnBoot mengontrol apakah database.Migrate()/SeedDatabase()
+	// dijalankan otomatis setiap kali aplikasi start. Set
+	// RUN_MIGRATIONS_ON_BOOT=false di production dan jalankan
+	// `go run cmd/migrate/main.go` sebagai deployment step eksplisit.
 	RunMigrationsOnBoot bool
 }
 
@@ -86,6 +90,8 @@ func Load() *Config {
 		allowedOrigins[i] = strings.TrimSpace(allowedOrigins[i])
 	}
 
+	// Default true kalau env var belum diset sama sekali, supaya alur
+	// development lokal (go run cmd/main.go) tetap jalan seperti sebelumnya.
 	runMigrationsOnBoot := true
 	if viper.IsSet("RUN_MIGRATIONS_ON_BOOT") {
 		runMigrationsOnBoot = viper.GetBool("RUN_MIGRATIONS_ON_BOOT")

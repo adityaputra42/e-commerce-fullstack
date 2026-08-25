@@ -85,6 +85,10 @@ func (s *RBACServiceImpl) GetUserRole(userID uint) (*models.Role, error) {
 	return s.repo.GetUserRole(userID)
 }
 
+// =======================
+// USER MANAGEMENT
+// =======================
+
 func (s *RBACServiceImpl) CanManageUser(
 	managerID uint,
 	targetUserID uint,
@@ -104,6 +108,20 @@ func (s *RBACServiceImpl) CanManageUser(
 		s.GetRoleHierarchyLevel(targetRole.Name), nil
 }
 
+// =======================
+// ROLE HIERARCHY
+// =======================
+
+// GetRoleHierarchyLevel implements [RBACService].
+//
+// SEBELUMNYA: fungsi ini memakai map hardcode dengan nama role "Title Case"
+// ("Super Admin", "Admin", dst), padahal nama role yang benar-benar tersimpan
+// di database (lihat database/seeder.go) adalah lowercase snake_case
+// ("super_admin", "admin", dst). Akibatnya lookup selalu gagal dan fungsi ini
+// SELALU mengembalikan 0 untuk role apa pun — yang berarti middleware
+// RequireRole (userLevel >= requiredLevel, yaitu 0 >= 0) SELALU meloloskan
+// siapa saja yang sudah login, apapun rolenya. Sekarang memakai satu sumber
+// kebenaran yang sama dengan seeder: utils.RoleHierarchyLevel.
 func (s *RBACServiceImpl) GetRoleHierarchyLevel(roleName string) int {
 	return utils.RoleHierarchyLevel(roleName)
 }

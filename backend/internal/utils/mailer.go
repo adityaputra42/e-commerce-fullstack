@@ -7,13 +7,19 @@ import (
 	"net/smtp"
 )
 
+// Mailer mengirim email keluar. Diabstraksi lewat interface supaya
+// AuthService bisa di-unit-test tanpa benar-benar mengirim email
+// (lihat NoopMailer di bawah untuk dev/test).
 type Mailer interface {
 	SendPasswordResetEmail(toEmail, toName, resetToken string) error
 }
 
+// SMTPMailer implementasi Mailer yang benar-benar kirim email lewat SMTP.
 type SMTPMailer struct {
 	cfg       config.SMTPConfig
 	fromEmail string
+	// ResetURLBase contoh: "https://toko-kamu.com/reset-password"
+	// token akan ditempel sebagai query param: ?token=xxx
 	ResetURLBase string
 }
 
@@ -51,6 +57,10 @@ func (m *SMTPMailer) SendPasswordResetEmail(toEmail, toName, resetToken string) 
 	return nil
 }
 
+// NoopMailer dipakai saat SMTP belum dikonfigurasi (mis. dev lokal) supaya
+// aplikasi tetap jalan tanpa mengirim email sungguhan. Token TIDAK PERNAH
+// dikembalikan ke caller HTTP — cuma dicatat di log server untuk keperluan
+// development. JANGAN pakai ini di production.
 type NoopMailer struct{}
 
 func NewNoopMailer() *NoopMailer { return &NoopMailer{} }

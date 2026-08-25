@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"e-commerce/backend/internal/config"
 	"e-commerce/backend/internal/middleware"
 	"e-commerce/backend/internal/models"
 	"e-commerce/backend/internal/services"
@@ -9,16 +10,36 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 type AuthHandler struct {
 	authService services.AuthService
+	cfg         *config.Config
 }
 
-func NewAuthHandler(authService services.AuthService) *AuthHandler {
+func NewAuthHandler(authService services.AuthService, cfg *config.Config) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
+		cfg:         cfg,
 	}
+}
+
+// isSecureCookie menentukan apakah cookie refresh token butuh flag Secure
+// (cuma dikirim lewat HTTPS). WAJIB true di production; boleh false untuk
+// dev lokal di HTTP biasa supaya browser tidak diam-diam menolak cookie-nya.
+func (h *AuthHandler) isSecureCookie() bool {
+	return h.cfg.Server.Env == "production"
+}
+
+// respondWithTokens mengirim access token di JSON body (dipegang frontend
+// di memory, TIDAK di localStorage) dan menaruh refresh token di httpOnly
+// cookie (lihat utils/cookie.go) — bukan di JSON body seperti sebelumnya.
+func (h *AuthHandler) respondWithTokens(w http.ResponseWriter, status int, message string, resp *models.TokenResponse) {
+	utils.SetRefreshTokenCookie(w, resp.RefreshToken, time.Now().Add(h.cfg.JWT.RefreshTokenExpiry), h.isSecureCookie())
+	// Refresh token TIDAK disertakan di response body — sudah ada di cookie.
+	resp.RefreshToken = ""
+	utils.WriteJSON(w, status, message, resp)
 }
 
 // SignUp - POST /api/auth/register
@@ -44,7 +65,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusCreated, "User registered successfully", resp)
+	h.respondWithTokens(w, http.StatusCreated, "User registered successfully", resp)
 }
 
 // SignIn - POST /api/auth/login
@@ -75,7 +96,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
+	h.respondWithTokens(w, http.StatusOK, "Login successful", resp)
 }
 
 // SignIn - POST /api/auth/admin/login
@@ -105,7 +126,7 @@ func (h *AuthHandler) AdminLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, "Login successful", resp)
+	h.respondWithTokens(w, http.StatusOK, "Login successful", resp)
 }
 
 // SignOut - POST /api/v1/auth/logout
@@ -124,8 +145,14 @@ func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Optional: Implement token blacklist or session invalidation
-	// For now, just return success as JWT is stateless
+	// SEBELUMNYA fungsi ini benar-benar no-op (cuma return success). Sekarang
+	// setidaknya hapus cookie refresh token, supaya sesi tidak bisa dipulihkan
+	// diam-diam lewat refresh setelah user logout dari device ini.
+	// (JWT tetap stateless — access token yang sudah diterbitkan tetap valid
+	// sampai expired; kalau butuh revoke instan, itu butuh token blacklist
+	// terpisah, di luar scope perbaikan ini.)
+	utils.ClearRefreshTokenCookie(w, h.isSecureCookie())
+
 	utils.WriteJSON(w, http.StatusOK, "Logout successful", nil)
 }
 
@@ -140,8 +167,14 @@ func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 // @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req models.RefreshTokenRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "Invalid request body", err)
+
+	// Prioritaskan cookie httpOnly (dipakai browser web). Fallback ke JSON
+	// body untuk client yang tidak bisa pakai cookie (mis. aplikasi mobile),
+	// supaya endpoint ini tidak cuma bisa dipakai dari browser.
+	if cookieToken, err := utils.GetRefreshTokenFromCookie(r); err == nil && cookieToken != "" {
+		req.RefreshToken = cookieToken
+	} else if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.RefreshToken == "" {
+		utils.WriteError(w, http.StatusBadRequest, "Refresh token tidak ditemukan (cookie atau body)", err)
 		return
 	}
 
@@ -163,6 +196,14 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 // @Param request body models.ForgotPasswordRequest true "Forgot password request"
 // @Success 200 {object} utils.Response "Jika email terdaftar, link reset telah dikirim"
 // @Router /auth/forgot-password [post]
+//
+// PENTING (fix keamanan): handler ini SEBELUMNYA mengembalikan token reset
+// password langsung di response API — artinya siapa pun yang tahu email
+// seorang user bisa ambil-alih akunnya tanpa autentikasi apa pun. Sekarang
+// token TIDAK PERNAH dikembalikan ke client (dikirim lewat email di dalam
+// service), dan response selalu memakai pesan generik yang sama persis baik
+// email-nya terdaftar maupun tidak — supaya endpoint ini juga tidak bisa
+// dipakai untuk menebak email mana saja yang punya akun (user enumeration).
 func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var req models.ForgotPasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -171,6 +212,9 @@ func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.authService.ForgotPassword(req); err != nil {
+		// Kegagalan infrastruktur (mis. SMTP down) tetap di-log di server
+		// lewat AuthService, tapi client tetap melihat pesan generik yang
+		// sama supaya tidak membocorkan informasi apa pun.
 		log.Printf("ForgotPassword request failed: %v", err)
 	}
 
@@ -201,6 +245,14 @@ func (h *AuthHandler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, "Verification token is required", fmt.Errorf("Verification token is required"))
 		return
 	}
+
+	// Call service to verify email
+	// err := h.authService.VerifyEmail(token)
+	// if err != nil {
+	// 	utils.WriteError(w, http.StatusBadRequest, err.Error())
+	// 	return
+	// }
+
 	utils.WriteJSON(w, http.StatusOK, "Email verified successfully", nil)
 }
 

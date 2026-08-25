@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"e-commerce/backend/internal/config"
 	"e-commerce/backend/internal/handler"
 	"e-commerce/backend/internal/mocks"
 	"e-commerce/backend/internal/models"
@@ -10,16 +11,26 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go.uber.org/mock/gomock"
 )
+
+// testAuthConfig adalah config minimal yang dibutuhkan NewAuthHandler untuk
+// menentukan expiry & flag Secure cookie refresh token di test.
+func testAuthConfig() *config.Config {
+	return &config.Config{
+		Server: config.ServerConfig{Env: "test"},
+		JWT:    config.JWTConfig{RefreshTokenExpiry: 7 * 24 * time.Hour},
+	}
+}
 
 func TestAuthHandler_SignIn(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockService := mocks.NewMockAuthService(ctrl)
-	authHandler := handler.NewAuthHandler(mockService)
+	authHandler := handler.NewAuthHandler(mockService, testAuthConfig())
 
 	t.Run("Success", func(t *testing.T) {
 		reqBody := models.LoginRequest{
@@ -43,6 +54,36 @@ func TestAuthHandler_SignIn(t *testing.T) {
 
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status 200, got %d", w.Code)
+		}
+
+		// Refresh token WAJIB ada di cookie httpOnly, TIDAK di JSON body —
+		// ini yang membedakan dari implementasi lama yang menaruh refresh
+		// token di response body (lalu disimpan frontend di localStorage,
+		// bisa dibaca lewat XSS).
+		cookies := w.Result().Cookies()
+		var refreshCookie *http.Cookie
+		for _, c := range cookies {
+			if c.Name == "refresh_token" {
+				refreshCookie = c
+			}
+		}
+		if refreshCookie == nil {
+			t.Fatal("Expected refresh_token cookie to be set, got none")
+		}
+		if refreshCookie.Value != "refresh_token" {
+			t.Errorf("Expected refresh_token cookie value 'refresh_token', got %q", refreshCookie.Value)
+		}
+		if !refreshCookie.HttpOnly {
+			t.Error("Expected refresh_token cookie to be HttpOnly")
+		}
+
+		var response map[string]interface{}
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+		data, _ := response["data"].(map[string]interface{})
+		if rt, ok := data["refresh_token"]; ok && rt != "" {
+			t.Errorf("Expected refresh_token to be empty in JSON body, got %q", rt)
 		}
 	})
 
@@ -71,7 +112,7 @@ func TestAuthHandler_SignUp(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockService := mocks.NewMockAuthService(ctrl)
-	authHandler := handler.NewAuthHandler(mockService)
+	authHandler := handler.NewAuthHandler(mockService, testAuthConfig())
 
 	t.Run("Success", func(t *testing.T) {
 		reqBody := models.RegisterRequest{

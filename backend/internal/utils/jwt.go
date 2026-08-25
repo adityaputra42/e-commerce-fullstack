@@ -41,10 +41,6 @@ func (s *JWTService) GenerateAccessToken(user *models.User) (string, time.Time, 
 		"iat":     time.Now().Unix(),
 	}
 
-	// 🔍 DEBUG: Log claims yang akan di-encode
-	log.Printf("✅ Generating Access Token - UserID: %d, Email: %s, RoleID: %d",
-		user.ID, user.Email, user.RoleID)
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(s.config.JWT.Secret))
 	if err != nil {
@@ -52,7 +48,6 @@ func (s *JWTService) GenerateAccessToken(user *models.User) (string, time.Time, 
 		return "", time.Time{}, err
 	}
 
-	log.Printf("✅ Access Token Generated Successfully for UserID: %d", user.ID)
 	return tokenString, expiresAt, nil
 }
 
@@ -79,9 +74,6 @@ func (s *JWTService) GenerateRefreshToken(user *models.User) (string, time.Time,
 		"iat":     time.Now().Unix(),
 	}
 
-	// 🔍 DEBUG: Log claims
-	log.Printf("✅ Generating Refresh Token - UserID: %d, Email: %s", user.ID, user.Email)
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(s.config.JWT.RefreshSecret))
 	if err != nil {
@@ -89,7 +81,6 @@ func (s *JWTService) GenerateRefreshToken(user *models.User) (string, time.Time,
 		return "", time.Time{}, err
 	}
 
-	log.Printf("✅ Refresh Token Generated Successfully for UserID: %d", user.ID)
 	return tokenString, expiresAt, nil
 }
 
@@ -143,10 +134,6 @@ func (s *JWTService) ValidateAccessToken(tokenString string) (*models.JWTClaims,
 			RoleID: uint(roleID),
 			Type:   tokenType,
 		}
-
-		// 🔍 DEBUG: Log parsed claims
-		log.Printf("✅ Token Validated - UserID: %d, Email: %s, RoleID: %d",
-			jwtClaims.UserID, jwtClaims.Email, jwtClaims.RoleID)
 
 		return jwtClaims, nil
 	}
@@ -203,10 +190,6 @@ func (s *JWTService) ValidateRefreshToken(tokenString string) (*models.JWTClaims
 			RoleID: uint(roleID),
 			Type:   tokenType,
 		}
-
-		// 🔍 DEBUG: Log parsed refresh token claims
-		log.Printf("✅ Refresh Token Validated - UserID: %d, Email: %s",
-			jwtClaims.UserID, jwtClaims.Email)
 
 		return jwtClaims, nil
 	}

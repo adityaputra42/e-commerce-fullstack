@@ -14,6 +14,12 @@ import (
 var DB *gorm.DB
 
 func Connect(cfg *config.Config) error {
+	// SEBELUMNYA timezone koneksi DB di-hardcode ke "Asia/Shanghai" — sisa
+	// copy-paste dari boilerplate/tutorial yang tidak pernah diganti untuk
+	// target market aplikasi ini. Timestamp created_at/updated_at di semua
+	// laporan dan histori order jadi bergeser dari waktu lokal yang
+	// sebenarnya. Sekarang bisa diatur lewat DB_TIMEZONE, default ke
+	// Asia/Jakarta kalau tidak diset.
 	timeZone := cfg.Database.TimeZone
 	if timeZone == "" {
 		timeZone = "Asia/Jakarta"

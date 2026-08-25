@@ -100,6 +100,21 @@ func (mr *MockOrderRepositoryMockRecorder) FindAllByTxId(txId any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllByTxId", reflect.TypeOf((*MockOrderRepository)(nil).FindAllByTxId), txId)
 }
 
+// FindAllByTxIdLocking mocks base method.
+func (m *MockOrderRepository) FindAllByTxIdLocking(tx *gorm.DB, txId string) ([]models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAllByTxIdLocking", tx, txId)
+	ret0, _ := ret[0].([]models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindAllByTxIdLocking indicates an expected call of FindAllByTxIdLocking.
+func (mr *MockOrderRepositoryMockRecorder) FindAllByTxIdLocking(tx, txId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllByTxIdLocking", reflect.TypeOf((*MockOrderRepository)(nil).FindAllByTxIdLocking), tx, txId)
+}
+
 // FindById mocks base method.
 func (m *MockOrderRepository) FindById(paramId string) (models.Order, error) {
 	m.ctrl.T.Helper()
