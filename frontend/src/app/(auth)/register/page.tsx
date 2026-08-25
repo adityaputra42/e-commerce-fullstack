@@ -35,7 +35,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const response = await authService.register(values);
-      login(response.token, response.user);
+      login(response.access_token, response.user);
       toast.success("Account created successfully");
     } catch (error: any) {
       console.error(error);

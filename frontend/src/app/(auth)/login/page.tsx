@@ -33,7 +33,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const response = await authService.login(values.email, values.password);
-      login(response.token, response.user);
+      login(response.access_token, response.user);
       toast.success("Logged in successfully");
     } catch (error: any) {
       console.error(error);

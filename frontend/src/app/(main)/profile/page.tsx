@@ -37,7 +37,8 @@ export default function ProfilePage() {
   async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
     try {
-      await authService.updateProfile(values);
+      if (!user?.id) throw new Error('User ID not found');
+      await authService.updateProfile(user.id, values);
       toast.success("Profile updated successfully");
       // Could also refresh user context here if needed, but page reload will do for now
       // or authService.getCurrentUser() call in auth context would catch it on next mount

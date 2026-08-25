@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService, User, LoginResponse } from '../services/api';
+import { authService, setAccessToken, User } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -20,55 +20,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for existing token on mount
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+     const bootstrapAuth = async () => {
+      const refreshResult = await authService.refresh();
 
-      // Optimistic load: if we have a token and stored user, set it immediately
-      if (token && storedUser && storedUser !== "undefined") {
-        try {
-           setUser(JSON.parse(storedUser));
-        } catch (e) {
-           console.error("Error parsing stored user", e);
-        }
+      if (!refreshResult?.access_token) {
+        setLoading(false);
+        return;
       }
-      
-      if (token) {
-        try {
-          // Verify token and get fresh user data
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
-          // Update stored user data
-          localStorage.setItem('user', JSON.stringify(userData));
-        } catch (e: any) {
-          console.error("Failed to fetch user profile", e);
-          
-          // Only log out on authentication errors (401/403), not network errors
-          if (e.response && (e.response.status === 401 || e.response.status === 403)) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-        }
+
+      setAccessToken(refreshResult.access_token);
+
+      try {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+      } catch (e) {
+        console.error("Failed to fetch user profile after refresh", e);
+        setAccessToken(null);
+        setUser(null);
       }
+
       setLoading(false);
     };
 
-    checkAuth();
+    bootstrapAuth();
   }, []);
 
   const login = (token: string, userData: User) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    setAccessToken(token);
     setUser(userData);
     router.push('/');
   };
 
   const logout = () => {
-    authService.logout();
-    setUser(null);
-    router.push('/login');
+    authService.logout().finally(() => {
+      setUser(null);
+      router.push('/login');
+    });
   };
 
   return (
