@@ -23,16 +23,19 @@ type OrderServiceImpl struct {
 	productRepo repository.ProductRepository
 }
 
-// CancelOrder implements [OrderService].
-//
-// SEBELUMNYA fungsi ini cuma mengubah status order jadi "cancelled" tanpa
-// pernah mengembalikan stock yang sudah dikurangi saat checkout
-// (lihat TransactionService.CreateTransaction). Efeknya: setiap order yang
-// dibatalkan membuat stock hilang permanen dari sistem — drift antara stock
-// database dan stock riil di gudang. Sekarang restock dilakukan di dalam satu
-// DB transaction yang sama dengan lock row (SELECT ... FOR UPDATE) yang sama
-// dengan yang dipakai saat checkout, supaya tidak race dengan transaksi lain
-// yang sedang menahan lock size variant yang sama.
+func (o *OrderServiceImpl) restockSizeVariant(tx *gorm.DB, sizeVariantID int64, quantity int) error {
+	sizeVariant, err := o.productRepo.FindSizeVarianLocked(tx, uint(sizeVariantID))
+	if err != nil {
+		return fmt.Errorf("gagal mengambil size variant untuk restock: %w", err)
+	}
+
+	sizeVariant.Stock += int64(quantity)
+	if _, err := o.productRepo.UpdateSizeVarian(*sizeVariant, tx); err != nil {
+		return fmt.Errorf("gagal mengembalikan stock: %w", err)
+	}
+	return nil
+}
+
 func (o *OrderServiceImpl) CancelOrder(id string, userId int64) (*models.OrderResponse, error) {
 	var result models.OrderResponse
 
@@ -53,14 +56,8 @@ func (o *OrderServiceImpl) CancelOrder(id string, userId int64) (*models.OrderRe
 			return errors.New("cannot cancel order with current status")
 		}
 
-		sizeVariant, err := o.productRepo.FindSizeVarianLocked(tx, uint(order.SizeVarianID))
-		if err != nil {
-			return fmt.Errorf("gagal mengambil size variant untuk restock: %w", err)
-		}
-
-		sizeVariant.Stock += order.Quantity
-		if _, err := o.productRepo.UpdateSizeVarian(*sizeVariant, tx); err != nil {
-			return fmt.Errorf("gagal mengembalikan stock: %w", err)
+		if err := o.restockSizeVariant(tx, order.SizeVarianID, int(order.Quantity)); err != nil {
+			return err
 		}
 
 		order.Status = "cancelled"
@@ -76,62 +73,9 @@ func (o *OrderServiceImpl) CancelOrder(id string, userId int64) (*models.OrderRe
 	if err != nil {
 		return nil, err
 	}
-
 	return &result, nil
 }
 
-// DeleteOrder implements [OrderService].
-func (o *OrderServiceImpl) DeleteOrder(id string) error {
-	order, err := o.orderRepo.FindById(id)
-	if err != nil {
-		return errors.New("order not found")
-	}
-
-	err = o.orderRepo.Delete(order)
-	if err != nil {
-		return fmt.Errorf("failed to delete order: %w", err)
-	}
-
-	return nil
-}
-
-// FindAllOrder implements [OrderService].
-func (o *OrderServiceImpl) FindAllOrder(param models.OrderListRequest) ([]models.OrderResponse, error) {
-	orders, err := o.orderRepo.FindAll(param)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get order list: %w", err)
-	}
-
-	var orderResponse []models.OrderResponse
-
-	for _, order := range orders {
-		orderResponse = append(orderResponse, order.ToOrderResponse())
-	}
-
-	return orderResponse, nil
-}
-
-// FindById implements [OrderService].
-func (o *OrderServiceImpl) FindById(id string, userId int64) (*models.OrderResponse, error) {
-	order, err := o.orderRepo.FindById(id)
-	if err != nil {
-		return nil, errors.New("order not found")
-	}
-
-	if order.UserID != userId {
-		return nil, errors.New("unauthorized: order does not belong to user")
-	}
-	orderResponse := order.ToOrderResponse()
-	return &orderResponse, nil
-}
-
-// UpdateOrder implements [OrderService].
-//
-// SEBELUMNYA fungsi ini (dipakai admin lewat PUT /orders/{id}) bisa
-// mengubah status order ke apa saja tanpa restock — jadi jalur ini
-// membypass total logic restock yang ada di CancelOrder. Sekarang: kalau
-// status baru adalah "cancelled" dan status lama belum final, restock
-// dijalankan dengan pola locking yang sama seperti CancelOrder.
 func (o *OrderServiceImpl) UpdateOrder(param models.UpdateOrder) (*models.OrderResponse, error) {
 	var result models.OrderResponse
 
@@ -145,15 +89,9 @@ func (o *OrderServiceImpl) UpdateOrder(param models.UpdateOrder) (*models.OrderR
 		}
 
 		becomingCancelled := param.Status == "cancelled" && order.Status != "cancelled"
-
 		if becomingCancelled {
-			sizeVariant, err := o.productRepo.FindSizeVarianLocked(tx, uint(order.SizeVarianID))
-			if err != nil {
-				return fmt.Errorf("gagal mengambil size variant untuk restock: %w", err)
-			}
-			sizeVariant.Stock += order.Quantity
-			if _, err := o.productRepo.UpdateSizeVarian(*sizeVariant, tx); err != nil {
-				return fmt.Errorf("gagal mengembalikan stock: %w", err)
+			if err := o.restockSizeVariant(tx, order.SizeVarianID, int(order.Quantity)); err != nil {
+				return err
 			}
 		}
 
@@ -170,19 +108,55 @@ func (o *OrderServiceImpl) UpdateOrder(param models.UpdateOrder) (*models.OrderR
 	if err != nil {
 		return nil, err
 	}
-
 	return &result, nil
 }
 
-// Helper function untuk validasi status yang bisa di-cancel
-func isValidStatusForCancel(status string) bool {
-	validStatuses := []string{"pending", "confirmed", "processing"}
-	for _, validStatus := range validStatuses {
-		if status == validStatus {
-			return true
-		}
+func (o *OrderServiceImpl) DeleteOrder(id string) error {
+	order, err := o.orderRepo.FindById(id)
+	if err != nil {
+		return errors.New("order not found")
 	}
-	return false
+
+	if err := o.orderRepo.Delete(order); err != nil {
+		return fmt.Errorf("failed to delete order: %w", err)
+	}
+	return nil
+}
+
+func (o *OrderServiceImpl) FindAllOrder(param models.OrderListRequest) ([]models.OrderResponse, error) {
+	orders, err := o.orderRepo.FindAll(param)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order list: %w", err)
+	}
+
+	var orderResponse []models.OrderResponse
+	for _, order := range orders {
+		orderResponse = append(orderResponse, order.ToOrderResponse())
+	}
+	return orderResponse, nil
+}
+
+func (o *OrderServiceImpl) FindById(id string, userId int64) (*models.OrderResponse, error) {
+	order, err := o.orderRepo.FindById(id)
+	if err != nil {
+		return nil, errors.New("order not found")
+	}
+
+	if order.UserID != userId {
+		return nil, errors.New("unauthorized: order does not belong to user")
+	}
+
+	orderResponse := order.ToOrderResponse()
+	return &orderResponse, nil
+}
+
+func isValidStatusForCancel(status string) bool {
+	switch status {
+	case "pending", "confirmed", "processing":
+		return true
+	default:
+		return false
+	}
 }
 
 func NewOrderService(OrderRepo repository.OrderRepository, ProductRepo repository.ProductRepository) OrderService {

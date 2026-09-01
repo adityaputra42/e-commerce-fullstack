@@ -270,4 +270,17 @@ export const productService = {
     }
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+export const categoryService = {
+  getAll: async (): Promise<Category[]> => {
+    const response = await api.get('/categories');
+    return response.data.data || response.data || [];
+  },
+};
+
 export default api;

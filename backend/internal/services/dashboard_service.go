@@ -6,6 +6,8 @@ import (
 	"e-commerce/backend/internal/repository"
 	"fmt"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type DashboardService interface {
@@ -26,60 +28,49 @@ type dashboardService struct {
 }
 
 func NewDashboardService(dashboardRepo repository.DashboardRepository) DashboardService {
-	return &dashboardService{
-		dashboardRepo: dashboardRepo,
-	}
+	return &dashboardService{dashboardRepo: dashboardRepo}
 }
 
-// ==================== Response Structures ====================
-
 // ==================== Service Implementation ====================
+//
+// GetDashboardStats, GetRevenueStats and GetOrderStats each used to run
+// 3-9 independent COUNT/SUM queries back to back, one HTTP request holding
+// a DB connection for the sum of every query's latency instead of the
+// slowest one. None of these queries read each other's output, so there is
+// no reason for them to be sequential. Below they run concurrently via
+// errgroup and share one context, so a client disconnect or timeout on ctx
+// cancels every in-flight query instead of leaving them to finish uselessly.
+//
+// Behavior preserved exactly: same return type, same "first error wins" —
+// errgroup.Wait() returns the first non-nil error, matching the original
+// early-return-on-first-error control flow.
 
 func (s *dashboardService) GetDashboardStats(ctx context.Context) (*models.DashboardStatsResponse, error) {
-	totalUsers, err := s.dashboardRepo.CountTotalUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var (
+		totalUsers, activeUsers, totalProducts      int64
+		totalOrders, pendingOrders, totalCategories int64
+		totalRoles, newUsersToday, newUsersThisWeek int64
+	)
 
-	activeUsers, err := s.dashboardRepo.CountActiveUsers(ctx)
-	if err != nil {
-		return nil, err
-	}
+	g, gctx := errgroup.WithContext(ctx)
 
-	totalProducts, err := s.dashboardRepo.CountTotalProducts(ctx)
-	if err != nil {
-		return nil, err
-	}
+	g.Go(func() (err error) { totalUsers, err = s.dashboardRepo.CountTotalUsers(gctx); return })
+	g.Go(func() (err error) { activeUsers, err = s.dashboardRepo.CountActiveUsers(gctx); return })
+	g.Go(func() (err error) { totalProducts, err = s.dashboardRepo.CountTotalProducts(gctx); return })
+	g.Go(func() (err error) { totalOrders, err = s.dashboardRepo.CountTotalOrders(gctx); return })
+	g.Go(func() (err error) { pendingOrders, err = s.dashboardRepo.CountPendingOrders(gctx); return })
+	g.Go(func() (err error) { totalCategories, err = s.dashboardRepo.CountTotalCategories(gctx); return })
+	g.Go(func() (err error) { totalRoles, err = s.dashboardRepo.CountTotalRoles(gctx); return })
+	g.Go(func() (err error) {
+		newUsersToday, err = s.dashboardRepo.GetNewUsersCount(gctx, time.Now().Truncate(24*time.Hour))
+		return
+	})
+	g.Go(func() (err error) {
+		newUsersThisWeek, err = s.dashboardRepo.GetNewUsersCount(gctx, time.Now().AddDate(0, 0, -7))
+		return
+	})
 
-	totalOrders, err := s.dashboardRepo.CountTotalOrders(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	pendingOrders, err := s.dashboardRepo.CountPendingOrders(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	totalCategories, err := s.dashboardRepo.CountTotalCategories(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	totalRoles, err := s.dashboardRepo.CountTotalRoles(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	today := time.Now().Truncate(24 * time.Hour)
-	newUsersToday, err := s.dashboardRepo.GetNewUsersCount(ctx, today)
-	if err != nil {
-		return nil, err
-	}
-
-	weekAgo := time.Now().AddDate(0, 0, -7)
-	newUsersThisWeek, err := s.dashboardRepo.GetNewUsersCount(ctx, weekAgo)
-	if err != nil {
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 
@@ -97,25 +88,20 @@ func (s *dashboardService) GetDashboardStats(ctx context.Context) (*models.Dashb
 }
 
 func (s *dashboardService) GetRevenueStats(ctx context.Context) (*models.RevenueStatsResponse, error) {
-	totalRevenue, err := s.dashboardRepo.GetTotalRevenue(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var totalRevenue, revenueToday, revenueThisMonth, revenueThisWeek float64
 
-	revenueToday, err := s.dashboardRepo.GetRevenueToday(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	revenueThisMonth, err := s.dashboardRepo.GetRevenueThisMonth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	weekAgo := time.Now().AddDate(0, 0, -7)
+	g, gctx := errgroup.WithContext(ctx)
 	now := time.Now()
-	revenueThisWeek, err := s.dashboardRepo.GetRevenueByPeriod(ctx, weekAgo, now)
-	if err != nil {
+
+	g.Go(func() (err error) { totalRevenue, err = s.dashboardRepo.GetTotalRevenue(gctx); return })
+	g.Go(func() (err error) { revenueToday, err = s.dashboardRepo.GetRevenueToday(gctx); return })
+	g.Go(func() (err error) { revenueThisMonth, err = s.dashboardRepo.GetRevenueThisMonth(gctx); return })
+	g.Go(func() (err error) {
+		revenueThisWeek, err = s.dashboardRepo.GetRevenueByPeriod(gctx, now.AddDate(0, 0, -7), now)
+		return
+	})
+
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 
@@ -128,18 +114,16 @@ func (s *dashboardService) GetRevenueStats(ctx context.Context) (*models.Revenue
 }
 
 func (s *dashboardService) GetOrderStats(ctx context.Context) (*models.OrderStatsResponse, error) {
-	totalOrders, err := s.dashboardRepo.CountTotalOrders(ctx)
-	if err != nil {
-		return nil, err
-	}
+	var totalOrders, pendingOrders int64
+	var ordersByStatus []models.OrderStatusCount
 
-	pendingOrders, err := s.dashboardRepo.CountPendingOrders(ctx)
-	if err != nil {
-		return nil, err
-	}
+	g, gctx := errgroup.WithContext(ctx)
 
-	ordersByStatus, err := s.dashboardRepo.GetOrdersByStatus(ctx)
-	if err != nil {
+	g.Go(func() (err error) { totalOrders, err = s.dashboardRepo.CountTotalOrders(gctx); return })
+	g.Go(func() (err error) { pendingOrders, err = s.dashboardRepo.CountPendingOrders(gctx); return })
+	g.Go(func() (err error) { ordersByStatus, err = s.dashboardRepo.GetOrdersByStatus(gctx); return })
+
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 
@@ -162,12 +146,10 @@ func (s *dashboardService) GetRecentOrders(ctx context.Context, limit int) (*mod
 		if order.Product.Name != "" {
 			productName = order.Product.Name
 		}
-
 		colorName := "Unknown Color"
 		if order.ColorVarian.Name != "" {
 			colorName = order.ColorVarian.Name
 		}
-
 		size := "Unknown Size"
 		if order.SizeVarian.Size != "" {
 			size = order.SizeVarian.Size
@@ -185,9 +167,7 @@ func (s *dashboardService) GetRecentOrders(ctx context.Context, limit int) (*mod
 		}
 	}
 
-	return &models.RecentOrdersResponse{
-		Orders: orderSummaries,
-	}, nil
+	return &models.RecentOrdersResponse{Orders: orderSummaries}, nil
 }
 
 func (s *dashboardService) GetTopProducts(ctx context.Context, limit int) (*models.TopProductsResponse, error) {
@@ -195,10 +175,7 @@ func (s *dashboardService) GetTopProducts(ctx context.Context, limit int) (*mode
 	if err != nil {
 		return nil, err
 	}
-
-	return &models.TopProductsResponse{
-		Products: products,
-	}, nil
+	return &models.TopProductsResponse{Products: products}, nil
 }
 
 func (s *dashboardService) GetLowStockProducts(ctx context.Context, threshold, limit int) (*models.LowStockProductsResponse, error) {
@@ -206,10 +183,7 @@ func (s *dashboardService) GetLowStockProducts(ctx context.Context, threshold, l
 	if err != nil {
 		return nil, err
 	}
-
-	return &models.LowStockProductsResponse{
-		Products: products,
-	}, nil
+	return &models.LowStockProductsResponse{Products: products}, nil
 }
 
 func (s *dashboardService) GetOrderAnalytics(ctx context.Context, days int) (*models.OrderAnalyticsResponse, error) {
@@ -265,6 +239,15 @@ func (s *dashboardService) GetUserGrowth(ctx context.Context, days int) (*models
 	}, nil
 }
 
+// GetSystemHealth implements DashboardService.
+//
+// NOTE ON BEHAVIOR: the original silently swallows errors from
+// CountActiveUsers/CountTotalOrders (an `if err == nil` guard, no else
+// branch) so a failing query just leaves that field at its zero value
+// instead of failing the whole health check. That swallow is left intact on
+// purpose — this is a status endpoint, and making it fail loudly would be a
+// functional change, not a quality one. Flagged in the report as worth a
+// real decision from you, not fixed silently here.
 func (s *dashboardService) GetSystemHealth(ctx context.Context) (*models.SystemHealthResponse, error) {
 	health := &models.SystemHealthResponse{
 		DatabaseStatus: "healthy",
@@ -275,13 +258,11 @@ func (s *dashboardService) GetSystemHealth(ctx context.Context) (*models.SystemH
 		health.DatabaseStatus = "unhealthy"
 	}
 
-	activeUsers, err := s.dashboardRepo.CountActiveUsers(ctx)
-	if err == nil {
+	if activeUsers, err := s.dashboardRepo.CountActiveUsers(ctx); err == nil {
 		health.ActiveUsers = activeUsers
 	}
 
-	totalOrders, err := s.dashboardRepo.CountTotalOrders(ctx)
-	if err == nil {
+	if totalOrders, err := s.dashboardRepo.CountTotalOrders(ctx); err == nil {
 		health.TotalRequests = totalOrders
 	}
 
@@ -302,7 +283,6 @@ func (s *dashboardService) GetRecentActivity(ctx context.Context, limit int) (*m
 		if activity.User.Username != "" {
 			username = activity.User.Username
 		}
-
 		if activity.User.FirstName != "" || activity.User.LastName != "" {
 			fullName = fmt.Sprintf("%s %s", activity.User.FirstName, activity.User.LastName)
 		}
@@ -319,7 +299,5 @@ func (s *dashboardService) GetRecentActivity(ctx context.Context, limit int) (*m
 		}
 	}
 
-	return &models.RecentActivityResponse{
-		Activities: activitySummaries,
-	}, nil
+	return &models.RecentActivityResponse{Activities: activitySummaries}, nil
 }

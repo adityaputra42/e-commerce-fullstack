@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -21,13 +20,11 @@ type AuthService interface {
 	LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error)
 	SignUp(req models.RegisterRequest) (*models.TokenResponse, error)
-	// ForgotPassword TIDAK mengembalikan token. Email (jika akun ditemukan)
-	// dikirim langsung ke pemilik akun lewat Mailer. Caller HTTP hanya perlu
-	// tahu bahwa permintaan sudah diproses, bukan isi tokennya.
 	ForgotPassword(req models.ForgotPasswordRequest) error
 	ResetPassword(req models.ResetPasswordRequest) error
 	RefreshToken(req models.RefreshTokenRequest) (*models.TokenResponse, error)
 }
+
 type AuthServiceImpl struct {
 	jwtService         *utils.JWTService
 	userRepo           repository.UserRepository
@@ -37,9 +34,14 @@ type AuthServiceImpl struct {
 	mailer             utils.Mailer
 }
 
-// loginAdmin implements [AuthService].
-func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, userAgent string) (*models.TokenResponse, error) {
-
+// authenticate holds the entire credential-check + last-login + activity-log
+// flow that LoginAdmin and SignIn used to duplicate line-for-line.
+//
+// requireAdmin=true reproduces LoginAdmin's extra role.Level < 3 gate.
+// Everything else (lookup, active check, password check, LastLoginAt bump,
+// activity log entry, all inside one DB transaction) is identical between
+// the two original functions, so it now lives in exactly one place.
+func (a *AuthServiceImpl) authenticate(req models.LoginRequest, ipAddress, userAgent string, requireAdmin bool) (*models.User, error) {
 	var userResult models.User
 
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
@@ -66,18 +68,18 @@ func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, 
 			return errors.New("invalid credentials")
 		}
 
-		// 🔐 ADMIN-ONLY CHECK (WAJIB)
-		role, err := a.roleRepo.FindById(userResult.RoleID)
-		if err != nil {
-			return errors.New("role not found")
+		if requireAdmin {
+			role, err := a.roleRepo.FindById(userResult.RoleID)
+			if err != nil {
+				return errors.New("role not found")
+			}
+			if role.Level < 3 {
+				return errors.New("unauthorized: admin only")
+			}
 		}
 
-		if role.Level < 3 {
-			return errors.New("unauthorized: admin only")
-		}
 		now := time.Now()
 		userResult.LastLoginAt = &now
-
 		if err := tx.Save(&userResult).Error; err != nil {
 			return err
 		}
@@ -90,7 +92,6 @@ func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, 
 			IPAddress: ipAddress,
 			UserAgent: userAgent,
 		}
-
 		if _, err := a.acitvityLogRepo.Create(activityLog, tx); err != nil {
 			return err
 		}
@@ -101,8 +102,25 @@ func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress string, 
 	if err != nil {
 		return nil, err
 	}
+	return &userResult, nil
+}
 
-	return a.generateTokenResponse(&userResult)
+// LoginAdmin implements AuthService.
+func (a *AuthServiceImpl) LoginAdmin(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error) {
+	user, err := a.authenticate(req, ipAddress, userAgent, true)
+	if err != nil {
+		return nil, err
+	}
+	return a.generateTokenResponse(user)
+}
+
+// SignIn implements AuthService.
+func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error) {
+	user, err := a.authenticate(req, ipAddress, userAgent, false)
+	if err != nil {
+		return nil, err
+	}
+	return a.generateTokenResponse(user)
 }
 
 // generateTokenResponse implements AuthService.
@@ -127,17 +145,14 @@ func (a *AuthServiceImpl) generateTokenResponse(user *models.User) (*models.Toke
 
 // ForgotPassword implements AuthService.
 //
-// PENTING: fungsi ini SENGAJA tidak pernah mengembalikan error yang membocorkan
-// apakah sebuah email terdaftar atau tidak (mencegah user enumeration), dan
-// TIDAK PERNAH mengembalikan token reset ke caller (mencegah account takeover
-// tanpa autentikasi). Token hanya dikirim ke alamat email pemilik akun.
+// Deliberately never reveals whether an email is registered (prevents user
+// enumeration) and never returns the reset token to the caller (prevents
+// unauthenticated account takeover). The token only ever leaves the process
+// via the email sent to the account owner.
 func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error {
-
 	user, err := a.userRepo.FindByEmail(req.Email)
 	if err != nil {
-		// Email tidak ditemukan: diam-diam anggap sukses. Caller (handler)
-		// akan selalu menampilkan pesan generik yang sama ke client.
-		log.Printf("Forgot-password diminta untuk email yang tidak terdaftar: %s", req.Email)
+		log.Printf("forgot-password requested for unregistered email: %s", req.Email)
 		return nil
 	}
 
@@ -152,7 +167,6 @@ func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error
 		Token:     tokenStr,
 		ExpiresAt: time.Now().Add(1 * time.Hour),
 	}
-
 	if _, err := a.passwordRepository.Create(&resetToken); err != nil {
 		return err
 	}
@@ -163,11 +177,11 @@ func (a *AuthServiceImpl) ForgotPassword(req models.ForgotPasswordRequest) error
 	}
 
 	if err := a.mailer.SendPasswordResetEmail(user.Email, fullName, tokenStr); err != nil {
-		// Token sudah tersimpan di DB, tapi email gagal terkirim. Ini harus
-		// tetap dianggap error oleh caller supaya bisa dimonitor/di-retry —
-		// tapi tetap TIDAK boleh membocorkan token ke response.
-		log.Printf("gagal mengirim email reset password ke %s: %v", user.Email, err)
-		return fmt.Errorf("gagal mengirim email reset password")
+		// Token is already persisted, but the email failed to send. This
+		// must still surface as an error to the caller for monitoring/retry
+		// purposes — but the token itself must never leak into the response.
+		log.Printf("failed to send password reset email to %s: %v", user.Email, err)
+		return fmt.Errorf("failed to send password reset email")
 	}
 
 	return nil
@@ -193,8 +207,14 @@ func (a *AuthServiceImpl) RefreshToken(req models.RefreshTokenRequest) (*models.
 }
 
 // ResetPassword implements AuthService.
+//
+// Uses utils.HashPassword (bcrypt under the hood, same as SignUp) instead of
+// calling bcrypt.GenerateFromPassword directly, so there is exactly one
+// place in the codebase that decides the hashing algorithm/cost. If that
+// ever needs to change (e.g. bumping bcrypt cost, or moving to argon2), it
+// changes in one function, not in every call site that happened to hash a
+// password.
 func (a *AuthServiceImpl) ResetPassword(req models.ResetPasswordRequest) error {
-
 	resetToken, err := a.passwordRepository.FindByToken(req.Token)
 	if err != nil {
 		return errors.New("invalid or expired token")
@@ -205,90 +225,22 @@ func (a *AuthServiceImpl) ResetPassword(req models.ResetPasswordRequest) error {
 		return errors.New("user not found")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashPassword(req.NewPassword)
 	if err != nil {
 		return err
 	}
 
-	user.PasswordHash = string(hashedPassword)
-	_, err = a.userRepo.Update(&user)
-	if err != nil {
+	user.PasswordHash = hashedPassword
+	if _, err := a.userRepo.Update(&user); err != nil {
 		return err
 	}
 
-	err = a.passwordRepository.Delete(&resetToken)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// SignIn implements AuthService.
-func (a *AuthServiceImpl) SignIn(req models.LoginRequest, ipAddress, userAgent string) (*models.TokenResponse, error) {
-
-	var userResult models.User
-
-	err := database.DB.Transaction(func(tx *gorm.DB) error {
-		var err error
-
-		userResult, err = a.userRepo.FindByUsernameOrEmail(req.Email)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("invalid credentials")
-			}
-			return err
-		}
-
-		if userResult.ID == 0 {
-			log.Printf("❌ LOGIN ERROR: user.ID is 0 for email: %s", req.Email)
-			return errors.New("invalid credentials")
-		}
-
-		if !userResult.IsActive {
-			return errors.New("account is deactivated")
-		}
-
-		if err := utils.CheckPassword(req.Password, userResult.PasswordHash); err != nil {
-			return errors.New("invalid credentials")
-		}
-
-		now := time.Now()
-		userResult.LastLoginAt = &now
-
-		if err := tx.Save(&userResult).Error; err != nil {
-			return err
-		}
-
-		activityLog := models.ActivityLog{
-			UserID:    userResult.ID,
-			Action:    "login",
-			Resource:  "auth",
-			Details:   "User logged in successfully",
-			IPAddress: ipAddress,
-			UserAgent: userAgent,
-		}
-
-		if _, err := a.acitvityLogRepo.Create(activityLog, tx); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return a.generateTokenResponse(&userResult)
+	return a.passwordRepository.Delete(&resetToken)
 }
 
 // SignUp implements AuthService.
 func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenResponse, error) {
-
 	_, err := a.userRepo.FindByEmail(req.Email)
-
 	if err == nil {
 		return nil, errors.New("user with this email already exists")
 	}
@@ -298,10 +250,9 @@ func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenRespo
 		return nil, err
 	}
 
-	// PENTING: nama role di sini HARUS sama persis dengan yang dibuat di
-	// database/seeder.go (seedRoles). Role bernama "User" tidak pernah ada;
-	// role default untuk pelanggan baru adalah "customer". Ketidakcocokan ini
-	// sebelumnya membuat SETIAP percobaan registrasi selalu gagal.
+	// Role name here MUST match database/seeder.go (seedRoles) exactly.
+	// A role literally named "User" never exists; the default role for new
+	// customers is "customer".
 	defaultRole, err := a.roleRepo.FindByName(utils.RoleCustomer)
 	if err != nil {
 		return nil, errors.New("default role not found")
@@ -318,7 +269,6 @@ func (a *AuthServiceImpl) SignUp(req models.RegisterRequest) (*models.TokenRespo
 	}
 
 	userResult, err := a.userRepo.Create(user)
-
 	if err != nil {
 		return nil, err
 	}
