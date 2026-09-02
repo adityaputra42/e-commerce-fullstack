@@ -300,14 +300,14 @@ func seedDefaultAdmin(cfg *config.Config) error {
 
 func seedCategories() error {
 	categories := []models.Category{
-		{Name: "Gamis", Icon: "https://example.com/icons/gamis.png"},
-		{Name: "Hijab", Icon: "https://example.com/icons/hijab.png"},
-		{Name: "Kemeja Wanita", Icon: "https://example.com/icons/kemeja-wanita.png"},
-		{Name: "Dress", Icon: "https://example.com/icons/dress.png"},
-		{Name: "Tunik", Icon: "https://example.com/icons/tunik.png"},
-		{Name: "Celana Wanita", Icon: "https://example.com/icons/celana.png"},
-		{Name: "Aksesoris Muslim", Icon: "https://example.com/icons/aksesoris.png"},
-		{Name: "Outer & Cardigan", Icon: "https://example.com/icons/outer.png"},
+		{Name: "Gamis", Icon: "https://i.pinimg.com/736x/97/12/0c/97120c508e5317aed7d3fd97ebd0a9e0.jpg"},
+		{Name: "Hijab", Icon: "https://i.pinimg.com/736x/f5/dc/fc/f5dcfc999ca7f8cce1f4c3629bc6603e.jpg"},
+		{Name: "Kemeja Wanita", Icon: "https://i.pinimg.com/1200x/03/7e/56/037e568fe9716c75c1f452f3a3ac6026.jpg"},
+		{Name: "Dress", Icon: "https://i.pinimg.com/736x/f1/dd/c0/f1ddc09200896576c749923ea72465eb.jpg"},
+		{Name: "Tunik", Icon: "https://i.pinimg.com/736x/48/e4/d7/48e4d7409a0706f53bdb8e3fc115e1bb.jpg"},
+		{Name: "Celana Wanita", Icon: "https://i.pinimg.com/1200x/e9/c3/e4/e9c3e4411f0746c3501ebd7ce841b7d0.jpg"},
+		{Name: "Aksesoris Muslim", Icon: "https://i.pinimg.com/1200x/4a/41/dd/4a41ddc593c839dab0d64ebe1bc7ebe2.jpg"},
+		{Name: "Outer & Cardigan", Icon: "https://i.pinimg.com/1200x/93/3a/e6/933ae6a11b24fa60949509606b1d0d88.jpg"},
 	}
 
 	for _, category := range categories {
@@ -461,7 +461,7 @@ func seedProducts() error {
 			Description: "Hijab voal import premium, bahan lembut dan adem, tidak licin. Ukuran 115x115cm",
 			Price:       45000,
 			CategoryID:  hijabCategory.ID,
-			Images:      "https://www.umamascarves.co.id/wp-content/uploads/2024/04/Cover-4.jpg",
+			Images:      "https://dynamic.zacdn.com/LK-sg01xmNZUQdODut3fh0GHFPM=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/two-mix-1786-7718404-1.jpg",
 			Rating:      4.7,
 		}
 		if err := DB.Create(&product3).Error; err != nil {
@@ -477,7 +477,7 @@ func seedProducts() error {
 			{"White", "#FFFFFF", "https://img.lazcdn.com/g/ff/kf/S7df725e9786e4362bd5b61e545435c15b.jpg_720x720q80.jpg"},
 			{"Navy", "#000080", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/102/MTA-174474074/authentism_kerudung-segi-empat-polos-voal-ultrafine-premium-superfine-hijab-authentism-rachita-voal_full02.jpg"},
 			{"Maroon", "#800000", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/112/MTA-179085936/alya-hijab-by-naja_adzana-voal-segiempat-alyahijabbynaja_full07.jpg"},
-			{"Dusty Pink", "#DCAE96", "https://www.hijabwanitacantik.com/cdn/shop/files/GalaxySky_aca3a48a-d4c6-4c94-ac05-ce6ddaec3311_grande.jpg?v=1756709659"},
+			{"Dusty Pink", "#DCAE96", "https://img.lazcdn.com/g/ff/kf/S53581a7b4c1746ffb9f47b5fc312ee70x.jpg_720x720q80.jpg"},
 			{"Milo", "#C19A6B", "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-148317862/lozy_hijab_lozy_hijab_-_kirana_paris_plain_japan_milo_full01_e8k12c2d.jpg"},
 			{"Army Green", "#4B5320", "https://lozy.id/cdn/shop/files/SQUARE21_9eb64f6e-a8fd-40fa-83c3-38f06670727b_800x.jpg?v=1710404451"},
 			{"Chocolate", "#D2691E", "https://img.id.my-best.com/product_images/7654c5bac371cbcc17af8ae3923368c4.png?ixlib=rails-4.3.1&q=70&lossless=0&w=800&h=800&fit=clip&s=36308e5f425dbea19cd5f7b9ba694fe2"},

@@ -6,9 +6,6 @@ import { ArrowRight, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { categoryService, type Category } from '@/services/api';
 
-// A small, fixed palette so category cards don't all look identical when a
-// category has no icon image set. Cycled by index, not random, so the page
-// looks the same on every reload instead of shuffling on the user.
 const FALLBACK_GRADIENTS = [
   'from-teal-500 to-emerald-600',
   'from-rose-500 to-orange-500',
@@ -35,7 +32,7 @@ export default function CollectionsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-12 pb-24">
       <div className="container mx-auto px-6">
         <div className="mb-16 space-y-4">
           <div className="flex items-center gap-2 text-primary">
@@ -53,17 +50,17 @@ export default function CollectionsPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] animate-pulse" />
+              <div key={i} className="aspect-video bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
             ))}
           </div>
         ) : error ? (
-          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800">
             <p className="text-slate-400 font-bold uppercase tracking-widest italic">
               Couldn't load collections right now.
             </p>
           </div>
         ) : categories.length === 0 ? (
-          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800">
             <p className="text-slate-400 font-bold uppercase tracking-widest italic">
               No collections have been added yet.
             </p>
@@ -80,7 +77,7 @@ export default function CollectionsPage() {
               >
                 <Link
                   href={`/shop?category_id=${category.id}`}
-                  className="group relative flex flex-col justify-end aspect-video rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-shadow"
+                  className="group relative flex flex-col justify-end aspect-video rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow"
                 >
                   {category.icon ? (
                     <img

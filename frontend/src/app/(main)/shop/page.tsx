@@ -105,7 +105,7 @@ function ShopContent() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-12 pb-24">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="mb-12 space-y-4">
@@ -127,14 +127,14 @@ function ShopContent() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search products..."
-              className="w-full h-14 pl-12 pr-4 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-2xl outline-none font-medium text-sm transition-colors"
+              className="w-full h-14 pl-12 pr-4 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-md outline-none font-medium text-sm transition-colors"
             />
           </form>
 
           <button
             type="button"
             onClick={() => setIsFilterOpen((v) => !v)}
-            className="md:hidden flex items-center justify-center gap-2 h-14 px-6 bg-slate-900 text-white rounded-2xl text-sm font-bold"
+            className="md:hidden flex items-center justify-center gap-2 h-14 px-6 bg-slate-900 text-white rounded-md text-sm font-bold"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
@@ -144,7 +144,7 @@ function ShopContent() {
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="h-14 px-5 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-2xl outline-none font-bold text-sm text-slate-700 dark:text-slate-200 min-w-[10rem]"
+              className="h-14 px-5 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-md outline-none font-bold text-sm text-slate-700 dark:text-slate-200 min-w-40"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -157,7 +157,7 @@ function ShopContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="h-14 px-5 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-2xl outline-none font-bold text-sm text-slate-700 dark:text-slate-200 min-w-[9rem]"
+              className="h-14 px-5 bg-slate-50 dark:bg-slate-900 border-2 border-transparent focus:border-teal-500 rounded-md outline-none font-bold text-sm text-slate-700 dark:text-slate-200 min-w-36"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -172,12 +172,12 @@ function ShopContent() {
           <div className="flex items-center gap-3 mb-8">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active filters</span>
             {search && (
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full text-xs font-bold">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-md text-xs font-bold">
                 "{search}"
               </span>
             )}
             {activeCategoryName && (
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-full text-xs font-bold">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-md text-xs font-bold">
                 {activeCategoryName}
               </span>
             )}
@@ -199,7 +199,7 @@ function ShopContent() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div className="py-24 text-center bg-slate-50 dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800">
             <p className="text-slate-400 font-bold uppercase tracking-widest italic">
               No products match these filters.
             </p>
@@ -217,7 +217,7 @@ function ShopContent() {
                 <button
                   onClick={() => fetchProducts(page + 1, true)}
                   disabled={isLoadingMore}
-                  className="flex items-center gap-3 h-14 px-10 bg-slate-900 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-3 h-14 px-10 bg-slate-900 text-white rounded-md text-sm font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50"
                 >
                   {isLoadingMore ? 'Loading...' : 'Load More'}
                   <ChevronRight className="w-4 h-4" />

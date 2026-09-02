@@ -89,7 +89,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button type="submit" disabled={loading} className="min-w-[120px]">
+            <Button type="submit" disabled={loading} className="min-w-30">
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>

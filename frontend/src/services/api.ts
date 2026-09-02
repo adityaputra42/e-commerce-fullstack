@@ -276,6 +276,9 @@ export interface Category {
   icon: string;
 }
 
+// categoryService mirrors productService's shape on purpose — one
+// convention for "call the backend, unwrap `.data.data`, fall back to
+// `.data`" instead of every page inventing its own unwrapping logic.
 export const categoryService = {
   getAll: async (): Promise<Category[]> => {
     const response = await api.get('/categories');

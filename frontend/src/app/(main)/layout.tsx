@@ -6,10 +6,10 @@ export default function MainLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20">
+      <main className="min-h-screen pt-16 sm:pt-25">
         {children}
       </main>
       <Footer />

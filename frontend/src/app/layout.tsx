@@ -10,8 +10,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "StoreX | Premium Lifestyle E-Commerce",
-  description: "Discover premium fashion and lifestyle products curated with style and quality.",
+  title: "Barrakallah Hijab Store | Modest Fashion, Thoughtfully Made",
+  description: "Shop hijabs, abayas, and modest wear crafted with quality materials and honest pricing.",
 };
 
 export default function RootLayout({
